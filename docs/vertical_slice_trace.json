@@ -1,0 +1,250 @@
+{
+  "title": "Autonomous Quantum Self-Healing Vertical Slice Execution Trace",
+  "timestamp": "2026-11-02 16:36:43",
+  "experiment_id": "exp_vertical_slice_demo",
+  "dataset": "moons",
+  "num_qubits": 2,
+  "num_layers": 2,
+  "failure_injected": "lr_misconfiguration",
+  "recovery_executed": true,
+  "recovery_summary": {
+    "actual_reward": 0.15594259880864556,
+    "predicted_reward": 0.13377893711214578,
+    "prediction_error": 0.022163661696499776,
+    "was_rolled_back": false
+  },
+  "memory_episodes_count": 1,
+  "trace": [
+    {
+      "step": 1,
+      "phase": "baseline_training",
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.7606107469416022,
+      "val_loss": 0.7351077486010521,
+      "val_accuracy": 0.5166666666666667,
+      "grad_norm": 0.5642543451741311
+    },
+    {
+      "step": 2,
+      "phase": "baseline_training",
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.7166814337700446,
+      "val_loss": 0.683599578992911,
+      "val_accuracy": 0.5333333333333333,
+      "grad_norm": 0.5197951435447808
+    },
+    {
+      "step": 3,
+      "phase": "baseline_training",
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.6773013179711191,
+      "val_loss": 0.63707959140519,
+      "val_accuracy": 0.6,
+      "grad_norm": 0.4790692564868784
+    },
+    {
+      "step": 4,
+      "phase": "baseline_training",
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.642295906318405,
+      "val_loss": 0.5953217752875355,
+      "val_accuracy": 0.6,
+      "grad_norm": 0.4421165076152284
+    },
+    {
+      "step": 5,
+      "phase": "baseline_training",
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.611430860668163,
+      "val_loss": 0.5580745963286755,
+      "val_accuracy": 0.6333333333333333,
+      "grad_norm": 0.408850606738548
+    },
+    {
+      "step": 6,
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.5844132156562162,
+      "val_loss": 0.5250480720855224,
+      "val_accuracy": 0.6666666666666666,
+      "grad_norm": 0.379014609039088,
+      "anomalies": []
+    },
+    {
+      "step": 7,
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.5932865186553256,
+      "val_loss": 0.5053632991996434,
+      "val_accuracy": 0.8,
+      "grad_norm": 0.6178506704810345,
+      "anomalies": []
+    },
+    {
+      "step": 8,
+      "state": "CONFIDENCE_GATE_HOLD",
+      "loss": 0.8499559708037194,
+      "val_loss": 0.714014206359163,
+      "val_accuracy": 0.7166666666666667,
+      "grad_norm": 1.3163504050228159,
+      "anomalies": [
+        "lr_misconfiguration",
+        "noise_degradation"
+      ],
+      "diagnosis": {
+        "primary_cause": "lr_misconfiguration",
+        "confidence": 0.5670573694957475,
+        "gate_cleared": false
+      }
+    },
+    {
+      "step": 9,
+      "state": "VALIDATING_REPAIR",
+      "loss": 1.0386677324390086,
+      "val_loss": 1.0455485961851634,
+      "val_accuracy": 0.3333333333333333,
+      "grad_norm": 0.7857385905733586,
+      "anomalies": [
+        "lr_misconfiguration",
+        "noise_degradation"
+      ],
+      "diagnosis": {
+        "primary_cause": "noise_degradation",
+        "confidence": 0.8586149848327908,
+        "gate_cleared": true
+      },
+      "bandit_decision": {
+        "selected_arm": "modify_feature_map",
+        "sampled_reward": -1.140104637648046,
+        "eligible_arms": [
+          "reduce_circuit_depth",
+          "modify_feature_map"
+        ]
+      },
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_9_1793617603105",
+        "repair_arm": "modify_feature_map",
+        "status": "VALIDATING",
+        "loss_pre": 1.0386677324390086,
+        "loss_post": 0.0
+      }
+    },
+    {
+      "step": 10,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.6950725861615841,
+      "val_loss": 0.6962805294543194,
+      "val_accuracy": 0.4666666666666667,
+      "grad_norm": 0.16109381502050132,
+      "anomalies": [],
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_9_1793617603105",
+        "repair_arm": "modify_feature_map",
+        "status": "VALIDATING",
+        "loss_pre": 1.0386677324390086,
+        "loss_post": 0.0
+      }
+    },
+    {
+      "step": 11,
+      "state": "VALIDATING_REPAIR",
+      "loss": 1.0599750846796192,
+      "val_loss": 1.0200425630851784,
+      "val_accuracy": 0.2833333333333333,
+      "grad_norm": 0.5289586467300187,
+      "anomalies": [],
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_9_1793617603105",
+        "repair_arm": "modify_feature_map",
+        "status": "VALIDATING",
+        "loss_pre": 1.0386677324390086,
+        "loss_post": 0.0
+      }
+    },
+    {
+      "step": 12,
+      "state": "COMMITTED",
+      "loss": 0.6791780819951604,
+      "val_loss": 0.7022436317846368,
+      "val_accuracy": 0.5833333333333334,
+      "grad_norm": 0.09708637970032595,
+      "anomalies": [],
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_9_1793617603105",
+        "repair_arm": "modify_feature_map",
+        "status": "COMMITTED",
+        "loss_pre": 1.0386677324390086,
+        "loss_post": 0.6791780819951604
+      },
+      "evaluation": {
+        "actual_reward": 0.15594259880864556,
+        "predicted_reward": 0.13377893711214578,
+        "prediction_error": 0.022163661696499776,
+        "was_rolled_back": false
+      }
+    },
+    {
+      "step": 13,
+      "state": "VALIDATING_REPAIR",
+      "loss": 1.139527553778005,
+      "val_loss": 1.1038338116171238,
+      "val_accuracy": 0.38333333333333336,
+      "grad_norm": 0.3928738977377706,
+      "anomalies": [
+        "lr_misconfiguration",
+        "noise_degradation"
+      ],
+      "diagnosis": {
+        "primary_cause": "noise_degradation",
+        "confidence": 0.8074503444155462,
+        "gate_cleared": true
+      },
+      "bandit_decision": {
+        "selected_arm": "perform_warm_restart",
+        "sampled_reward": -0.04447186568540423,
+        "eligible_arms": [
+          "reduce_circuit_depth",
+          "apply_noise_mitigation",
+          "perform_warm_restart"
+        ]
+      },
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_13_1793617603646",
+        "repair_arm": "perform_warm_restart",
+        "status": "VALIDATING",
+        "loss_pre": 1.139527553778005,
+        "loss_post": 0.0
+      }
+    },
+    {
+      "step": 14,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.8011468832485351,
+      "val_loss": 0.813226295406941,
+      "val_accuracy": 0.4166666666666667,
+      "grad_norm": 0.31617088667575755,
+      "anomalies": [],
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_13_1793617603646",
+        "repair_arm": "perform_warm_restart",
+        "status": "VALIDATING",
+        "loss_pre": 1.139527553778005,
+        "loss_post": 0.0
+      }
+    },
+    {
+      "step": 15,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.6592813897351604,
+      "val_loss": 0.6668043821639725,
+      "val_accuracy": 0.65,
+      "grad_norm": 0.20424146086723544,
+      "anomalies": [],
+      "deployment": {
+        "deployment_id": "dep_exp_vertical_slice_demo_13_1793617603646",
+        "repair_arm": "perform_warm_restart",
+        "status": "VALIDATING",
+        "loss_pre": 1.139527553778005,
+        "loss_post": 0.0
+      }
+    }
+  ]
+}

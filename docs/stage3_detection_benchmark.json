@@ -1,0 +1,58 @@
+{
+  "nominal_evaluation": {
+    "steps_evaluated": 45,
+    "confirmed_fps": 0,
+    "gate_cleared_fps": 0,
+    "false_positive_rate": 0.0
+  },
+  "categories": {
+    "barren_plateau": {
+      "trials": 5,
+      "detected": 5,
+      "detection_recall": 1.0,
+      "diagnosis_accuracy": 1.0,
+      "gate_cleared_rate": 1.0,
+      "mean_confidence": 0.9995613778190915
+    },
+    "lr_misconfiguration": {
+      "trials": 5,
+      "detected": 5,
+      "detection_recall": 1.0,
+      "diagnosis_accuracy": 0.8,
+      "gate_cleared_rate": 0.6,
+      "mean_confidence": 0.6799363236479314
+    },
+    "optimizer_instability": {
+      "trials": 5,
+      "detected": 4,
+      "detection_recall": 0.8,
+      "diagnosis_accuracy": 0.6,
+      "gate_cleared_rate": 0.6,
+      "mean_confidence": 0.5053866427257685
+    },
+    "training_divergence": {
+      "trials": 5,
+      "detected": 5,
+      "detection_recall": 1.0,
+      "diagnosis_accuracy": 1.0,
+      "gate_cleared_rate": 1.0,
+      "mean_confidence": 0.99999985231859
+    },
+    "persistent_plateau": {
+      "trials": 5,
+      "detected": 5,
+      "detection_recall": 1.0,
+      "diagnosis_accuracy": 1.0,
+      "gate_cleared_rate": 1.0,
+      "mean_confidence": 0.9785713287703915
+    },
+    "noise_degradation": {
+      "trials": 5,
+      "detected": 5,
+      "detection_recall": 1.0,
+      "diagnosis_accuracy": 1.0,
+      "gate_cleared_rate": 1.0,
+      "mean_confidence": 0.9975530983006434
+    }
+  }
+}
