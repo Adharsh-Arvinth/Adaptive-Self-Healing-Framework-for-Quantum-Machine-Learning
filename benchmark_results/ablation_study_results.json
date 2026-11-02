@@ -1,0 +1,827 @@
+{
+  "metadata": {
+    "seeds": [
+      42,
+      101,
+      202,
+      303,
+      404,
+      505,
+      606,
+      707,
+      808,
+      909
+    ],
+    "configurations": [
+      "full_framework",
+      "no_digital_twin",
+      "no_episodic_memory",
+      "no_safety_filter"
+    ],
+    "episodes_per_seed": 300
+  },
+  "summary": {
+    "full_framework": {
+      "success_rate_mean": 0.23000000000000004,
+      "success_rate_std": 0.04830458915396479,
+      "success_rate_ci95": [
+        0.19544737926003303,
+        0.26455262073996705
+      ],
+      "rollback_rate_mean": 0.09333333333333334,
+      "rollback_rate_std": 0.03442651863295482,
+      "rollback_rate_ci95": [
+        0.06870779645255312,
+        0.11795887021411355
+      ],
+      "latency_mean": 7.446666666666667,
+      "latency_std": 0.5782476721702997,
+      "cost_mean": 7.446666666666667,
+      "cost_std": 0.5782476721702997
+    },
+    "no_digital_twin": {
+      "success_rate_mean": 0.23666666666666666,
+      "success_rate_std": 0.048304589153964794,
+      "success_rate_ci95": [
+        0.20211404592669963,
+        0.2712192874066337
+      ],
+      "rollback_rate_mean": 0.10333333333333335,
+      "rollback_rate_std": 0.055444333110553995,
+      "rollback_rate_ci95": [
+        0.06367360228701047,
+        0.14299306437965623
+      ],
+      "latency_mean": 7.31,
+      "latency_std": 0.48484438129576607,
+      "cost_mean": 7.31,
+      "cost_std": 0.48484438129576607
+    },
+    "no_episodic_memory": {
+      "success_rate_mean": 0.22333333333333333,
+      "success_rate_std": 0.022498285257018424,
+      "success_rate_ci95": [
+        0.20724014774991878,
+        0.23942651891674788
+      ],
+      "rollback_rate_mean": 0.1,
+      "rollback_rate_std": 0.02721655269759087,
+      "rollback_rate_ci95": [
+        0.08053180371306407,
+        0.11946819628693595
+      ],
+      "latency_mean": 7.453333333333333,
+      "latency_std": 0.3381868867510543,
+      "cost_mean": 7.453333333333333,
+      "cost_std": 0.3381868867510543
+    },
+    "no_safety_filter": {
+      "success_rate_mean": 0.5233333333333332,
+      "success_rate_std": 0.1721684503869451,
+      "success_rate_ci95": [
+        0.40017999999999987,
+        0.6464866666666665
+      ],
+      "rollback_rate_mean": 0.34,
+      "rollback_rate_std": 0.17971170328138425,
+      "rollback_rate_ci95": [
+        0.21145092350908679,
+        0.46854907649091326
+      ],
+      "latency_mean": 3.013333333333333,
+      "latency_std": 1.460948448909259,
+      "cost_mean": 3.013333333333333,
+      "cost_std": 1.460948448909259
+    }
+  },
+  "detailed_results": {
+    "full_framework": [
+      {
+        "config": "full_framework",
+        "seed": 42,
+        "success_rate": 0.3333333333333333,
+        "rollback_rate": 0.16666666666666666,
+        "mean_detection_delay": 5.2,
+        "mean_recovery_latency": 6.033333333333333,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 6.033333333333333,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 0.6,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 101,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 202,
+        "success_rate": 0.26666666666666666,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 303,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.4,
+        "mean_recovery_latency": 7.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 404,
+        "success_rate": 0.2,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.7,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.7,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 505,
+        "success_rate": 0.16666666666666666,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.9,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 606,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.4,
+        "mean_recovery_latency": 7.433333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.433333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 707,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 4.3,
+        "mean_recovery_latency": 7.033333333333333,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.033333333333333,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 808,
+        "success_rate": 0.26666666666666666,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "full_framework",
+        "seed": 909,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.9,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      }
+    ],
+    "no_digital_twin": [
+      {
+        "config": "no_digital_twin",
+        "seed": 42,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.16666666666666666,
+        "mean_detection_delay": 4.3,
+        "mean_recovery_latency": 6.8,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 6.8,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.4
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 101,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.03333333333333333,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.9,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 202,
+        "success_rate": 0.13333333333333333,
+        "rollback_rate": 0.2,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.0,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 303,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.4,
+        "mean_recovery_latency": 7.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 404,
+        "success_rate": 0.3,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.133333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.133333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 505,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.03333333333333333,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.9,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 606,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.4,
+        "mean_recovery_latency": 7.433333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.433333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 707,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 4.0,
+        "mean_recovery_latency": 7.333333333333333,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.333333333333333,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 808,
+        "success_rate": 0.26666666666666666,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 4.3,
+        "mean_recovery_latency": 6.766666666666667,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 6.766666666666667,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_digital_twin",
+        "seed": 909,
+        "success_rate": 0.3,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 4.0,
+        "mean_recovery_latency": 6.6,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 6.6,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.4
+        }
+      }
+    ],
+    "no_episodic_memory": [
+      {
+        "config": "no_episodic_memory",
+        "seed": 42,
+        "success_rate": 0.2,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 101,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 202,
+        "success_rate": 0.26666666666666666,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 6.833333333333333,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 6.833333333333333,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 303,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.6,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.6,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 404,
+        "success_rate": 0.2,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.7,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.7,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 505,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.7,
+        "mean_recovery_latency": 7.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 606,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.4,
+        "mean_recovery_latency": 7.433333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.433333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.0
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 707,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.13333333333333333,
+        "mean_detection_delay": 4.3,
+        "mean_recovery_latency": 7.033333333333333,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.033333333333333,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 808,
+        "success_rate": 0.23333333333333334,
+        "rollback_rate": 0.1,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.433333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.433333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_episodic_memory",
+        "seed": 909,
+        "success_rate": 0.2,
+        "rollback_rate": 0.06666666666666667,
+        "mean_detection_delay": 3.1,
+        "mean_recovery_latency": 7.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 7.9,
+        "per_class_success": {
+          "barren_plateau": 0.2,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      }
+    ],
+    "no_safety_filter": [
+      {
+        "config": "no_safety_filter",
+        "seed": 42,
+        "success_rate": 0.5,
+        "rollback_rate": 0.2,
+        "mean_detection_delay": 7.0,
+        "mean_recovery_latency": 4.366666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 4.366666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.8,
+          "persistent_plateau": 0.8,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.6,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.4
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 101,
+        "success_rate": 0.2,
+        "rollback_rate": 0.8,
+        "mean_detection_delay": 9.7,
+        "mean_recovery_latency": 1.3666666666666667,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 1.3666666666666667,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.2,
+          "lr_misconfiguration": 0.2,
+          "optimizer_instability": 0.2,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 202,
+        "success_rate": 0.6666666666666666,
+        "rollback_rate": 0.3333333333333333,
+        "mean_detection_delay": 9.7,
+        "mean_recovery_latency": 1.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 1.9,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 0.6,
+          "lr_misconfiguration": 1.0,
+          "optimizer_instability": 0.8,
+          "training_divergence": 0.0,
+          "noise_degradation": 1.0
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 303,
+        "success_rate": 0.7333333333333333,
+        "rollback_rate": 0.26666666666666666,
+        "mean_detection_delay": 10.0,
+        "mean_recovery_latency": 1.8666666666666667,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 1.8666666666666667,
+        "per_class_success": {
+          "barren_plateau": 0.8,
+          "persistent_plateau": 0.8,
+          "lr_misconfiguration": 1.0,
+          "optimizer_instability": 1.0,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.8
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 404,
+        "success_rate": 0.6,
+        "rollback_rate": 0.4,
+        "mean_detection_delay": 8.2,
+        "mean_recovery_latency": 2.2,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 2.2,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 0.6,
+          "lr_misconfiguration": 0.6,
+          "optimizer_instability": 1.0,
+          "training_divergence": 0.2,
+          "noise_degradation": 0.6
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 505,
+        "success_rate": 0.5,
+        "rollback_rate": 0.16666666666666666,
+        "mean_detection_delay": 6.7,
+        "mean_recovery_latency": 4.633333333333334,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 4.633333333333334,
+        "per_class_success": {
+          "barren_plateau": 0.8,
+          "persistent_plateau": 0.8,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.6,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.4
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 606,
+        "success_rate": 0.43333333333333335,
+        "rollback_rate": 0.2,
+        "mean_detection_delay": 6.1,
+        "mean_recovery_latency": 4.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 4.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.6,
+          "optimizer_instability": 0.6,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.4
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 707,
+        "success_rate": 0.3,
+        "rollback_rate": 0.3333333333333333,
+        "mean_detection_delay": 6.7,
+        "mean_recovery_latency": 4.866666666666666,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 4.866666666666666,
+        "per_class_success": {
+          "barren_plateau": 0.4,
+          "persistent_plateau": 0.4,
+          "lr_misconfiguration": 0.4,
+          "optimizer_instability": 0.4,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.2
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 808,
+        "success_rate": 0.6666666666666666,
+        "rollback_rate": 0.3333333333333333,
+        "mean_detection_delay": 8.5,
+        "mean_recovery_latency": 2.1666666666666665,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 2.1666666666666665,
+        "per_class_success": {
+          "barren_plateau": 0.6,
+          "persistent_plateau": 1.0,
+          "lr_misconfiguration": 0.8,
+          "optimizer_instability": 0.8,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.8
+        }
+      },
+      {
+        "config": "no_safety_filter",
+        "seed": 909,
+        "success_rate": 0.6333333333333333,
+        "rollback_rate": 0.36666666666666664,
+        "mean_detection_delay": 9.7,
+        "mean_recovery_latency": 1.9,
+        "mean_depth_overhead": 0.0,
+        "mean_eval_cost": 1.9,
+        "per_class_success": {
+          "barren_plateau": 0.8,
+          "persistent_plateau": 0.8,
+          "lr_misconfiguration": 0.8,
+          "optimizer_instability": 0.6,
+          "training_divergence": 0.0,
+          "noise_degradation": 0.8
+        }
+      }
+    ]
+  }
+}

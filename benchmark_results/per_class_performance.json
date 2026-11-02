@@ -1,0 +1,243 @@
+{
+  "metadata": {
+    "seeds": [
+      42,
+      101,
+      202,
+      303,
+      404,
+      505,
+      606,
+      707,
+      808,
+      909
+    ],
+    "classes": [
+      "barren_plateau",
+      "persistent_plateau",
+      "lr_misconfiguration",
+      "optimizer_instability",
+      "training_divergence",
+      "noise_degradation"
+    ],
+    "arms": [
+      "change_optimizer",
+      "reduce_circuit_depth",
+      "modify_feature_map",
+      "adjust_learning_rate",
+      "apply_noise_mitigation",
+      "perform_warm_restart"
+    ],
+    "total_episodes": 300
+  },
+  "classification_report": {
+    "barren_plateau": {
+      "precision": 1.0,
+      "recall": 0.64,
+      "f1_score": 0.7804878048780487,
+      "true_positives": 32,
+      "false_positives": 0,
+      "false_negatives": 18,
+      "total_episodes": 50,
+      "success_rate": 0.84,
+      "rollback_rate": 0.16,
+      "mean_reward": -0.09008676887448676,
+      "mean_loss_pre": 0.8411192372954123,
+      "mean_loss_post": 0.8369401616793966,
+      "mean_acc_pre": 0.5459999999999999,
+      "mean_acc_post": 0.521,
+      "mean_latency": 3.64
+    },
+    "persistent_plateau": {
+      "precision": 1.0,
+      "recall": 0.06,
+      "f1_score": 0.11320754716981131,
+      "true_positives": 3,
+      "false_positives": 0,
+      "false_negatives": 47,
+      "total_episodes": 50,
+      "success_rate": 0.88,
+      "rollback_rate": 0.06,
+      "mean_reward": -0.060915392217126746,
+      "mean_loss_pre": 0.8435273924356578,
+      "mean_loss_post": 0.8444178564937587,
+      "mean_acc_pre": 0.5340425531914892,
+      "mean_acc_post": 0.5234042553191488,
+      "mean_latency": 4.0
+    },
+    "lr_misconfiguration": {
+      "precision": 0.20588235294117646,
+      "recall": 0.14,
+      "f1_score": 0.16666666666666666,
+      "true_positives": 7,
+      "false_positives": 27,
+      "false_negatives": 43,
+      "total_episodes": 50,
+      "success_rate": 0.54,
+      "rollback_rate": 0.46,
+      "mean_reward": -0.11151308892987054,
+      "mean_loss_pre": 1.0096110385367507,
+      "mean_loss_post": 1.0297565939830922,
+      "mean_acc_pre": 0.523,
+      "mean_acc_post": 0.5329999999999999,
+      "mean_latency": 4.36
+    },
+    "optimizer_instability": {
+      "precision": 0.0,
+      "recall": 0.0,
+      "f1_score": 0.0,
+      "true_positives": 0,
+      "false_positives": 0,
+      "false_negatives": 50,
+      "total_episodes": 50,
+      "success_rate": 0.58,
+      "rollback_rate": 0.42,
+      "mean_reward": -0.10181799213998204,
+      "mean_loss_pre": 0.9833264933971926,
+      "mean_loss_post": 0.9808466545718311,
+      "mean_acc_pre": 0.499,
+      "mean_acc_post": 0.534,
+      "mean_latency": 4.2
+    },
+    "training_divergence": {
+      "precision": 1.0,
+      "recall": 0.64,
+      "f1_score": 0.7804878048780487,
+      "true_positives": 32,
+      "false_positives": 0,
+      "false_negatives": 18,
+      "total_episodes": 50,
+      "success_rate": 0.54,
+      "rollback_rate": 0.46,
+      "mean_reward": -0.091,
+      "mean_loss_pre": NaN,
+      "mean_loss_post": NaN,
+      "mean_acc_pre": 0.5700000000000001,
+      "mean_acc_post": 0.59,
+      "mean_latency": 2.82
+    },
+    "noise_degradation": {
+      "precision": 0.34951456310679613,
+      "recall": 0.72,
+      "f1_score": 0.47058823529411764,
+      "true_positives": 36,
+      "false_positives": 67,
+      "false_negatives": 14,
+      "total_episodes": 50,
+      "success_rate": 0.76,
+      "rollback_rate": 0.24,
+      "mean_reward": -0.08332279093604295,
+      "mean_loss_pre": 0.818516374089544,
+      "mean_loss_post": 0.8483001620241061,
+      "mean_acc_pre": 0.5319999999999999,
+      "mean_acc_post": 0.514,
+      "mean_latency": 5.04
+    }
+  },
+  "confusion_matrix": {
+    "barren_plateau": {
+      "barren_plateau": 32,
+      "persistent_plateau": 0,
+      "lr_misconfiguration": 0,
+      "optimizer_instability": 0,
+      "training_divergence": 0,
+      "noise_degradation": 0,
+      "UNASSIGNED": 18
+    },
+    "persistent_plateau": {
+      "barren_plateau": 0,
+      "persistent_plateau": 3,
+      "lr_misconfiguration": 27,
+      "optimizer_instability": 0,
+      "training_divergence": 0,
+      "noise_degradation": 2,
+      "UNASSIGNED": 18
+    },
+    "lr_misconfiguration": {
+      "barren_plateau": 0,
+      "persistent_plateau": 0,
+      "lr_misconfiguration": 7,
+      "optimizer_instability": 0,
+      "training_divergence": 0,
+      "noise_degradation": 30,
+      "UNASSIGNED": 13
+    },
+    "optimizer_instability": {
+      "barren_plateau": 0,
+      "persistent_plateau": 0,
+      "lr_misconfiguration": 0,
+      "optimizer_instability": 0,
+      "training_divergence": 0,
+      "noise_degradation": 35,
+      "UNASSIGNED": 15
+    },
+    "training_divergence": {
+      "barren_plateau": 0,
+      "persistent_plateau": 0,
+      "lr_misconfiguration": 0,
+      "optimizer_instability": 0,
+      "training_divergence": 32,
+      "noise_degradation": 0,
+      "UNASSIGNED": 18
+    },
+    "noise_degradation": {
+      "barren_plateau": 0,
+      "persistent_plateau": 0,
+      "lr_misconfiguration": 0,
+      "optimizer_instability": 0,
+      "training_divergence": 0,
+      "noise_degradation": 36,
+      "UNASSIGNED": 14
+    }
+  },
+  "repair_arm_distributions": {
+    "barren_plateau": {
+      "change_optimizer": 11,
+      "reduce_circuit_depth": 9,
+      "modify_feature_map": 11,
+      "adjust_learning_rate": 4,
+      "apply_noise_mitigation": 6,
+      "perform_warm_restart": 9
+    },
+    "persistent_plateau": {
+      "change_optimizer": 13,
+      "reduce_circuit_depth": 7,
+      "modify_feature_map": 8,
+      "adjust_learning_rate": 10,
+      "apply_noise_mitigation": 7,
+      "perform_warm_restart": 5
+    },
+    "lr_misconfiguration": {
+      "change_optimizer": 8,
+      "reduce_circuit_depth": 8,
+      "modify_feature_map": 15,
+      "adjust_learning_rate": 4,
+      "apply_noise_mitigation": 6,
+      "perform_warm_restart": 9
+    },
+    "optimizer_instability": {
+      "change_optimizer": 6,
+      "reduce_circuit_depth": 6,
+      "modify_feature_map": 11,
+      "adjust_learning_rate": 9,
+      "apply_noise_mitigation": 11,
+      "perform_warm_restart": 7
+    },
+    "training_divergence": {
+      "change_optimizer": 1,
+      "reduce_circuit_depth": 1,
+      "modify_feature_map": 4,
+      "adjust_learning_rate": 1,
+      "apply_noise_mitigation": 3,
+      "perform_warm_restart": 40
+    },
+    "noise_degradation": {
+      "change_optimizer": 12,
+      "reduce_circuit_depth": 6,
+      "modify_feature_map": 9,
+      "adjust_learning_rate": 6,
+      "apply_noise_mitigation": 8,
+      "perform_warm_restart": 9
+    }
+  }
+}

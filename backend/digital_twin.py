@@ -293,7 +293,7 @@ class DigitalTwinSimulator:
         expected_lr: float,
     ) -> None:
         """Assert that primary model state was never mutated during proxy simulation."""
-        assert np.array_equal(model.params, expected_params), (
+        assert np.array_equal(model.params, expected_params, equal_nan=True), (
             "CRITICAL ISOLATION VIOLATION: Primary model parameters were modified during digital-twin proxy simulation!"
         )
         assert model.config.optimizer_name == expected_opt_name, (
