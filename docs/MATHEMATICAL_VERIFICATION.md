@@ -370,7 +370,7 @@ Evaluating qubit 0 after convergence on the Iris dataset under fault injection $
    $$c = 1.0 - 0.5 \times 0.175 = 1.0 - 0.0875 = \mathbf{0.9125}$$
 3. **Ideal Reference State ($p = 0.0$):**
    $$x_{\text{ideal}} = 0.996265, \quad y_{\text{ideal}} = 0.000000, \quad z_{\text{ideal}} = 0.081637$$
-   $$r_{\text{ideal}} = \sqrt{0.996265^2 + 0.000000^2 + 0.081637^2} = \mathbf{0.999605} \approx 1.0 \quad (\text{Pure state, } \gamma = 0.9992)$$
+   $$r_{\text{ideal}} = \sqrt{0.996265^2 + 0.000000^2 + 0.081637^2} = \mathbf{0.999605} \approx 1.0 \quad (\text{Pure state, } \gamma = \frac{1 + r_{\text{ideal}}^2}{2} = \mathbf{0.999605})$$
 4. **Physical Noisy Mixed State (DEF-003 Compliance):**
    $$x_{\text{phys}} = 0.996265 \times 0.9125 = \mathbf{0.909092}$$
    $$y_{\text{phys}} = 0.000000 \times 0.9125 = \mathbf{0.000000}$$
