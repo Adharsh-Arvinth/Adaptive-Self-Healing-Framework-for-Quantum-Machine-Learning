@@ -82,6 +82,7 @@ class PipelineStepResult:
     bandit_decision: Optional[BanditDecision] = None
     deployment_record: Optional[DeploymentRecord] = None
     evaluation: Optional[RecoveryEvaluation] = None
+    twin_prediction: Optional[DigitalTwinPrediction] = None
     events: List[PipelineEvent] = field(default_factory=list)
 
 
@@ -231,6 +232,7 @@ class SelfHealingPipeline:
                 metrics=metrics,
                 observation=obs,
                 deployment_record=self.deployment_mgr.active_deployment,
+                twin_prediction=self._current_twin_pred,
                 events=step_events,
             )
 
@@ -405,6 +407,7 @@ class SelfHealingPipeline:
             diagnosis=diag,
             bandit_decision=bandit_decision,
             deployment_record=dep_record,
+            twin_prediction=best_twin_pred,
             events=step_events,
         )
 

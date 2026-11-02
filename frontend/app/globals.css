@@ -2,62 +2,136 @@
 @tailwind components;
 @tailwind utilities;
 
+/* --------------------------------------------------------------------------
+   Light Mode Design Tokens (Apple Minimalist / Scientific Clean)
+   -------------------------------------------------------------------------- */
 :root {
-  --background: #08090d;
-  --foreground: #f5f5f7;
+  --bg-primary: #F8F9FB;
+  --bg-surface: #FFFFFF;
+  --bg-surface-elevated: #F2F3F7;
+  --bg-subtle: #F0F2F6;
+
+  --border-subtle: rgba(0, 0, 0, 0.08);
+  --border-highlight: rgba(37, 99, 235, 0.25);
+
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
+
+  --accent-primary: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
+
+  --status-success: #059669;
+  --status-success-subtle: rgba(5, 150, 105, 0.10);
+  --status-warning: #D97706;
+  --status-warning-subtle: rgba(217, 119, 6, 0.10);
+  --status-danger: #DC2626;
+  --status-danger-subtle: rgba(220, 38, 38, 0.10);
+  --status-info: #4F46E5;
+  --status-info-subtle: rgba(79, 70, 229, 0.10);
+
+  --panel-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
+  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
 }
 
+/* --------------------------------------------------------------------------
+   Dark Mode Design Tokens (Apple macOS Dark / Deep Space)
+   -------------------------------------------------------------------------- */
+.dark {
+  --bg-primary: #0A0C10;
+  --bg-surface: #12151D;
+  --bg-surface-elevated: #181C26;
+  --bg-subtle: rgba(255, 255, 255, 0.04);
+
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-highlight: rgba(99, 102, 241, 0.35);
+
+  --text-primary: #F9FAFB;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
+
+  --accent-primary: #6366F1;
+  --accent-hover: #4F46E5;
+  --accent-subtle: rgba(99, 102, 241, 0.15);
+
+  --status-success: #10B981;
+  --status-success-subtle: rgba(16, 185, 129, 0.15);
+  --status-warning: #F59E0B;
+  --status-warning-subtle: rgba(245, 158, 11, 0.15);
+  --status-danger: #EF4444;
+  --status-danger-subtle: rgba(239, 68, 68, 0.15);
+  --status-info: #8B5CF6;
+  --status-info-subtle: rgba(139, 92, 246, 0.15);
+
+  --panel-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.45);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+}
+
+/* Base Body Styling */
 body {
-  color: var(--foreground);
-  background: var(--background);
-  background-image: 
-    radial-gradient(at 0% 0%, rgba(99, 102, 241, 0.08) 0px, transparent 50%),
-    radial-gradient(at 100% 100%, rgba(139, 92, 246, 0.08) 0px, transparent 50%),
-    radial-gradient(at 50% 50%, rgba(6, 182, 212, 0.04) 0px, transparent 50%);
-  background-attachment: fixed;
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", system-ui, sans-serif;
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  transition: background-color 0.25s ease, color 0.25s ease;
+  min-height: 100vh;
 }
 
-/* Glassmorphism panel styling inspired by macOS Ventura / Sonoma */
-.glass-panel {
-  background: rgba(18, 20, 28, 0.65);
-  backdrop-filter: blur(20px);
-  -webkit-backdrop-filter: blur(20px);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  border-radius: 1rem;
-  box-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.4);
+/* Glassmorphic Apple-inspired cards */
+.apple-card {
+  background-color: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  border-radius: 0.875rem;
+  box-shadow: var(--panel-shadow);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.glass-panel-subtle {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.05);
+.apple-card:hover {
+  border-color: var(--border-highlight);
+}
+
+.apple-card-elevated {
+  background-color: var(--bg-surface-elevated);
+  border: 1px solid var(--border-subtle);
   border-radius: 0.75rem;
 }
 
-/* Instant active tactile button response (Apple Design principle: Response on pointer-down) */
-.btn-press {
-  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, border-color 150ms ease;
+.apple-subtle {
+  background-color: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
 }
 
-.btn-press:active {
-  transform: scale(0.96);
+/* Tactile button interaction */
+.apple-btn {
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease;
 }
 
-/* Custom smooth dark scrollbar */
+.apple-btn:active:not(:disabled) {
+  transform: scale(0.97);
+}
+
+.apple-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+/* Subtle clean scrollbars */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
 }
+
 ::-webkit-scrollbar-track {
   background: transparent;
 }
+
 ::-webkit-scrollbar-thumb {
-  background: rgba(255, 255, 255, 0.15);
+  background: var(--border-subtle);
   border-radius: 9999px;
 }
+
 ::-webkit-scrollbar-thumb:hover {
-  background: rgba(255, 255, 255, 0.25);
+  background: var(--text-tertiary);
 }

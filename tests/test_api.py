@@ -77,6 +77,50 @@ def test_memory_episodes_endpoint(client):
     assert isinstance(data["episodes"], list)
 
 
+def test_pause_and_resume(client):
+    res_pause = client.post("/api/experiment/pause")
+    assert res_pause.status_code == 200
+    assert res_pause.json()["status"] in ["PAUSED", "NOT_RUNNING"]
+
+    res_resume = client.post("/api/experiment/resume")
+    assert res_resume.status_code == 200
+    assert res_resume.json()["status"] in ["RESUMED", "ALREADY_RUNNING"]
+
+    # Pause it back so background runner doesn't consume cycles
+    client.post("/api/experiment/pause")
+
+
+def test_simulate_twin_endpoint(client):
+    res = client.post("/api/experiment/simulate-twin", json={"repair_arm": "adjust_learning_rate"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["arm"] == "adjust_learning_rate"
+    assert data["horizon"] == 3
+    assert "proxy_stability" in data
+    assert "is_viable" in data
+
+
+def test_trigger_repair_and_rollback(client):
+    res = client.post("/api/experiment/trigger-repair", json={"repair_arm": "modify_feature_map"})
+    assert res.status_code == 200
+    data = res.json()
+    assert data["status"] in ["DEPLOYED", "BLOCKED_BY_SAFETY_FILTER"]
+
+    if data["status"] == "DEPLOYED":
+        rb_res = client.post("/api/experiment/rollback")
+        assert rb_res.status_code == 200
+        assert rb_res.json()["status"] == "ROLLED_BACK"
+
+
+def test_benchmarks_summary_endpoint(client):
+    res = client.get("/api/benchmarks/summary")
+    assert res.status_code == 200
+    data = res.json()
+    assert "calibration" in data
+    assert "policy_regret" in data
+    assert "ablation" in data
+
+
 def test_websocket_telemetry(client):
     with client.websocket_connect("/ws/telemetry") as websocket:
         # Initial connection message

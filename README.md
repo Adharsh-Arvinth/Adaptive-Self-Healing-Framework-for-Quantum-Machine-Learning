@@ -4,7 +4,7 @@
 [![PennyLane 0.45.1](https://img.shields.io/badge/PennyLane-0.45.1-purple.svg)](https://pennylane.ai/)
 [![Next.js 14.2](https://img.shields.io/badge/Next.js-14.2%20(React%2018)-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com/)
-[![Pytest Suite](https://img.shields.io/badge/Pytest-93%2F93%20Passing-brightgreen.svg)](tests/)
+[![Pytest Suite](https://img.shields.io/badge/Pytest-97%2F97%20Passing-brightgreen.svg)](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 
 An autonomous, closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). The framework unifies continuous quantum telemetry extraction, multi-heuristic anomaly detection, Bayesian confidence-gated root-cause diagnosis, contextual bandit repair selection via **Contextual Thompson Sampling**, digital-twin predictive sandbox validation, and transactional atomic commit/rollback mechanisms.
@@ -351,33 +351,61 @@ pytest -q
 
 ---
 
-## Dashboard Walkthrough & Telemetry
+## Dashboard Walkthrough & Telemetry (Apple Design System)
 
-When running the Next.js dashboard (`http://localhost:3000`), you have access to a unified telemetry surface:
+When running the Next.js dashboard (`http://localhost:3000`), the interface is structured according to **Apple Design Principles** (clean typography, generous whitespace, tactile interactions, frosted glassmorphism, and seamless light/dark mode adaptation). 
 
-1. **Header & Lifecycle Bar (`Header.tsx`):**
-   - Real-time WebSocket connection badge (`LIVE STREAM`).
-   - "Start Experiment", "Pause", and "Reset Experiment" controls.
-   - Live step counter and active pipeline state (`HEALTHY_TRAINING`, `CONFIDENCE_GATE_HOLD`, `VALIDATING_REPAIR`, `COMMITTED`, `ROLLED_BACK`).
-2. **Metrics Row (`MetricsRow.tsx`):**
-   - Live scalar cards: Training Loss, Validation Loss, Validation Accuracy, Gradient Norm, and Learning Rate.
-3. **Loss & Convergence Stream (`LossChart.tsx`):**
-   - Real-time SVG line charts tracking train vs. validation loss and validation accuracy across optimization steps.
-4. **Interactive 3D Bloch Sphere Visualizer (`BlochSphere.tsx`):**
-   - Rendered using HTML5 Canvas with analytical inverse noise correction.
-   - Shows true noisy quantum state Bloch coordinates $(r_x, r_y, r_z)$, state purity $\gamma = \frac{1 + \|\mathbf{r}\|^2}{2}$, and error-mitigated trajectories.
-5. **Anomaly & Synthetic Fault Injection Cockpit (`FailureInjectionPanel.tsx`):**
-   - Trigger any of the 6 canonical quantum failure modes with customizable severity sliders.
-6. **Bayesian Diagnosis Panel (`DiagnosisPanel.tsx`):**
-   - Horizontal probability bars showing $P(F_k \mid \mathbf{x}_t)$ across all 6 fault hypotheses.
-   - Visual indicator of the empirical confidence gate ($\tau = 0.60$).
-7. **Bandit & Digital Twin Matrices (`BanditMonitor.tsx` & `DigitalTwinPanel.tsx`):**
-   - Contextual Thompson Sampling arm selection, eligible arms, and Bayesian posterior beliefs across arms.
-   - Forward simulation trajectory preview ($H=3$) comparing candidate repairs against baseline drift.
-8. **Six-Arm Repair Cockpit (`RepairCockpit.tsx`):**
-   - Interactive status and eligibility for all 6 locked repair arms.
-9. **Deployment Ledger & SQLite Memory Log (`DeploymentMonitor.tsx` & `MemoryAndAuditLog.tsx`):**
-   - Real-time transaction audit displaying repair timestamps, validation outcomes, commit/rollback statuses, and rewards.
+The dashboard provides a multi-tab segmented navigation architecture designed for deep scientific inspectability without visual clutter:
+
+### 1. Unified Header & Autonomous Lifecycle Bar (`Header.tsx`)
+- **Real-Time Connectivity:** Automatic WebSocket reconnection with status indicator (`LIVE STREAM`).
+- **Autonomous Lifecycle Controls:** Interactive buttons for **Start Training**, **Pause**, **Resume**, **Single Step** execution, and **Reset Experiment** (with macOS-style confirmation dialog).
+- **Theme Switcher:** Instant one-click toggle between Light Mode and Dark Mode using CSS variable design tokens.
+- **Pipeline State Pill:** Real-time color-coded indication of the MAPE-K autonomous phase (`HEALTHY_TRAINING`, `ANOMALY_DETECTED`, `DIAGNOSING`, `CONFIDENCE_GATE_HOLD`, `REPAIR_SELECTION`, `DEPLOYING`, `VALIDATING_REPAIR`, `COMMITTED`, `ROLLED_BACK`).
+
+### 2. Apple Health-Style Telemetry KPI Strip (`MetricsRow.tsx`)
+Continuous summary cards providing high-level diagnostics:
+- **Training Loss (BCE):** Mini-batch convergence with trend badges.
+- **Validation Accuracy:** Evaluated over non-training dataset samples.
+- **Validation Loss:** Generalization gap monitoring ($|\mathcal{L}_{\text{val}} - \mathcal{L}_{\text{train}}|$).
+- **Parameter-Shift Gradient Norm ($\|\mathbf{g}\|$):** Early vanishing gradient indicator.
+- **Parameter Velocity ($\|\mathbf{v}\|$):** Momentum trajectory detector.
+- **Circuit Depth & Learning Rate:** Ansatz capacity and step scale indicators.
+
+---
+
+### Segmented Navigation Tabs
+
+#### Tab 1 — Overview
+- **Loss & Convergence Stream (`LossChart.tsx`):** Responsive SVG charting with cubic bezier curves, segmented mode toggle (`Loss`, `Accuracy`, `Dual-Axis`), event annotations for injected faults and commits, and hover crosshair with exact point inspection.
+- **Interactive 3D Bloch Sphere Visualizer (`BlochSphere.tsx`):** Interactive mouse-drag orbit controls (azimuth and elevation rotation), true noisy physical Bloch coordinates $(r_x, r_y, r_z)$, quantum state purity calculated via $\gamma = \frac{1 + \|\mathbf{r}\|^2}{2} \in [0.5, 1.0]$, and separate error-mitigated coordinate markers.
+- **Tri-Panel Overview:** Compact root-cause diagnosis, repair arm status, and deployment monitor.
+- **Synthetic Fault Injection Sandbox (`FailureInjectionPanel.tsx`):** One-click injection of all 6 canonical failure modes with severity selection ($1.0\times, 2.0\times, 3.0\times$).
+
+#### Tab 2 — Diagnosis & Repairs
+- **Root-Cause Diagnostic Engine (`DiagnosisPanel.tsx`):** Six-category temperature-scaled posterior distribution bars, active anomaly fault tags, evidence attribution list, and visual Bayesian confidence gate indicator ($\tau = 0.60$).
+- **Six-Arm Adaptive Repair Cockpit (`RepairCockpit.tsx`):** Cards for each locked repair arm, eligibility indicators, analytical inverse-contraction noise mitigation tags, and manual **Deploy & Test** action buttons with safety filter validation.
+
+#### Tab 3 — Digital Twin & Safety
+- **Digital Twin Proxy Simulator (`DigitalTwinPanel.tsx`):** Forward simulation trajectory preview ($H=3$), predicted loss delta ($\Delta \mathcal{L}$), proxy stability score, uncertainty variance ($\sigma_g^2$), and a sandbox simulation tester (`POST /api/experiment/simulate-twin`) that tests candidate repairs without altering live model parameters.
+- **Safe Deployment Monitor (`DeploymentMonitor.tsx`):** Visual transactional lifecycle (Checkpoint $\to$ Deployed $\to$ Validate $W=3$ $\to$ Commit/Rollback), pre/post loss metrics, and manual **Force Commit** / **Force Rollback** buttons.
+
+#### Tab 4 — Bandit & Memory
+- **Contextual Thompson Sampling Monitor (`BanditMonitor.tsx`):** Posterior weight norms ($\|\boldsymbol{\mu}_a\|$), update counters, and a collapsible, exhaustive **12-Dimensional Context Vector Specification Table** documenting formulas, bounds, and live feature values ($x_1$ through $x_{12}$).
+- **Episodic Failure Memory & Live Audit (`MemoryAndAuditLog.tsx`):** Searchable and filterable SQLite failure episode table, historical recovery rewards, and live timestamped MAPE-K pipeline transition stream.
+
+#### Tab 5 — Stage 8 Empirical Proof (`BenchmarksPanel.tsx`)
+Direct visualization of frozen empirical benchmark campaign evidence (`GET /api/benchmarks/summary`):
+- **Temperature Calibration:** ECE and Brier score improvements under optimal $T^*$, plus exact Clopper-Pearson 95% confidence intervals for False Positive Rate ($\le 4.99\%$) and False Discovery Rate ($\le 13.72\%$).
+- **Policy Regret:** 10-seed paired comparisons across Thompson Sampling, Greedy, Heuristic, and Random baselines.
+- **Ablation Studies:** 5-condition architectural ablations isolating the necessity of the safety filter, digital twin, memory, and confidence gate.
+- **Per-Class Recovery:** Recovery rates and precision/recall metrics across all six canonical quantum failure categories.
+
+#### Tab 6 — Settings & Operations (`SettingsPanel.tsx`)
+- **Quantum Circuit Configuration:** Inspect and configure ansatz layers ($L$), qubits ($N$), Hilbert space feature map, and optimizer.
+- **Session Telemetry Export:** Single-click JSON export of all recorded time-series telemetry steps for offline analysis.
+- **REST Latency & Health:** Real-time round-trip latency ping test to the FastAPI backend gateway.
+- **Research Baseline Attribution:** Verifies commit baseline `7d37201` and framework versions.
 
 ---
 

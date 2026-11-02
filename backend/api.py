@@ -28,6 +28,7 @@ sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")
 
 from backend.qml_model import CircuitConfig, FailureType, VQCModel, load_dataset
 from backend.repair_library import CandidateRepair, RepairArm
+from backend.deployment import DeploymentStatus
 from backend.pipeline import PipelineState, PipelineStepResult, SelfHealingPipeline
 
 
@@ -50,6 +51,14 @@ class StartExperimentRequest(BaseModel):
 class InjectFailureRequest(BaseModel):
     failure_type: str = Field(description="One of the 6 FailureTypes")
     severity: float = Field(default=1.0, ge=0.1, le=5.0)
+
+
+class SimulateTwinRequest(BaseModel):
+    repair_arm: str = Field(description="One of the 6 RepairArms: change_optimizer, reduce_circuit_depth, modify_feature_map, adjust_learning_rate, apply_noise_mitigation, perform_warm_restart")
+
+
+class TriggerRepairRequest(BaseModel):
+    repair_arm: str = Field(description="One of the 6 RepairArms: change_optimizer, reduce_circuit_depth, modify_feature_map, adjust_learning_rate, apply_noise_mitigation, perform_warm_restart")
 
 
 class HealthResponse(BaseModel):
@@ -163,6 +172,7 @@ class GlobalStateManager:
             "anomalies": [a.failure_type.value for a in res.anomalies],
             "diagnosis": None,
             "bandit_decision": None,
+            "twin_prediction": None,
             "deployment": None,
             "evaluation": None,
             "events": [{"state": e.state.value, "message": e.message} for e in res.events],
@@ -204,6 +214,23 @@ class GlobalStateManager:
                 "prediction_error": float(res.evaluation.prediction_error),
                 "was_rolled_back": bool(res.evaluation.was_rolled_back),
                 "components": res.evaluation.components,
+            }
+
+        if getattr(res, "twin_prediction", None):
+            pred = res.twin_prediction
+            payload["twin_prediction"] = {
+                "arm": pred.arm.value if hasattr(pred.arm, "value") else str(pred.arm),
+                "horizon": int(pred.horizon),
+                "initial_loss": float(pred.initial_loss),
+                "predicted_loss_final": float(pred.predicted_loss_final),
+                "predicted_loss_delta": float(pred.predicted_loss_delta),
+                "normalized_predicted_delta": float(pred.normalized_predicted_delta),
+                "proxy_loss_trajectory": [float(v) for v in pred.proxy_loss_trajectory],
+                "proxy_stability": float(pred.proxy_stability),
+                "proxy_grad_variance": float(pred.proxy_grad_variance),
+                "circuit_evaluations": int(pred.circuit_evaluations),
+                "is_viable": bool(pred.is_viable),
+                "rejection_reason": pred.rejection_reason,
             }
 
         self.telemetry_history.append(payload)
@@ -262,6 +289,7 @@ app.add_middleware(
 # REST Endpoints
 # ----------------------------------------------------------------------
 
+@app.get("/health", response_model=HealthResponse)
 @app.get("/api/health", response_model=HealthResponse)
 def get_health():
     """System health status and framework verification."""
@@ -306,9 +334,170 @@ async def stop_experiment():
     if state_mgr.is_running and state_mgr.runner_task:
         state_mgr.is_running = False
         state_mgr.runner_task.cancel()
-        await state_mgr.broadcast({"type": "training_stopped", "payload": {"step": state_mgr.pipeline.step_count}})
+        await state_mgr.broadcast({"type": "training_stopped", "payload": {"step": state_mgr.pipeline.step_count if state_mgr.pipeline else 0}})
         return {"status": "STOPPED"}
     return {"status": "IDLE"}
+
+
+@app.post("/api/experiment/pause")
+async def pause_experiment():
+    """Pause autonomous training loop cleanly without resetting state."""
+    if state_mgr.is_running and state_mgr.runner_task:
+        state_mgr.is_running = False
+        state_mgr.runner_task.cancel()
+        step = state_mgr.pipeline.step_count if state_mgr.pipeline else 0
+        await state_mgr.broadcast({"type": "training_paused", "payload": {"step": step}})
+        return {"status": "PAUSED", "step": step}
+    return {"status": "NOT_RUNNING"}
+
+
+@app.post("/api/experiment/resume")
+async def resume_experiment():
+    """Resume autonomous background training worker from current step."""
+    if state_mgr.is_running:
+        return {"status": "ALREADY_RUNNING"}
+    if not state_mgr.pipeline:
+        raise HTTPException(status_code=400, detail="Experiment not initialized")
+    state_mgr.is_running = True
+    state_mgr.runner_task = asyncio.create_task(state_mgr.run_training_loop())
+    step = state_mgr.pipeline.step_count
+    await state_mgr.broadcast({"type": "training_resumed", "payload": {"step": step}})
+    return {"status": "RESUMED", "step": step}
+
+
+@app.post("/api/experiment/simulate-twin")
+async def simulate_twin(req: SimulateTwinRequest):
+    """Run an isolated H=3 forward simulation in the Digital Twin sandbox without mutating model weights."""
+    if not state_mgr.pipeline or not state_mgr.model:
+        raise HTTPException(status_code=400, detail="Model not initialized")
+    try:
+        arm = RepairArm(req.repair_arm)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid arm: {req.repair_arm}. Must be one of {[a.value for a in RepairArm]}"
+        )
+    
+    candidates = state_mgr.pipeline.repair_lib.generate_candidate_repairs(state_mgr.model.get_state(), all_arms=True)
+    cand = next((c for c in candidates if c.arm == arm), None)
+    if not cand:
+        raise HTTPException(status_code=400, detail=f"Candidate repair for arm {arm.value} not available")
+    
+    pred = state_mgr.pipeline.digital_twin.simulate_candidate(
+        state_mgr.model,
+        cand,
+        state_mgr.X_val,
+        state_mgr.y_val,
+    )
+    data = {
+        "arm": pred.arm.value,
+        "horizon": int(pred.horizon),
+        "initial_loss": float(pred.initial_loss),
+        "predicted_loss_final": float(pred.predicted_loss_final),
+        "predicted_loss_delta": float(pred.predicted_loss_delta),
+        "normalized_predicted_delta": float(pred.normalized_predicted_delta),
+        "proxy_loss_trajectory": [float(v) for v in pred.proxy_loss_trajectory],
+        "proxy_stability": float(pred.proxy_stability),
+        "proxy_grad_variance": float(pred.proxy_grad_variance),
+        "circuit_evaluations": int(pred.circuit_evaluations),
+        "is_viable": bool(pred.is_viable),
+        "rejection_reason": pred.rejection_reason,
+    }
+    await state_mgr.broadcast({"type": "twin_simulated", "payload": data})
+    return data
+
+
+@app.post("/api/experiment/trigger-repair")
+async def trigger_repair(req: TriggerRepairRequest):
+    """Manually trigger deployment of a candidate repair through safety filtering and atomic validation."""
+    if not state_mgr.pipeline or not state_mgr.model:
+        raise HTTPException(status_code=400, detail="Model not initialized")
+    try:
+        arm = RepairArm(req.repair_arm)
+    except ValueError:
+        raise HTTPException(
+            status_code=400,
+            detail=f"Invalid arm: {req.repair_arm}. Must be one of {[a.value for a in RepairArm]}"
+        )
+    
+    candidates = state_mgr.pipeline.repair_lib.generate_candidate_repairs(state_mgr.model.get_state(), all_arms=True)
+    cand = next((c for c in candidates if c.arm == arm), None)
+    if not cand:
+        raise HTTPException(status_code=400, detail=f"Candidate repair for arm {arm.value} not available")
+    
+    # Check safety filter
+    decisions = state_mgr.pipeline.safety_filter.filter_candidates([cand], state_mgr.model.get_state())
+    decision = decisions[0] if decisions else None
+    if decision and not decision.is_safe:
+        return {"status": "BLOCKED_BY_SAFETY_FILTER", "reason": decision.rejection_reason}
+    
+    # Snapshot checkpoint & deploy
+    latest = state_mgr.telemetry_history[-1] if state_mgr.telemetry_history else None
+    cur_loss = float(latest["loss"]) if latest else 0.693
+    cur_val_loss = float(latest["val_loss"]) if latest else 0.693
+    cur_acc = float(latest["accuracy"]) if latest else 0.50
+    cur_val_acc = float(latest["val_accuracy"]) if latest else 0.50
+    cur_grad_norm = float(latest["gradient_norm"]) if latest else 0.05
+
+    ckpt = state_mgr.pipeline.deployment_mgr.create_checkpoint(
+        model=state_mgr.model,
+        experiment_id=state_mgr.pipeline.experiment_id,
+        step=state_mgr.pipeline.step_count,
+        loss=cur_loss,
+        val_loss=cur_val_loss,
+        accuracy=cur_acc,
+        val_accuracy=cur_val_acc,
+        grad_norm=cur_grad_norm,
+    )
+    record = state_mgr.pipeline.deployment_mgr.deploy_repair(state_mgr.model, cand, ckpt)
+    state_mgr.pipeline.state = PipelineState.VALIDATING_REPAIR
+    state_mgr.pipeline.is_recovering = True
+    
+    dep_data = {
+        "deployment_id": record.deployment_id,
+        "repair_arm": record.repair_arm.value,
+        "status": record.status.value,
+        "loss_pre": float(record.loss_pre),
+    }
+    await state_mgr.broadcast({"type": "repair_deployed", "payload": dep_data})
+    return {"status": "DEPLOYED", "deployment": dep_data}
+
+
+@app.post("/api/experiment/commit")
+async def commit_active_repair():
+    """Manually commit active repair during validation."""
+    if not state_mgr.pipeline or not state_mgr.pipeline.deployment_mgr.active_deployment:
+        raise HTTPException(status_code=400, detail="No active deployment to commit")
+    dep = state_mgr.pipeline.deployment_mgr.finalize_deployment(state_mgr.model)
+    eval_rec = state_mgr.pipeline._finalize_recovery(dep, was_rolled_back=False)
+    state_mgr.pipeline.state = PipelineState.COMMITTED
+    state_mgr.pipeline.is_recovering = False
+    payload = {
+        "status": "COMMITTED",
+        "reward": float(eval_rec.actual_reward),
+        "deployment_id": dep.deployment_id,
+    }
+    await state_mgr.broadcast({"type": "repair_committed", "payload": payload})
+    return payload
+
+
+@app.post("/api/experiment/rollback")
+async def rollback_active_repair():
+    """Manually rollback active repair during validation."""
+    if not state_mgr.pipeline or not state_mgr.pipeline.deployment_mgr.active_deployment:
+        raise HTTPException(status_code=400, detail="No active deployment to rollback")
+    dep = state_mgr.pipeline.deployment_mgr.force_rollback(state_mgr.model, reason="Manual user rollback request")
+    eval_rec = state_mgr.pipeline._finalize_recovery(dep, was_rolled_back=True)
+    state_mgr.pipeline.state = PipelineState.ROLLED_BACK
+    state_mgr.pipeline.is_recovering = False
+    payload = {
+        "status": "ROLLED_BACK",
+        "reason": dep.rollback_reason,
+        "reward": float(eval_rec.actual_reward),
+        "deployment_id": dep.deployment_id,
+    }
+    await state_mgr.broadcast({"type": "repair_rolled_back", "payload": payload})
+    return payload
 
 
 @app.post("/api/experiment/step")
@@ -399,6 +588,46 @@ def get_memory_episodes():
             "status": ep.status,
         })
     return {"total_count": count, "episodes": episodes}
+
+
+@app.get("/api/benchmarks/summary")
+def get_benchmarks_summary():
+    """Return verified frozen Stage 8 empirical evaluation summary data."""
+    calib_path = "benchmark_results/calibration_n300_results.json"
+    policy_path = "benchmark_results/policy_regret_benchmark.json"
+    ablation_path = "benchmark_results/ablation_study_results.json"
+    per_class_path = "benchmark_results/per_class_performance.json"
+    
+    out: Dict[str, Any] = {}
+    if os.path.exists(calib_path):
+        try:
+            with open(calib_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                out["calibration"] = d.get("test_split_metrics", {})
+        except Exception:
+            pass
+    if os.path.exists(policy_path):
+        try:
+            with open(policy_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                out["policy_regret"] = d.get("summary", {})
+        except Exception:
+            pass
+    if os.path.exists(ablation_path):
+        try:
+            with open(ablation_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                out["ablation"] = d.get("summary", {})
+        except Exception:
+            pass
+    if os.path.exists(per_class_path):
+        try:
+            with open(per_class_path, "r", encoding="utf-8") as f:
+                d = json.load(f)
+                out["per_class"] = d.get("per_class_recovery_rates", {})
+        except Exception:
+            pass
+    return out
 
 
 # ----------------------------------------------------------------------

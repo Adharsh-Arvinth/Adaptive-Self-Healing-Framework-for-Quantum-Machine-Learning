@@ -227,14 +227,14 @@ This executes an end-to-end self-healing cycle in the terminal:
 - Evaluates the repair, commits it to the model, and updates the SQLite episodic memory.
 - Writes full machine-readable telemetry to `docs/vertical_slice_trace.json`.
 
-### Verification 2: Run the 93-Test Pytest Suite
+### Verification 2: Run the 97-Test Pytest Suite
 Run the comprehensive automated test suite:
 ```powershell
 pytest -q
 ```
 *Expected result:*
 ```
-93 passed, 1 warning in 9.52s
+97 passed, 1 warning in 10.18s
 ```
 This tests:
 - PennyLane quantum circuit executions and Bloch coordinate tracking.

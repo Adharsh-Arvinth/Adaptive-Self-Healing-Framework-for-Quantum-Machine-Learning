@@ -14,9 +14,9 @@ const geistMono = localFont({
 });
 
 export const metadata: Metadata = {
-  title: "Adaptive Self-Healing Quantum ML | Autonomous VQC Architecture",
+  title: "Adaptive Self-Healing Quantum ML | Autonomous VQC Research Platform",
   description:
-    "Autonomous closed-loop self-healing framework for Variational Quantum Circuits with real-time anomaly detection, Bayesian contextual bandit repair selection, digital-twin validation, and atomic rollback recovery.",
+    "Autonomous closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). Real-time telemetry, Bayesian root-cause diagnosis, Contextual Thompson Sampling, digital-twin validation, and atomic rollback recovery.",
 };
 
 export const viewport: Viewport = {
@@ -31,9 +31,9 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" className="dark">
+    <html lang="en" className="dark" suppressHydrationWarning>
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-[#07090e] text-neutral-100 selection:bg-purple-500/30 selection:text-white`}
+        className={`${geistSans.variable} ${geistMono.variable} antialiased min-h-screen bg-bg-primary text-content-primary selection:bg-accent/20 selection:text-content-primary`}
       >
         {children}
       </body>

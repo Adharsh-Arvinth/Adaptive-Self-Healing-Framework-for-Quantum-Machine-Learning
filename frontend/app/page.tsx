@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Header } from "@/components/Header";
+import { Header, NavTab } from "@/components/Header";
 import { MetricsRow } from "@/components/MetricsRow";
 import { LossChart } from "@/components/LossChart";
 import { BlochSphere } from "@/components/BlochSphere";
@@ -12,6 +12,10 @@ import { DeploymentMonitor } from "@/components/DeploymentMonitor";
 import { BanditMonitor } from "@/components/BanditMonitor";
 import { FailureInjectionPanel } from "@/components/FailureInjectionPanel";
 import { MemoryAndAuditLog } from "@/components/MemoryAndAuditLog";
+import { BenchmarksPanel } from "@/components/BenchmarksPanel";
+import { SettingsPanel } from "@/components/SettingsPanel";
+import { ToastContainer } from "@/components/Toast";
+import { ConfirmationModal } from "@/components/ConfirmationModal";
 import {
   TelemetryPoint,
   DiagnosisData,
@@ -22,12 +26,21 @@ import {
   PosteriorData,
   Episode,
   EventItem,
+  ToastMessage,
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
 const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws/telemetry";
 
 export default function DashboardPage() {
+  // Navigation & Theme
+  const [activeTab, setActiveTab] = useState<NavTab>("overview");
+  const [isDarkMode, setIsDarkMode] = useState(true);
+
+  // Notifications & Modals
+  const [toasts, setToasts] = useState<ToastMessage[]>([]);
+  const [isResetModalOpen, setIsResetModalOpen] = useState(false);
+
   // Connection and status
   const [isConnected, setIsConnected] = useState(false);
   const [pipelineState, setPipelineState] = useState("IDLE");
@@ -42,7 +55,7 @@ export default function DashboardPage() {
   const [nQbits, setNQbits] = useState(2);
   const [dataset] = useState("moons");
 
-  // Metrics
+  // Telemetry Metrics
   const [metrics, setMetrics] = useState({
     loss: 0.6931,
     valLoss: 0.6931,
@@ -61,6 +74,9 @@ export default function DashboardPage() {
     y: 0.0,
     z: 1.0,
     qubitIndex: 0,
+    x_mitigated: undefined as number | undefined,
+    y_mitigated: undefined as number | undefined,
+    z_mitigated: undefined as number | undefined,
   });
 
   // Time-series history
@@ -72,7 +88,14 @@ export default function DashboardPage() {
 
   // Repair & Decision
   const [selectedArm, setSelectedArm] = useState<string | null>(null);
-  const [eligibleArms, setEligibleArms] = useState<string[]>([]);
+  const [eligibleArms, setEligibleArms] = useState<string[]>([
+    "adjust_learning_rate",
+    "change_optimizer",
+    "reduce_circuit_depth",
+    "modify_feature_map",
+    "apply_noise_mitigation",
+    "perform_warm_restart",
+  ]);
 
   // Digital Twin & Evaluation
   const [twinPrediction, setTwinPrediction] = useState<DigitalTwinPrediction | null>(null);
@@ -94,6 +117,40 @@ export default function DashboardPage() {
   // WebSocket reference
   const wsRef = useRef<WebSocket | null>(null);
   const reconnectTimeoutRef = useRef<NodeJS.Timeout | null>(null);
+
+  // Toast Helpers
+  const addToast = useCallback(
+    (type: ToastMessage["type"], title: string, message: string) => {
+      const id = `${Date.now()}-${Math.random().toString(36).substring(2, 6)}`;
+      const newToast: ToastMessage = { id, type, title, message, timestamp: Date.now() };
+      setToasts((prev) => [...prev.slice(-4), newToast]);
+
+      setTimeout(() => {
+        setToasts((prev) => prev.filter((t) => t.id !== id));
+      }, 4000);
+    },
+    []
+  );
+
+  const dismissToast = (id: string) => {
+    setToasts((prev) => prev.filter((t) => t.id !== id));
+  };
+
+  // Sync Theme
+  useEffect(() => {
+    if (typeof window !== "undefined") {
+      const root = document.documentElement;
+      if (isDarkMode) {
+        root.classList.add("dark");
+      } else {
+        root.classList.remove("dark");
+      }
+    }
+  }, [isDarkMode]);
+
+  const handleToggleTheme = () => {
+    setIsDarkMode((prev) => !prev);
+  };
 
   // Fetch initial REST data
   const fetchStatusAndPosteriors = useCallback(async () => {
@@ -148,6 +205,13 @@ export default function DashboardPage() {
             });
           }
           if (latest.bloch) setBloch(latest.bloch);
+          if (latest.diagnosis) setDiagnosis(latest.diagnosis);
+          if (latest.twin_prediction) setTwinPrediction(latest.twin_prediction);
+          if (latest.deployment) setDeployment(latest.deployment);
+          if (latest.bandit_decision) {
+            setBanditDecision(latest.bandit_decision);
+            setSelectedArm(latest.bandit_decision.selected_arm);
+          }
         }
       }
     } catch (e) {
@@ -157,7 +221,11 @@ export default function DashboardPage() {
 
   // WebSocket connection management
   const connectWebSocket = useCallback(() => {
-    if (wsRef.current && (wsRef.current.readyState === WebSocket.OPEN || wsRef.current.readyState === WebSocket.CONNECTING)) {
+    if (
+      wsRef.current &&
+      (wsRef.current.readyState === WebSocket.OPEN ||
+        wsRef.current.readyState === WebSocket.CONNECTING)
+    ) {
       return;
     }
 
@@ -209,6 +277,10 @@ export default function DashboardPage() {
               setEligibleArms(payload.bandit_decision.eligible_arms);
             }
 
+            if (payload.twin_prediction) {
+              setTwinPrediction(payload.twin_prediction);
+            }
+
             if (payload.deployment) {
               setDeployment(payload.deployment);
             }
@@ -218,15 +290,22 @@ export default function DashboardPage() {
             }
 
             if (payload.events && payload.events.length > 0) {
-              setEvents((prev) => [...payload.events, ...prev].slice(0, 50));
+              setEvents((prev) => [...payload.events, ...prev].slice(0, 100));
             }
 
             setHistory((prev) => [...prev, payload]);
           } else if (type === "training_started") {
             setIsRunning(true);
+            addToast("info", "Autonomous Runner Started", "Continuous closed-loop training is now active.");
           } else if (type === "training_stopped") {
             setIsRunning(false);
+            addToast("info", "Training Stopped", "Autonomous runner has paused execution.");
           } else if (type === "failure_injected") {
+            addToast(
+              "warning",
+              "Synthetic Failure Injected",
+              `Fault ${payload.failure_type} deployed (severity = ${payload.severity}x)`
+            );
             setEvents((prev) => [
               {
                 state: "FAILURE_INJECTED",
@@ -245,6 +324,7 @@ export default function DashboardPage() {
             setDeployment(null);
             setSelectedArm(null);
             setActiveAnomalies([]);
+            addToast("info", "Experiment Reset", "Weights, optimizer buffers and telemetry flushed.");
             fetchStatusAndPosteriors();
           }
         } catch (err) {
@@ -267,14 +347,13 @@ export default function DashboardPage() {
       console.warn("WebSocket init failed:", e);
       reconnectTimeoutRef.current = setTimeout(connectWebSocket, 3000);
     }
-  }, [fetchStatusAndPosteriors]);
+  }, [fetchStatusAndPosteriors, addToast]);
 
   useEffect(() => {
     fetchStatusAndPosteriors();
     connectWebSocket();
 
     const interval = setInterval(() => {
-      // Refresh memory episodes and posteriors periodically
       fetch(`${API_BASE}/api/memory/episodes`)
         .then((r) => r.json())
         .then((m) => m.episodes && setEpisodes(m.episodes))
@@ -293,10 +372,10 @@ export default function DashboardPage() {
     };
   }, [fetchStatusAndPosteriors, connectWebSocket]);
 
-  // Action handlers
+  // Action Handlers
   const handleStart = async () => {
     try {
-      await fetch(`${API_BASE}/api/experiment/start`, {
+      const res = await fetch(`${API_BASE}/api/experiment/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -305,18 +384,36 @@ export default function DashboardPage() {
           max_steps: maxSteps,
         }),
       });
-      setIsRunning(true);
+      if (res.ok) {
+        setIsRunning(true);
+        addToast("success", "Training Started", "Autonomous MAPE-K pipeline running.");
+      }
     } catch (e) {
-      console.error("Start failed:", e);
+      addToast("error", "Failed to Start", String(e));
     }
   };
 
-  const handleStop = async () => {
+  const handlePause = async () => {
     try {
-      await fetch(`${API_BASE}/api/experiment/stop`, { method: "POST" });
-      setIsRunning(false);
+      const res = await fetch(`${API_BASE}/api/experiment/pause`, { method: "POST" });
+      if (res.ok) {
+        setIsRunning(false);
+        addToast("info", "Execution Paused", "Pipeline runner cleanly paused.");
+      }
     } catch (e) {
-      console.error("Stop failed:", e);
+      addToast("error", "Pause Failed", String(e));
+    }
+  };
+
+  const handleResume = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/experiment/resume`, { method: "POST" });
+      if (res.ok) {
+        setIsRunning(true);
+        addToast("success", "Execution Resumed", "Pipeline runner resumed execution.");
+      }
+    } catch (e) {
+      addToast("error", "Resume Failed", String(e));
     }
   };
 
@@ -326,28 +423,31 @@ export default function DashboardPage() {
       if (res.ok) {
         const payload = await res.json();
         setStepCount(payload.step);
+        addToast("info", "Single Step Executed", `Advanced to step ${payload.step}`);
       }
     } catch (e) {
-      console.error("Step execution failed:", e);
+      addToast("error", "Step Execution Failed", String(e));
     }
   };
 
   const handleReset = async () => {
+    setIsResetModalOpen(false);
     try {
       await fetch(`${API_BASE}/api/experiment/reset`, { method: "POST" });
       setHistory([]);
       setStepCount(0);
       setIsRunning(false);
       setPipelineState("IDLE");
+      addToast("warning", "Experiment Reset", "All states re-initialized to step 0.");
       fetchStatusAndPosteriors();
     } catch (e) {
-      console.error("Reset failed:", e);
+      addToast("error", "Reset Failed", String(e));
     }
   };
 
   const handleInjectFailure = async (failureType: string, severity: number) => {
     try {
-      await fetch(`${API_BASE}/api/experiment/inject-failure`, {
+      const res = await fetch(`${API_BASE}/api/experiment/inject-failure`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -355,13 +455,108 @@ export default function DashboardPage() {
           severity,
         }),
       });
+      if (res.ok) {
+        addToast("warning", "Fault Injected", `${failureType} (severity=${severity}x) applied.`);
+      }
     } catch (e) {
-      console.error("Failure injection failed:", e);
+      addToast("error", "Injection Failed", String(e));
     }
   };
 
+  const handleTriggerRepair = async (armId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/experiment/trigger-repair`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ arm: armId }),
+      });
+      const data = await res.json();
+      if (data.status === "DEPLOYED") {
+        addToast(
+          "success",
+          "Repair Deployed",
+          `Arm '${armId}' deployed into validation window W_val=3`
+        );
+        setSelectedArm(armId);
+        setPipelineState("DEPLOYED");
+      } else {
+        addToast("error", "Safety Rejection", data.message || "Repair arm rejected by safety filter.");
+      }
+    } catch (e) {
+      addToast("error", "Deploy Failed", String(e));
+    }
+  };
+
+  const handleSimulateTwin = async (armId: string) => {
+    try {
+      const res = await fetch(`${API_BASE}/api/experiment/simulate-twin`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ arm: armId, horizon: 3 }),
+      });
+      if (res.ok) {
+        const pred = await res.json();
+        addToast(
+          pred.is_viable ? "success" : "warning",
+          "Digital Twin Simulation Complete",
+          `Predicted delta: ${pred.predicted_loss_delta >= 0 ? "+" : ""}${pred.predicted_loss_delta.toFixed(4)} (Viable: ${pred.is_viable})`
+        );
+        return pred;
+      }
+    } catch (e) {
+      addToast("error", "Twin Simulation Failed", String(e));
+    }
+    return null;
+  };
+
+  const handleCommit = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/experiment/commit`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        addToast("success", "Repair Committed", "Active repair permanently accepted.");
+        setPipelineState("COMMITTED");
+      } else {
+        addToast("warning", "Commit Ignored", data.detail || "No active repair to commit.");
+      }
+    } catch (e) {
+      addToast("error", "Commit Failed", String(e));
+    }
+  };
+
+  const handleRollback = async () => {
+    try {
+      const res = await fetch(`${API_BASE}/api/experiment/rollback`, { method: "POST" });
+      const data = await res.json();
+      if (res.ok) {
+        addToast("warning", "Repair Rolled Back", "Model restored from pre-repair checkpoint snapshot.");
+        setPipelineState("ROLLED_BACK");
+      } else {
+        addToast("warning", "Rollback Ignored", data.detail || "No active repair to rollback.");
+      }
+    } catch (e) {
+      addToast("error", "Rollback Failed", String(e));
+    }
+  };
+
+  const latestTelemetry = history.length > 0 ? history[history.length - 1] : null;
+
   return (
-    <div className="flex flex-col min-h-screen">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-primary)] text-[var(--content-primary)] transition-colors">
+      {/* Toast Notification Container */}
+      <ToastContainer toasts={toasts} onDismiss={dismissToast} />
+
+      {/* Confirmation Modal for Reset */}
+      <ConfirmationModal
+        isOpen={isResetModalOpen}
+        title="Reset Experiment and Model State?"
+        message="This action will reset the Variational Quantum Classifier weights, flush the optimizer momentum buffers, clear active anomalies, and re-initialize step telemetry to zero. Episodic memory will remain intact."
+        confirmLabel="Reset Everything"
+        cancelLabel="Keep Running"
+        onConfirm={handleReset}
+        onCancel={() => setIsResetModalOpen(false)}
+      />
+
       {/* Top Application Bar */}
       <Header
         isConnected={isConnected}
@@ -369,20 +564,20 @@ export default function DashboardPage() {
         stepCount={stepCount}
         maxSteps={maxSteps}
         isRunning={isRunning}
-        optimizerName={optimizerName}
-        featureMap={featureMap}
-        nLayers={nLayers}
-        nQbits={nQbits}
-        dataset={dataset}
+        activeTab={activeTab}
+        onTabChange={setActiveTab}
+        isDarkMode={isDarkMode}
+        onToggleTheme={handleToggleTheme}
         onStart={handleStart}
-        onStop={handleStop}
+        onPause={handlePause}
+        onResume={handleResume}
         onStep={handleStep}
-        onReset={handleReset}
+        onResetPrompt={() => setIsResetModalOpen(true)}
       />
 
       {/* Main Workspace Dashboard */}
-      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Real-time Telemetry KPI Row */}
+      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+        {/* Real-time Telemetry Health-Style KPI Row (Visible on all tabs) */}
         <MetricsRow
           loss={metrics.loss}
           valLoss={metrics.valLoss}
@@ -395,50 +590,140 @@ export default function DashboardPage() {
           circuitDepth={metrics.circuitDepth}
         />
 
-        {/* Primary Visualization: Loss Trajectory & Real Quantum Bloch Sphere */}
-        <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-          <div className="lg:col-span-2">
-            <LossChart history={history} />
+        {/* TAB 1: OVERVIEW */}
+        {activeTab === "overview" && (
+          <div className="space-y-6 animate-fade-in">
+            {/* Primary Visualization: Loss Trajectory & Interactive Quantum Bloch Sphere */}
+            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+              <div className="lg:col-span-2">
+                <LossChart history={history} />
+              </div>
+              <div className="lg:col-span-1">
+                <BlochSphere
+                  x={bloch.x}
+                  y={bloch.y}
+                  z={bloch.z}
+                  qubitIndex={bloch.qubitIndex || 0}
+                  xMitigated={bloch.x_mitigated}
+                  yMitigated={bloch.y_mitigated}
+                  zMitigated={bloch.z_mitigated}
+                />
+              </div>
+            </section>
+
+            {/* Tri-Panel Overview: Diagnosis, Repair Cockpit, Deployment Status */}
+            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+              <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+              <RepairCockpit
+                selectedArm={selectedArm}
+                eligibleArms={eligibleArms}
+                currentOptimizer={optimizerName}
+                currentFeatureMap={featureMap}
+                currentDepth={metrics.circuitDepth}
+                onTriggerRepair={handleTriggerRepair}
+              />
+              <DeploymentMonitor
+                deployment={deployment}
+                pipelineState={pipelineState}
+                onCommit={handleCommit}
+                onRollback={handleRollback}
+              />
+            </section>
+
+            {/* Controlled Failure Injection Sandbox */}
+            <section>
+              <FailureInjectionPanel onInject={handleInjectFailure} isRunning={isRunning} />
+            </section>
           </div>
-          <div className="lg:col-span-1">
-            <BlochSphere
-              x={bloch.x}
-              y={bloch.y}
-              z={bloch.z}
-              qubitIndex={bloch.qubitIndex || 0}
+        )}
+
+        {/* TAB 2: DIAGNOSIS & REPAIRS */}
+        {activeTab === "diagnosis" && (
+          <div className="space-y-6 animate-fade-in">
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+              <RepairCockpit
+                selectedArm={selectedArm}
+                eligibleArms={eligibleArms}
+                currentOptimizer={optimizerName}
+                currentFeatureMap={featureMap}
+                currentDepth={metrics.circuitDepth}
+                onTriggerRepair={handleTriggerRepair}
+              />
+            </section>
+            <section>
+              <FailureInjectionPanel onInject={handleInjectFailure} isRunning={isRunning} />
+            </section>
+          </div>
+        )}
+
+        {/* TAB 3: DIGITAL TWIN & SAFETY */}
+        {activeTab === "twin" && (
+          <div className="space-y-6 animate-fade-in">
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+              <DigitalTwinPanel
+                prediction={twinPrediction}
+                evaluation={evaluation}
+                onSimulateTwin={handleSimulateTwin}
+                selectedArm={selectedArm}
+              />
+              <DeploymentMonitor
+                deployment={deployment}
+                pipelineState={pipelineState}
+                onCommit={handleCommit}
+                onRollback={handleRollback}
+              />
+            </section>
+          </div>
+        )}
+
+        {/* TAB 4: BANDIT & MEMORY */}
+        {activeTab === "bandit" && (
+          <div className="space-y-6 animate-fade-in">
+            <section>
+              <BanditMonitor
+                decision={banditDecision}
+                posteriors={banditPosteriors}
+                currentTelemetry={latestTelemetry}
+              />
+            </section>
+            <section>
+              <MemoryAndAuditLog
+                episodes={episodes}
+                events={events}
+                onClearEvents={() => setEvents([])}
+              />
+            </section>
+          </div>
+        )}
+
+        {/* TAB 5: BENCHMARKS */}
+        {activeTab === "benchmarks" && (
+          <div className="animate-fade-in">
+            <BenchmarksPanel apiBase={API_BASE} />
+          </div>
+        )}
+
+        {/* TAB 6: SETTINGS */}
+        {activeTab === "settings" && (
+          <div className="animate-fade-in">
+            <SettingsPanel
+              optimizerName={optimizerName}
+              featureMap={featureMap}
+              nLayers={nLayers}
+              nQbits={nQbits}
+              dataset={dataset}
+              learningRate={metrics.learningRate}
+              history={history}
+              apiBase={API_BASE}
             />
           </div>
-        </section>
-
-        {/* Autonomous Closed-Loop Self-Healing: Diagnosis, Repair Cockpit, & Digital Twin */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
-          <RepairCockpit
-            selectedArm={selectedArm}
-            eligibleArms={eligibleArms}
-            currentOptimizer={optimizerName}
-            currentFeatureMap={featureMap}
-            currentDepth={metrics.circuitDepth}
-          />
-          <DigitalTwinPanel prediction={twinPrediction} evaluation={evaluation} />
-        </section>
-
-        {/* Closed-Loop Execution: Deployment & Rollback, Contextual Bandit, and Injection Sandbox */}
-        <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <DeploymentMonitor deployment={deployment} pipelineState={pipelineState} />
-          <BanditMonitor decision={banditDecision} posteriors={banditPosteriors} />
-          <FailureInjectionPanel onInject={handleInjectFailure} isRunning={isRunning} />
-        </section>
-
-        {/* Empirical Knowledge & Audit Logs */}
-        <section>
-          <MemoryAndAuditLog episodes={episodes} events={events} />
-        </section>
+        )}
       </main>
 
-      {/* Sub-footer System Attribution */}
-      <footer className="border-t border-white/5 py-4 px-6 text-center text-xs text-neutral-500 font-mono">
-        Adaptive Self-Healing Quantum Machine Learning Framework • PennyLane 0.45.1 • Next.js 14 • Closed-Loop MAPE-K Architecture
+      {/* Apple-Style Sub-footer System Attribution */}
+      <footer className="border-t border-[var(--border-subtle)] py-4 px-6 text-center text-xs text-[var(--content-secondary)] font-mono">
+        Adaptive Self-Healing Quantum Machine Learning Framework • PennyLane 0.45.1 • Next.js 14 • Contextual Thompson Sampling • Closed-Loop MAPE-K
       </footer>
     </div>
   );

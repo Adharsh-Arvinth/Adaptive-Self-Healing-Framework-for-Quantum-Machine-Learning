@@ -13,10 +13,19 @@ export interface TelemetryPoint {
   circuit_depth: number;
   optimizer_name: string;
   feature_map: string;
-  bloch?: { x: number; y: number; z: number; qubit_index?: number };
+  bloch?: {
+    x: number;
+    y: number;
+    z: number;
+    qubit_index?: number;
+    x_mitigated?: number;
+    y_mitigated?: number;
+    z_mitigated?: number;
+  };
   anomalies?: string[];
   diagnosis?: DiagnosisData | null;
   bandit_decision?: BanditDecisionData | null;
+  twin_prediction?: DigitalTwinPrediction | null;
   deployment?: DeploymentRecord | null;
   evaluation?: EvaluationRecord | null;
   events?: EventItem[];
@@ -46,6 +55,10 @@ export interface PosteriorData {
 }
 
 export interface DigitalTwinPrediction {
+  arm?: string;
+  horizon?: number;
+  initial_loss?: number;
+  predicted_loss_final?: number;
   predicted_loss_delta?: number;
   normalized_predicted_delta?: number;
   proxy_loss_trajectory?: number[];
@@ -90,4 +103,91 @@ export interface Episode {
 export interface EventItem {
   state: string;
   message: string;
+}
+
+export interface BenchmarkSummaryData {
+  calibration?: {
+    production_ece?: number;
+    calibrated_ece?: number;
+    production_brier?: number;
+    calibrated_brier?: number;
+    test_sample_count?: number;
+    optimal_temperature?: number;
+    calibrated_gate_tau?: number;
+    admitted_cases?: number;
+    false_positives_admitted?: number;
+    condition_negatives?: number;
+    fpr_upper_bound_clopper_pearson?: number;
+    fdr_upper_bound_clopper_pearson?: number;
+  };
+  policy_regret?: {
+    thompson_sampling?: {
+      mean_reward?: number;
+      std_reward?: number;
+      mean_regret?: number;
+      recovery_rate?: number;
+      rollback_rate?: number;
+    };
+    greedy?: {
+      mean_reward?: number;
+      std_reward?: number;
+      mean_regret?: number;
+      recovery_rate?: number;
+      rollback_rate?: number;
+    };
+    fixed_heuristic?: {
+      mean_reward?: number;
+      std_reward?: number;
+      mean_regret?: number;
+      recovery_rate?: number;
+      rollback_rate?: number;
+    };
+    random_selection?: {
+      mean_reward?: number;
+      std_reward?: number;
+      mean_regret?: number;
+      recovery_rate?: number;
+      rollback_rate?: number;
+    };
+  };
+  ablation?: {
+    full_framework?: {
+      recovery_rate?: number;
+      rollback_rate?: number;
+      mean_eval_cost?: number;
+    };
+    no_safety_filter?: {
+      recovery_rate?: number;
+      rollback_rate?: number;
+      mean_eval_cost?: number;
+    };
+    no_digital_twin?: {
+      recovery_rate?: number;
+      rollback_rate?: number;
+      mean_eval_cost?: number;
+    };
+    no_episodic_memory?: {
+      recovery_rate?: number;
+      rollback_rate?: number;
+      mean_eval_cost?: number;
+    };
+    no_confidence_gate?: {
+      recovery_rate?: number;
+      rollback_rate?: number;
+      mean_eval_cost?: number;
+    };
+  };
+  per_class?: Record<string, {
+    recovery_rate?: number;
+    precision?: string | number;
+    recall?: number;
+  }>;
+}
+
+export interface ToastMessage {
+  id: string;
+  type: "info" | "success" | "warning" | "error";
+  title: string;
+  message: string;
+  timestamp: number;
 }
