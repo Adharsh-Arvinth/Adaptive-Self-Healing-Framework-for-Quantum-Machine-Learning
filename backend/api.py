@@ -376,18 +376,16 @@ def get_bandit_posteriors():
 
 @app.get("/api/memory/episodes")
 def get_memory_episodes():
-    """Query persistent SQLite failure memory repository."""
+    """Query persistent SQLite failure memory repository (DEF-007)."""
     if not state_mgr.pipeline:
         raise HTTPException(status_code=400, detail="Pipeline not initialized")
 
     count = state_mgr.pipeline.memory.count()
-    # Retrieve top recent episodes
-    dummy_query = np.ones(12) / np.sqrt(12)
-    top_matches = state_mgr.pipeline.memory.retrieve_similar(dummy_query, top_k=20)
+    # Retrieve recent episodes chronologically without dummy vectors
+    recent_episodes = state_mgr.pipeline.memory.get_recent_episodes(limit=20)
 
     episodes = []
-    for m in top_matches:
-        ep = m.episode
+    for ep in recent_episodes:
         episodes.append({
             "episode_id": ep.episode_id,
             "iso_timestamp": ep.iso_timestamp,

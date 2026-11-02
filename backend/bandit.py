@@ -24,6 +24,7 @@ from backend.diagnosis import DiagnosisResult
 from backend.digital_twin import DigitalTwinPrediction
 from backend.repair_library import CandidateRepair, RepairArm
 from backend.safety_filter import SafetyDecision, SafetyFilter
+from backend.evaluation import compute_multi_objective_reward
 
 
 # ----------------------------------------------------------------------
@@ -110,67 +111,13 @@ def build_context_vector(
 
 
 # ----------------------------------------------------------------------
-# Multi-Objective Reward Function
+# Multi-Objective Reward Function (DEF-005)
+# Centralized in backend.evaluation; re-exported above for backward compatibility.
 # ----------------------------------------------------------------------
 
-def compute_multi_objective_reward(
-    loss_pre: float,
-    loss_post: float,
-    acc_pre: float,
-    acc_post: float,
-    grad_norm_pre: float,
-    grad_norm_post: float,
-    failure_type: str,
-    circuit_evaluations: int = 0,
-    depth_pre: int = 2,
-    depth_post: int = 2,
-    was_rolled_back: bool = False,
-    max_depth: int = 8,
-) -> float:
-    """
-    Compute multi-objective recovery reward r in [-1.0, 1.0] post-deployment.
-    Balances fractional loss improvement, accuracy delta, gradient health restoration,
-    computational overhead, circuit complexity change, and rollback penalty.
-    Strictly follows Section 9 in ALGORITHM_SPECIFICATION.md.
-    """
-    # 1. Normalized Loss Improvement: clip((L_pre - L_post) / max(L_pre, 1e-6), -1.0, 1.0)
-    delta_loss_raw = (loss_pre - loss_post) / max(loss_pre, 1e-6)
-    delta_loss_norm = float(np.clip(delta_loss_raw, -1.0, 1.0))
 
-    # 2. Accuracy Delta: Acc_post - Acc_pre in [-1.0, 1.0]
-    delta_acc = float(np.clip(acc_post - acc_pre, -1.0, 1.0))
-
-    # 3. Gradient Health Restoration (Only for vanishing gradient or stagnation regimes)
-    ft_lower = str(failure_type).lower()
-    if "barren_plateau" in ft_lower or "persistent_plateau" in ft_lower:
-        ratio = (grad_norm_post - grad_norm_pre) / (grad_norm_pre + 1e-6)
-        r_grad = float(np.tanh(ratio))
-    else:
-        r_grad = 0.0  # Avoid double-counting during normal or divergent optimization
-
-    # 4. Normalized Computational Cost in [0.0, 1.0]
-    c_compute = float(np.clip(circuit_evaluations / 500.0, 0.0, 1.0))
-
-    # 5. Circuit Complexity Penalty: max(0, L_post - L_pre) / L_max in [0.0, 1.0]
-    delta_depth = float(max(0, depth_post - depth_pre) / float(max_depth))
-
-    # 6. Rollback Indicator: 1.0 if rolled back, 0.0 if committed
-    i_rollback = 1.0 if was_rolled_back else 0.0
-
-    # Locked Weights: w1=0.40, w2=0.25, w3=0.15, w4=0.05, w5=0.05, w6=0.10
-    w1, w2, w3, w4, w5, w6 = 0.40, 0.25, 0.15, 0.05, 0.05, 0.10
-    reward = (
-        w1 * delta_loss_norm
-        + w2 * delta_acc
-        + w3 * r_grad
-        - w4 * c_compute
-        - w5 * delta_depth
-        - w6 * i_rollback
-    )
-
-    return float(np.clip(reward, -1.0, 1.0))
-
-
+# ----------------------------------------------------------------------
+# Bayesian Linear Regression Posterior for a Single Arm
 # ----------------------------------------------------------------------
 # Bayesian Linear Regression Posterior for a Single Arm
 # ----------------------------------------------------------------------
@@ -245,6 +192,25 @@ class ArmPosterior:
         denominator = 1.0 + float(np.dot(x, B_inv_x))
         numerator = np.outer(B_inv_x, B_inv_x)  # Shape (d, d)
         self.B_inv -= numerator / max(1e-12, denominator)
+
+        # DEF-006: Numerical stability enforcement
+        # 1. Enforce exact symmetry against floating-point roundoff
+        self.B_inv = 0.5 * (self.B_inv + self.B_inv.T)
+        self.B = 0.5 * (self.B + self.B.T)
+
+        # 2. Positive definiteness verification: compute minimum eigenvalue
+        eigvals = np.linalg.eigvalsh(self.B_inv)
+        min_eig = float(np.min(eigvals))
+        if min_eig <= 1e-10:
+            # Recondition: direct robust inversion of regularized precision matrix
+            try:
+                self.B_inv = np.linalg.inv(self.B + 1e-6 * np.eye(self.d))
+                self.B_inv = 0.5 * (self.B_inv + self.B_inv.T)
+            except np.linalg.LinAlgError:
+                # Spectral floor clipping fallback
+                eigvals_clip, eigvecs = np.linalg.eigh(self.B_inv)
+                eigvals_clip = np.maximum(eigvals_clip, 1e-6)
+                self.B_inv = eigvecs @ np.diag(eigvals_clip) @ eigvecs.T
 
         # Update mean vector: mu = B_inv * f
         self.mu = np.dot(self.B_inv, self.f)

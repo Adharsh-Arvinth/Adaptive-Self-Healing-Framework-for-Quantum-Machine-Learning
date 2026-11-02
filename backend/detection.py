@@ -154,8 +154,25 @@ class FailureDetector:
         # Essential check: Avoid classifying well-converged models as barren plateaus
         is_loss_high = o.loss > self.thresholds.bp_min_loss
 
-        # Qubit scaling threshold for variance
-        n_qubits = max(2, o.circuit_depth)
+        # Scientific Formulation for Barren Plateau Variance Bound (DEF-002)
+        # McClean et al. (2018), Cerezo et al. (2021):
+        # Under random hardware-efficient parameterized quantum circuits forming approximate unitary
+        # 2-designs (depth L >= Omega(n)) measured with local observables (e.g. Z_0), the variance
+        # of the gradient vanishes exponentially with the number of qubits: Var_theta[dC/dtheta] ~ O(2^-n).
+        #
+        # ASSUMPTIONS:
+        # 1. Haar-random or approximate unitary 2-design parameter initialization.
+        # 2. Scrambling circuit depth L >= Omega(n) sufficient for state randomization.
+        # 3. Local Pauli observable (e.g. Z_0). Global observables scale as O(2^-2n) even at depth L=1.
+        # 4. Unentangled product state input.
+        #
+        # LIMITATIONS:
+        # Shallow ansatzes (L in O(log n)) with local cost functions exhibit polynomial scaling O(1/poly(n)),
+        # not exponential concentration. Conversely, global observables concentrate exponentially regardless
+        # of depth. Hence, 2^-n represents a theoretical scaling envelope under deep random circuits,
+        # and must be conjoined with loss_high (o.loss > bp_min_loss) to prevent false classification
+        # of well-converged models.
+        n_qubits = max(1, int(getattr(o, "n_qubits", 2)))
         var_bound = self.thresholds.bp_grad_var_max * (2.0 ** (-n_qubits))
 
         is_grad_norm_low = o.gradient_norm < self.thresholds.bp_grad_norm_max

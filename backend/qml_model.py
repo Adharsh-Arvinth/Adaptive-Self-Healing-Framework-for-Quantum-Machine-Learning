@@ -47,6 +47,7 @@ class StepMetrics:
     parameter_velocity: float
     learning_rate: float
     circuit_depth: int
+    n_qubits: int = 2
 
 
 @dataclass
@@ -431,15 +432,57 @@ class VQCModel:
         try:
             exp_vals = _bloch_qnode(self.params, sample_x)
             bx, by, bz = float(exp_vals[0]), float(exp_vals[1]), float(exp_vals[2])
-            # Account for noise contraction if active
+            # Account for physical noise contraction if active (mixed state Bloch vector contracts: ||r|| < 1)
+            # In accordance with DEF-003, we preserve the true physical noisy quantum-state coordinates.
             if self._noise_level > 0.0:
                 contraction = max(0.1, 1.0 - 0.5 * self._noise_level)
                 bx *= contraction
                 by *= contraction
                 bz *= contraction
-            return {"x": bx, "y": by, "z": bz, "qubit": 0}
+
+            # Physical Bloch radius and purity for single-qubit reduced mixed state rho
+            bloch_radius = float(np.sqrt(bx**2 + by**2 + bz**2))
+            purity = float(0.5 * (1.0 + min(1.0, bloch_radius**2)))
+
+            # If simulation-side noise mitigation is enabled, compute error-mitigated expectation-value
+            # estimates separately (Zero-Noise Extrapolation / linear Richardson scaling) without
+            # artificially purifying the true physical state.
+            if self.config.noise_mitigation and self._noise_level > 0.0:
+                mitigation_factor = 1.0 / max(0.1, 1.0 - 0.5 * self._noise_level)
+                mit_x = float(np.clip(bx * mitigation_factor, -1.0, 1.0))
+                mit_y = float(np.clip(by * mitigation_factor, -1.0, 1.0))
+                mit_z = float(np.clip(bz * mitigation_factor, -1.0, 1.0))
+            else:
+                mit_x, mit_y, mit_z = bx, by, bz
+
+            # Return both 'qubit' and 'qubit_index' (and 'qubitIndex') for full backward/forward API compatibility (DEF-004)
+            return {
+                "x": bx,
+                "y": by,
+                "z": bz,
+                "qubit": 0,
+                "qubit_index": 0,
+                "qubitIndex": 0,
+                "purity": purity,
+                "radius": bloch_radius,
+                "mitigated_x": mit_x,
+                "mitigated_y": mit_y,
+                "mitigated_z": mit_z,
+            }
         except Exception:
-            return {"x": 0.0, "y": 0.0, "z": 1.0, "qubit": 0}
+            return {
+                "x": 0.0,
+                "y": 0.0,
+                "z": 1.0,
+                "qubit": 0,
+                "qubit_index": 0,
+                "qubitIndex": 0,
+                "purity": 1.0,
+                "radius": 1.0,
+                "mitigated_x": 0.0,
+                "mitigated_y": 0.0,
+                "mitigated_z": 1.0,
+            }
 
     def compute_loss_and_accuracy(
         self, X: np.ndarray, y: np.ndarray, params: Optional[np.ndarray] = None
@@ -582,6 +625,7 @@ class VQCModel:
             parameter_velocity=param_vel,
             learning_rate=self.optimizer.lr,
             circuit_depth=self.config.n_layers,
+            n_qubits=self.config.n_qubits,
         )
         return metrics
 

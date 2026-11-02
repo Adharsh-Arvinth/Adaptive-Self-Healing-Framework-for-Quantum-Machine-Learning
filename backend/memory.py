@@ -308,6 +308,48 @@ class FailureMemory:
         candidates.sort(key=lambda x: x[1], reverse=True)
         return [SimilarEpisode(episode=ep, similarity=sim) for ep, sim in candidates[:top_k]]
 
+    def get_recent_episodes(self, limit: int = 20) -> List[FailureEpisode]:
+        """
+        Retrieve recent failure episodes ordered by timestamp descending (DEF-007).
+        Provides clean chronological retrieval without requiring synthetic query embeddings.
+        """
+        with self._get_connection() as conn:
+            cursor = conn.execute(
+                "SELECT * FROM failure_episodes ORDER BY timestamp DESC LIMIT ?", (limit,)
+            )
+            rows = cursor.fetchall()
+
+        episodes: List[FailureEpisode] = []
+        for row in rows:
+            try:
+                emb_list = json.loads(row["embedding"])
+                v = np.array(emb_list, dtype=np.float64)
+                ep = FailureEpisode(
+                    episode_id=row["episode_id"],
+                    timestamp=row["timestamp"],
+                    iso_timestamp=row["iso_timestamp"],
+                    experiment_id=row["experiment_id"],
+                    step=row["step"],
+                    embedding=v,
+                    diagnosed_cause=row["diagnosed_cause"],
+                    diagnosis_confidence=row["diagnosis_confidence"],
+                    telemetry_summary=json.loads(row["telemetry_summary"]),
+                    selected_repair=row["selected_repair"],
+                    recovery_duration=row["recovery_duration"],
+                    loss_before=row["loss_before"],
+                    loss_after=row["loss_after"],
+                    loss_improvement=row["loss_improvement"],
+                    acc_before=row["acc_before"],
+                    acc_after=row["acc_after"],
+                    acc_improvement=row["acc_improvement"],
+                    reward=row["reward"],
+                    status=row["status"],
+                )
+                episodes.append(ep)
+            except Exception:
+                continue
+        return episodes
+
     def count(self) -> int:
         """Return total count of stored failure episodes."""
         with self._get_connection() as conn:

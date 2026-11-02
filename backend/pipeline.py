@@ -126,6 +126,7 @@ class SelfHealingPipeline:
         self.repair_history: List[RepairHistoryRecord] = []
         self.event_log: List[PipelineEvent] = []
         self._current_context: Optional[np.ndarray] = None
+        self._current_failure_embedding: Optional[np.ndarray] = None
         self._current_twin_pred: Optional[DigitalTwinPrediction] = None
         self._current_diagnosis: Optional[DiagnosisResult] = None
 
@@ -308,6 +309,7 @@ class SelfHealingPipeline:
 
         # 1. Failure Memory Nearest Neighbor Retrieval
         query_emb = build_failure_embedding(obs, summary, diag, max_depth=self.evaluator.max_depth)
+        self._current_failure_embedding = query_emb.copy()
         similar_episodes = self.memory.retrieve_similar(query_emb, top_k=3)
         mem_prior_reward = float(similar_episodes[0].episode.reward) if similar_episodes else 0.0
         mem_top_similarity = float(similar_episodes[0].similarity) if similar_episodes else 0.0
@@ -440,15 +442,21 @@ class SelfHealingPipeline:
                 actual_reward=eval_rec.actual_reward,
             )
 
-        # 2. Update Persistent Failure Memory
-        if self._current_context is not None:
+        # 2. Update Persistent Failure Memory (DEF-001)
+        # Store genuine 12D telemetry failure embedding (query_emb), matching retrieval schema
+        stored_embedding = (
+            self._current_failure_embedding.copy()
+            if self._current_failure_embedding is not None
+            else (self._current_context.copy() if self._current_context is not None else np.zeros(12, dtype=np.float64))
+        )
+        if self._current_context is not None or self._current_failure_embedding is not None:
             ep = FailureEpisode(
                 episode_id=f"ep_{deployment.deployment_id}",
                 timestamp=time.time(),
                 iso_timestamp=time.strftime("%Y-%m-%dT%H:%M:%SZ", time.gmtime()),
                 experiment_id=self.experiment_id,
                 step=deployment.checkpoint.step,
-                embedding=self._current_context.copy(),
+                embedding=stored_embedding,
                 diagnosed_cause=failure_type_name,
                 diagnosis_confidence=self._current_diagnosis.confidence if self._current_diagnosis else 0.5,
                 telemetry_summary={"loss_pre": deployment.loss_pre, "loss_post": deployment.loss_post},

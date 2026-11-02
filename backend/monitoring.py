@@ -28,6 +28,7 @@ class HealthObservation:
     parameter_velocity: float
     learning_rate: float
     circuit_depth: int
+    n_qubits: int = 2
     is_valid: bool = True
     error_flags: List[str] = field(default_factory=list)
 
@@ -66,6 +67,7 @@ class TelemetrySummary:
     loss_cv: float  # Coefficient of variation std / (mean + eps)
     has_nan_or_inf: bool
     invalid_steps_count: int
+    n_qubits: int = 2
 
 
 class HealthMonitor:
@@ -144,6 +146,8 @@ class HealthMonitor:
         else:
             param_vel = float(max(0.0, param_vel))
 
+        n_qubits = int(getattr(metrics, "n_qubits", 2))
+
         obs = HealthObservation(
             step=metrics.epoch,
             timestamp=now_ts,
@@ -158,6 +162,7 @@ class HealthMonitor:
             parameter_velocity=param_vel,
             learning_rate=float(metrics.learning_rate),
             circuit_depth=metrics.circuit_depth,
+            n_qubits=n_qubits,
             is_valid=is_valid,
             error_flags=error_flags,
         )
@@ -190,6 +195,7 @@ class HealthMonitor:
                 param_velocity_mean=0.0, param_velocity_recent=0.0,
                 oscillation_count=0, loss_cv=0.0,
                 has_nan_or_inf=False, invalid_steps_count=0,
+                n_qubits=2,
             )
 
         losses = np.array([o.loss for o in obs_list], dtype=float)
@@ -254,6 +260,7 @@ class HealthMonitor:
             loss_cv=loss_cv,
             has_nan_or_inf=has_nan_or_inf,
             invalid_steps_count=invalid_count,
+            n_qubits=obs_list[-1].n_qubits if hasattr(obs_list[-1], "n_qubits") else 2,
         )
 
     def export_history(self) -> List[Dict[str, Any]]:
@@ -272,6 +279,7 @@ class HealthMonitor:
                 "parameter_velocity": o.parameter_velocity,
                 "learning_rate": o.learning_rate,
                 "circuit_depth": o.circuit_depth,
+                "n_qubits": getattr(o, "n_qubits", 2),
                 "is_valid": o.is_valid,
                 "error_flags": o.error_flags,
             }
