@@ -31,7 +31,7 @@ Traditionally, when a model fails, the training run is lost and a human engineer
 **This framework acts as an autonomous runtime "doctor" for the quantum model:**
 1. It continuously monitors the quantum model's vitals (loss, gradients, quantum Bloch coordinates).
 2. If an anomaly occurs, it identifies the root cause using a **Bayesian Diagnostician**.
-3. If confident ($\ge 60\%$), it uses an AI policy (**Contextual Bandit**) to choose the best repair strategy (e.g., scale learning rate, perturb parameters, add quantum entangling layers).
+3. If confident ($\ge 60\%$), it uses an AI policy (**Contextual Thompson Sampling**) to choose the best repair strategy (e.g., adjust learning rate, reduce circuit depth, modify feature map, change optimizer, apply noise mitigation, or warm restart).
 4. Before touching the actual quantum circuit, it tests the fix in a fast **Digital Twin Sandbox**.
 5. It applies the repair with an **automatic safety net (Atomic Rollback)**: if the repair helps, it commits the changes; if the model gets worse, it instantly reverts to a saved snapshot.
 6. Everything is visible in real-time on a modern **Apple-inspired Web Dashboard**.
@@ -192,7 +192,7 @@ In the top control bar:
 - In the **Loss & Convergence** chart, observe the loss curve smoothly trending downwards.
 - In the **3D Bloch Sphere Visualizer**, rotate the sphere with your mouse to observe the quantum state vector traversing the Bloch sphere surface.
 
-### Step 4: Inject a Physical Failure
+### Step 4: Inject a Synthetic Quantum Failure
 Scroll down to the **"Failure Injection Cockpit"**:
 - Select **`LR Misconfiguration`** or **`Quantum Noise Degradation`**.
 - Keep the severity at `1.0`.
@@ -203,10 +203,10 @@ Observe the coordinated sequence across the dashboard panels:
 1. **Anomaly Detected:** The top status bar changes to an orange warning. The **Telemetry Stream** flags loss spikes and gradient anomalies.
 2. **Root-Cause Diagnosis:** In the **Diagnosis Panel**, the Bayesian diagnostician computes posterior probabilities across all 6 failure hypotheses.
 3. **Confidence Gating:** If confidence is below $60\%$, the state displays **"CONFIDENCE_GATE_HOLD"**, safely abstaining from rash decisions. As symptoms clarify, confidence exceeds the threshold.
-4. **Bandit Decision:** The **Bandit Monitor** highlights the chosen repair arm (e.g., `scale_learning_rate` or `modify_feature_map`).
+4. **Bandit Decision:** The **Bandit Monitor** highlights the chosen repair arm (e.g., `adjust_learning_rate` or `modify_feature_map`).
 5. **Digital Twin Validation:** The **Digital Twin Panel** simulates the proposed repair for $H=3$ steps ahead in a sandbox to ensure it won't crash the circuit.
 6. **Atomic Rollback Safety:** The **Deployment Monitor** shows the repair entering the 3-step validation window. If the loss improves, it reports **"COMMITTED"**; if the repair fails, it instantly triggers **"ROLLED BACK"** to protect the model.
-7. **Lifelong Memory:** The **Memory & Audit Log** automatically logs the episode into the SQLite database, updating the LinUCB policy for future runs.
+7. **Lifelong Memory:** The **Memory & Audit Log** automatically logs the episode into the SQLite database, updating the Contextual Thompson Sampling policy for future runs.
 
 ---
 
@@ -223,7 +223,7 @@ This executes an end-to-end self-healing cycle in the terminal:
 - Runs 5 nominal VQC training steps.
 - Injects a severe learning rate fault at step 6.
 - Detects the anomaly and activates the Bayesian confidence gate.
-- Selects a candidate repair using the LinUCB contextual bandit.
+- Selects a candidate repair using Contextual Thompson Sampling.
 - Evaluates the repair, commits it to the model, and updates the SQLite episodic memory.
 - Writes full machine-readable telemetry to `docs/vertical_slice_trace.json`.
 
@@ -241,7 +241,7 @@ This tests:
 - All 6 failure injection mechanisms and safety limits.
 - The 12-dimensional continuous telemetry extractor.
 - Gaussian Naïve Bayes diagnosis and the $\tau=0.60$ confidence gate.
-- LinUCB contextual bandit updates and Thompson Sampling.
+- Contextual Thompson Sampling bandit updates with Sherman-Morrison rank-1 inversions.
 - Digital twin proxy forward simulation and state cloning.
 - Atomic commit and rollback state restoration.
 - SQLite memory episode storage and retrieval.

@@ -10,9 +10,9 @@
 
 ## Abstract
 
-Variational Quantum Circuits (VQCs) form the foundational backbone of Noisy Intermediate-Scale Quantum (NISQ) machine learning. However, their optimization landscapes are notoriously fragile, subject to trainability collapses including barren plateaus, stochastic quantum noise drift, optimization saddle traps, learning rate misconfigurations, and numerical loss divergence. Current mitigation approaches rely on manual post-hoc intervention, static hyperparameters, or unguided heuristic restarts, lacking real-time autonomous fault tolerance. In this paper, we present an end-to-end **Adaptive Self-Healing Framework for Quantum Machine Learning**, establishing the first autonomous, closed-loop diagnostic and recovery pipeline for parameterized quantum circuits. The framework continuously monitors training telemetry through a 12-dimensional state vector, synthesizes probabilistic failure diagnoses via temperature-scaled Bayesian inference, retrieves historical precedent from a vector-embedded episodic failure memory, evaluates candidate configuration transformations in an isolated short-horizon ($H = 3$) Digital Twin proxy simulation, and executes policy selection via a Contextual Thompson Sampling multi-armed bandit conditioned on a rule-based safety envelope. 
+Variational Quantum Circuits (VQCs) form the foundational backbone of Noisy Intermediate-Scale Quantum (NISQ) machine learning. However, their optimization landscapes are notoriously fragile, subject to trainability collapses including barren plateaus, stochastic quantum noise drift, optimization saddle traps, learning rate misconfigurations, and numerical loss divergence. Current mitigation approaches rely on manual post-hoc intervention, static hyperparameters, or unguided heuristic restarts, lacking real-time autonomous fault tolerance. In this paper, we present an end-to-end **Adaptive Self-Healing Framework for Quantum Machine Learning**, establishing an autonomous, closed-loop diagnostic and recovery pipeline for parameterized quantum circuits. The framework continuously monitors training telemetry through a 12-dimensional state vector, synthesizes probabilistic failure diagnoses via temperature-scaled Bayesian inference, retrieves historical precedent from a vector-embedded episodic failure memory, evaluates candidate configuration transformations in an isolated short-horizon ($H = 3$) Digital Twin proxy simulation, and executes policy selection via a Contextual Thompson Sampling multi-armed bandit conditioned on a rule-based safety envelope. 
 
-We rigorously validate the architecture across 3,000 physical circuit executions spanning 10 independent random seeds. On an unseen test split ($N = 150$), temperature-scaled probability calibration ($T^* = 1.70, \tau^* = 0.84$) reduces Expected Calibration Error (ECE) by $54.9\%$ ($0.430 \to 0.194$) and multiclass Brier score by $33.3\%$ ($0.865 \to 0.577$), bounding false positive admission risk to $\le 4.99\%$ (exact Clopper–Pearson 95% upper bound) at a coverage of $16.7\%$. In a 10-seed policy regret benchmark ($N = 1,200$ episodes), Contextual Thompson Sampling slashes destructive parameter rollbacks by over $50\%$ relative to static heuristics ($10.7\%$ vs $23.0\%$) and exhibits superior stability ($\sigma = 0.28$ vs $0.76$ for greedy optimization), while achieving comparable mean cumulative reward ($p = 0.3282$). An architectural ablation across 1,200 episodes establishes that bypassing the safety filter causes destructive rollbacks to surge from $9.3\%$ to $34.0\%$ (surging up to $80.0\%$ in individual seeds). Granular per-class analysis demonstrates $100.0\%$ precision on barren plateaus and training divergences, while illuminating intrinsic phenomenological conflations between optimizer momentum corruption and quantum noise drift. This work provides an open-source, fully reproducible blueprint for autonomous self-healing quantum software.
+We rigorously validate the architecture across 3,000 simulated quantum circuit training episodes spanning 10 independent random seeds. On an unseen test split ($N = 150$), temperature-scaled probability calibration ($T^* = 1.70, \tau^* = 0.84$) reduces Expected Calibration Error (ECE) by $54.9\%$ ($0.430 \to 0.194$) and multiclass Brier score by $33.3\%$ ($0.865 \to 0.577$), bounding false positive admission risk to $\le 4.99\%$ (exact Clopper–Pearson 95% upper bound) at a coverage of $16.7\%$. In a 10-seed policy regret benchmark ($N = 1,200$ episodes), Contextual Thompson Sampling slashes destructive parameter rollbacks by over $50\%$ relative to static heuristics ($10.7\%$ vs $23.0\%$) and exhibits superior stability ($\sigma = 0.28$ vs $0.76$ for greedy optimization), while achieving comparable mean cumulative reward ($p = 0.3282$). An architectural ablation across 1,200 episodes establishes that bypassing the safety filter causes destructive rollbacks to surge from $9.3\%$ to $34.0\%$ (surging up to $80.0\%$ in individual seeds). Granular per-class analysis demonstrates $100.0\%$ precision on barren plateaus and training divergences, while illuminating intrinsic phenomenological conflations between optimizer momentum corruption and quantum noise drift. This work provides an open-source, fully reproducible blueprint for autonomous self-healing quantum software.
 
 **Keywords:** Variational Quantum Circuits, Quantum Machine Learning, Self-Healing Systems, Contextual Bandits, Digital Twin, Barren Plateaus, Probability Calibration, Safe Deployment.
 
@@ -28,16 +28,16 @@ Despite substantial theoretical promise, VQC optimization is exceptionally fragi
 3. **Hyperparameter Misconfiguration & Instability:** Improper classical optimizer learning rates cause catastrophic parameter oscillations or divergence, while corrupted momentum buffers in adaptive algorithms (e.g., Adam) lock parameters into oscillatory limit cycles [8].
 4. **Saddle Traps & Persistent Stagnation:** Quantum optimization landscapes abound with non-global saddle manifolds where the parameter velocity vanishes while training loss remains unacceptably high [9].
 
-When any of these failures manifest, existing workflows either terminate unconditionally, require manual trial-and-error hyperparameter re-tuning, or initiate unguided random restarts that discard all acquired optimization progress [10]. No unified, autonomous mechanism currently exists to detect anomalies online, diagnose their root cause probabilistically, evaluate countermeasure risk before physical execution, and safely commit configuration adjustments.
+When any of these failures manifest, existing workflows either terminate unconditionally, require manual trial-and-error hyperparameter re-tuning, or initiate unguided random restarts that discard all acquired optimization progress [10]. No unified, autonomous mechanism currently exists to detect anomalies online, diagnose their root cause probabilistically, evaluate countermeasure risk before live model execution, and safely commit configuration adjustments.
 
 ### Primary Contributions
 To address this fundamental gap, this work introduces the **Adaptive Self-Healing Framework for Quantum Machine Learning**, providing:
-- **A 12-Dimensional Multi-Scale Telemetry Representation:** Integrating loss dynamics, parameter-shift gradient norms, gradient variances, parameter displacement velocities, episodic memory retrieval similarities, and digital twin proxy estimates into a mathematically bounded context vector $\mathbf{x} \in \mathbb{R}^{12}$.
+- **A 12-Dimensional Multi-Scale Telemetry Representation:** Integrating loss dynamics, parameter-shift gradient norms, gradient variances, parameter displacement velocities, episodic memory retrieval similarities, and digital twin proxy estimates into a mathematically bounded context vector $\mathbf{x} \in [-1, 1]^{12}$.
 - **Temperature-Scaled Probabilistic Diagnosis with Confidence Gating:** A multi-window statistical anomaly detector coupled to a calibrated Bayesian diagnostic engine that discriminates among six canonical failure modes, suppressing ungrounded interventions through a tunable confidence gate $\tau$.
 - **Isolated Short-Horizon ($H = 3$) Digital Twin Proxy Verification:** An isolated proxy simulator that evaluates candidate repairs on non-training validation batches without mutating live circuit weights, measuring predicted loss deltas and uncertainty.
 - **Safety-Envelope Contextual Thompson Sampling:** A Bayesian multi-armed bandit (Normal-Inverse-Gamma posteriors) selecting among six locked repair transformations under hard anti-oscillation and parameter boundary constraints.
 - **Atomic Checkpointing and Controlled Rollback:** A safe deployment manager that restores pre-failure model checkpoints if post-repair validation metrics indicate divergence or regression.
-- **Exhaustive Empirical Validation:** A multi-seed evaluation campaign comprising 3,000 physical executions across 10 random seeds, rigorously documenting calibration, policy regret, component ablations, and per-class diagnostic conflations.
+- **Exhaustive Empirical Validation:** A multi-seed evaluation campaign comprising 3,000 simulated training episodes across 10 random seeds, rigorously documenting calibration, policy regret, component ablations, and per-class diagnostic conflations.
 
 ---
 
@@ -105,25 +105,40 @@ To monitor quantum state purity without artificial state normalization, the redu
 $$\mathbf{r}_{\text{noisy}} = \max(0.1, 1 - 0.5\lambda)\mathbf{r}_{\text{ideal}}$$
 The physical state purity is rigorously preserved as $\gamma = \text{Tr}(\rho_0^2) = \frac{1 + \|\mathbf{r}_{\text{noisy}}\|_2^2}{2} \le 1$. Where noise mitigation is selected, an error-mitigated expectation value estimate is computed via analytical Richardson inverse scaling without altering the true underlying contracted mixed state.
 
-### C. 12-Dimensional Context Representation $\mathbf{x}_t \in \mathbb{R}^{12}$
-At each decision step $t$, telemetry observations are mapped into a standardized feature vector $\mathbf{x}_t = [x_1, \dots, x_{12}]^T \in [-1, 1]^{12}$:
-- $x_1$: Normalized Training Loss $\tanh(L_{\text{train}})$.
-- $x_2$: Normalized Loss Rate of Change $\tanh(10 \cdot \Delta L)$.
-- $x_3$: Logarithmic Gradient Norm $\frac{\ln(1 + \|\nabla_{\boldsymbol{\theta}} L\|_2)}{\ln(1 + 100)}$.
-- $x_4$: Logarithmic Gradient Variance $\frac{\ln(1 + \text{Var}[\nabla_{\boldsymbol{\theta}} L])}{\ln(1 + 50)}$.
-- $x_5$: Normalized Parameter Displacement Velocity $\tanh(10 \cdot \|\boldsymbol{\theta}_t - \boldsymbol{\theta}_{t-1}\|_2)$.
-- $x_6$: Relative Circuit Depth Expansion $\frac{L_t}{L_{\max}} \in [0, 1]$.
-- $x_7$: Primary Diagnostic Confidence $\max_c P(c \mid \mathcal{A}) \in [0, 1]$.
-- $x_8$: Categorical Cause Encoding (integer index normalized to $[0, 1]$).
-- $x_9$: Episodic Memory Retrieved Nearest-Neighbor Reward Prior $\in [-1, 1]$.
-- $x_{10}$: Episodic Memory Cosine Similarity Metric $S_C \in [0, 1]$.
+### C. 12-Dimensional Context Representation $\mathbf{x}_t \in [-1, 1]^{12}$
+At each decision step $t$, telemetry observations are mapped into a standardized feature vector $\mathbf{x}_t = [x_1, \dots, x_{12}]^T \in [-1, 1]^{12}$ (implemented in `backend/bandit.py::build_context_vector`):
+- $x_1$: Constant Bias Offset ($x_1 = 1.0$).
+- $x_2$: Normalized Training Loss $\tanh(L_t) \in [0, 1)$.
+- $x_3$: Logarithmic Gradient Norm $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \|\mathbf{g}\|) + 10^{-8}) + 8}{12}, -1, 1\right)$.
+- $x_4$: Logarithmic Gradient Variance $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \operatorname{Var}[\mathbf{g}]) + 10^{-10}) + 10}{14}, -1, 1\right)$.
+- $x_5$: Normalized Parameter Displacement Velocity $\tanh(10 \cdot \|\boldsymbol{\theta}_t - \boldsymbol{\theta}_{t-1}\|_2) \in [0, 1)$.
+- $x_6$: Relative Circuit Depth $\operatorname{clip}\left(\frac{\max(1, D)}{D_{\max}}, 0, 1\right) \in [0.125, 1.0]$ with $D_{\max} = 8$.
+- $x_7$: Primary Diagnostic Confidence $p_{\text{primary}} = \max_c P(c \mid \mathcal{A}) \in [1/6, 1.0]$.
+- $x_8$: Normalized Diagnostic Entropy $\frac{-\sum_{c=1}^6 p_c \ln(p_c + 10^{-12})}{\ln 6} \in [0, 1]$.
+- $x_9$: Episodic Memory Retrieved Nearest-Neighbor Reward Prior $r_{\text{hist}} \in [-1, 1]$.
+- $x_{10}$: Episodic Memory Top Cosine Similarity Metric $s_{\text{hist}} \in [-1, 1]$.
 - $x_{11}$: Digital Twin Predicted Loss Delta $\Delta \hat{L}_{\text{twin}} \in [-1, 1]$.
-- $x_{12}$: Digital Twin Simulation Uncertainty $\hat{\sigma}_{\text{twin}} \in [0, 1]$.
+- $x_{12}$: Digital Twin Proxy Stability Metric $S_{\text{twin}} \in [0, 1]$.
 
 ### D. Multi-Objective Recovery Reward Function
-Upon completing a validation window $W_{\text{val}} = 3$ following repair deployment, the empirical reward $r_t$ is computed via:
-$$r_t = w_{\text{term}} \cdot \mathbf{1}_{\{\text{committed}\}} + w_{\text{loss}} \cdot \Delta L_{\text{rel}} + w_{\text{acc}} \cdot \Delta A - w_{\text{eval}} \cdot \frac{C_{\text{eval}}}{C_{\max}} - w_{\text{depth}} \cdot \frac{\Delta L_{\text{depth}}}{L_{\max}} + w_{\text{grad}} \cdot \tanh(10 \cdot \|\nabla_{\boldsymbol{\theta}} L\|_{\text{post}})$$
-with frozen weights: $w_{\text{term}} = 0.40, w_{\text{loss}} = 0.25, w_{\text{acc}} = 0.15, w_{\text{eval}} = 0.05, w_{\text{depth}} = 0.05, w_{\text{grad}} = 0.10$. For rolled-back repairs, $\mathbf{1}_{\{\text{committed}\}} = -1.0$.
+Upon completing a validation window $W_{\text{val}} = 3$ following repair deployment, the empirical reward $r \in [-1.0, 1.0]$ is computed via the frozen multi-objective formulation (implemented in `backend/evaluation.py::compute_multi_objective_reward`):
+$$r = \operatorname{clip}\left(w_1 \cdot \delta_{\mathcal{L}} + w_2 \cdot \delta_{\text{acc}} + w_3 \cdot r_{\text{grad}} - w_4 \cdot c_{\text{cost}} - w_5 \cdot \delta_D - w_6 \cdot i_{\text{rollback}}, -1.0, 1.0\right)$$
+with the verified frozen weights satisfying $\sum_{i=1}^6 w_i = 1.00$:
+$$\mathbf{w} = [w_1 = 0.40, \; w_2 = 0.25, \; w_3 = 0.15, \; w_4 = 0.05, \; w_5 = 0.05, \; w_6 = 0.10]^T$$
+where:
+1. **Fractional Loss Improvement ($\delta_{\mathcal{L}} \in [-1.0, 1.0]$):**
+   $$\delta_{\mathcal{L}} = \begin{cases} \operatorname{clip}\left(\frac{\mathcal{L}_{\text{pre}} - \mathcal{L}_{\text{post}}}{\max(\mathcal{L}_{\text{pre}}, 10^{-6})}, -1.0, 1.0\right), & \text{if } \mathcal{L}_{\text{pre}} > 10^{-6} \text{ and } \mathcal{L}_{\text{pre}} \notin \{\text{NaN}, \text{Inf}\} \\ 0.0, & \text{otherwise} \end{cases}$$
+2. **Classification Accuracy Delta ($\delta_{\text{acc}} \in [-1.0, 1.0]$):**
+   $$\delta_{\text{acc}} = \operatorname{clip}(\operatorname{Acc}_{\text{post}} - \operatorname{Acc}_{\text{pre}}, -1.0, 1.0)$$
+3. **Gradient Health Recovery Term ($r_{\text{grad}} \in (-1.0, 1.0)$):**
+   $$r_{\text{grad}} = \begin{cases} \tanh\left(\frac{\|\mathbf{g}\|_{\text{post}} - \|\mathbf{g}\|_{\text{pre}}}{\|\mathbf{g}\|_{\text{pre}} + 10^{-6}}\right), & \text{if failure} \in \{\text{barren\_plateau}, \text{persistent\_plateau}\} \text{ and } \|\mathbf{g}\|_{\text{pre}} > 0 \\ 0.0, & \text{otherwise} \end{cases}$$
+4. **Normalized Computational Evaluation Cost ($c_{\text{cost}} \in [0.0, 1.0]$):**
+   $$c_{\text{cost}} = \operatorname{clip}\left(\frac{N_{\text{circuit\_evaluations}}}{500}, 0.0, 1.0\right)$$
+5. **Circuit Depth Expansion Penalty ($\delta_D \in [0.0, 1.0]$):**
+   $$\delta_D = \frac{\max(0, D_{\text{post}} - D_{\text{pre}})}{D_{\max}}, \quad D_{\max} = 8$$
+6. **Rollback Indicator ($i_{\text{rollback}} \in \{0.0, 1.0\}$):**
+   $$i_{\text{rollback}} = \begin{cases} 1.0, & \text{if repair failed validation and was rolled back} \\ 0.0, & \text{if repair was committed} \end{cases}$$
+The theoretical reward bounds are analytically derived as $R_{\min} = -1.0000$ and $R_{\max} = +0.8000 \le +1.0$.
 
 ---
 
@@ -158,7 +173,7 @@ The framework restricts interventions to exactly six configuration transformatio
 2. **Arm 2: Circuit Depth Reduction (`reduce_circuit_depth`):** Prunes ansatz layers by $\Delta L = -1$ (subject to $L \ge 1$) to escape barren plateaus.
 3. **Arm 3: Feature Map Modulation (`modify_feature_map`):** Toggles between separable Angle encoding ($R_Y$) and non-linear entangling IQP kernel maps.
 4. **Arm 4: Learning Rate Adaptation (`adjust_learning_rate`):** Scales learning rate by factor $\alpha \in \{0.2, 0.5, 2.0\}$ based on directional divergence.
-5. **Arm 5: Simulation-Side Noise Mitigation (`apply_noise_mitigation`):** Activates Richardson Zero-Noise Extrapolation (ZNE) expectation estimation.
+5. **Arm 5: Simulation-Side Noise Mitigation (`apply_noise_mitigation`):** Activates simulation-side analytical inverse-noise correction (Richardson inverse scaling) over the radial contraction model.
 6. **Arm 6: Parameter Warm Restart (`perform_warm_restart`):** Injects localized Gaussian perturbation $\boldsymbol{\theta} \leftarrow \boldsymbol{\theta} + \mathcal{N}(0, \sigma^2 \mathbf{I})$ or near-zero identity reset, avoiding Haar-random scrambling.
 
 ---
@@ -166,7 +181,7 @@ The framework restricts interventions to exactly six configuration transformatio
 ## VI. Digital Twin Simulation, Thompson Sampling & Safety Filter
 
 ### A. Short-Horizon ($H = 3$) Digital Twin Proxy
-Before physical deployment, candidate transformations are dispatched to an isolated simulator. The twin deep-copies the current model state dictionary, executes $H = 3$ proxy gradient descent steps on a non-training validation mini-batch, and estimates:
+Before live circuit deployment, candidate transformations are dispatched to an isolated simulator. The twin deep-copies the current model state dictionary, executes $H = 3$ proxy gradient descent steps on a non-training validation mini-batch, and estimates:
 $$\Delta \hat{L}_{\text{twin}} = \frac{L_{\text{twin}}(H) - L_{\text{live}}(0)}{L_{\text{live}}(0)}, \quad \hat{\sigma}_{\text{twin}} = \text{std}(L_{\text{twin}}(1 \dots H))$$
 Candidates inducing NaN or loss escalation $\ge 25\%$ are flagged as unviable, preventing parameter corruption.
 
@@ -182,7 +197,7 @@ The bandit's action space is constrained by a deterministic rule-based shield:
 
 ## VII. Experimental Results and Analysis
 
-The experimental campaign encompasses 3,000 physical executions across 10 random seeds (`[42, 101, 202, 303, 404, 505, 606, 707, 808, 909]`).
+The experimental campaign encompasses 3,000 simulated training episodes across 10 random seeds (`[42, 101, 202, 303, 404, 505, 606, 707, 808, 909]`).
 
 ```
 ===============================================================================================================================
@@ -270,7 +285,7 @@ Table 4 details the granular diagnostic performance across all six failure modes
 ## VIII. Discussion & Limitations
 
 1. **Statistical Power in Cumulative Reward:** While Thompson Sampling demonstrates significant improvements in stability and rollback mitigation, differences in cumulative reward against Greedy ($p = 0.328$) and Heuristic ($p = 0.056$) policies are not statistically significant at $\alpha = 0.05$. Claims of superior cumulative return cannot be supported without larger sample sizes.
-2. **Computational Overhead of Digital Twin Proxy Simulation:** Evaluating candidate repairs across $H = 3$ proxy steps imposes a $3.8\times$ circuit evaluation overhead ($191$ vs $50$ evaluations). For simulation environments where circuit calls are computationally expensive, this trade-off must be weighed against the marginal $1.0\%$ reduction in physical rollbacks.
+2. **Computational Overhead of Digital Twin Proxy Simulation:** Evaluating candidate repairs across $H = 3$ proxy steps imposes a $3.8\times$ circuit evaluation overhead ($191$ vs $50$ evaluations). For simulation environments where circuit calls are computationally expensive, this trade-off must be weighed against the marginal $1.0\%$ reduction in live model rollbacks.
 3. **Sample Size Limits on Zero Error Bounds:** The observed zero false positives in the calibrated test split ($N_{\text{admit}} = 25$) does not imply zero risk in general. The 95% Clopper–Pearson upper bound on false discovery rate is $13.72\%$ (Rule-of-Three bound: $12.00\%$).
 4. **Hardware Noise Channel Assumptions:** Simulation results utilize an analytical radial contraction model for mixed-state Bloch dynamics. Validation on physical superconducting or trapped-ion quantum processors represents an essential subsequent phase.
 

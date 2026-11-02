@@ -50,7 +50,7 @@ All figures are programmatically generated at 300 DPI (raster PNG) and scalable 
 - **Source Files:**
   - PDF: `benchmark_results/figures/figure5_dynamic_recovery_trace.pdf` (`SHA-256: 5798bd6cc102...`)
   - PNG: `benchmark_results/figures/figure5_dynamic_recovery_trace.png` (`SHA-256: 9fc404708328...`)
-- **Data Source:** Deterministic physical trace generated in `scripts/generate_publication_figures.py`
+- **Data Source:** Deterministic simulation trace generated in `scripts/generate_publication_figures.py`
 - **Caption:**  
   *Figure 5. Continuous step-by-step telemetry trace of an autonomous self-healing episode under induced quantum noise degradation. (a) Training and validation loss dynamics through nominal training, failure injection, Digital Twin validation window ($W_{\text{val}} = 3$), and post-commit convergence. (b) Parameter-shift gradient norm stability. (c) Physical Bloch vector radius $r$ and mixed-state purity $\gamma = (1 + r^2)/2$.*
 - **Column Span:** Single/Two-column vertical stack ($9.5 \times 7.5$ inches).
