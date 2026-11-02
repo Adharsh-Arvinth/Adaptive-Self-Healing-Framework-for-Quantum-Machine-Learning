@@ -167,9 +167,9 @@ def plot_figure2_policy_regret():
         ax.plot(episodes, mean_traj, color=colors[p], label=labels[p], linewidth=1.8)
         ax.fill_between(episodes, mean_traj - ci_traj, mean_traj + ci_traj, color=colors[p], alpha=0.15)
 
-    ax.set_title("(b) Cumulative Policy Regret")
+    ax.set_title("(b) Benchmark-Defined Cumulative Regret")
     ax.set_xlabel("Failure Episodes")
-    ax.set_ylabel(r"Cumulative Regret $\sum (r^*_t - r_t)$")
+    ax.set_ylabel(r"Cumulative Reference-Reward Gap $\sum (r_{\mathrm{ref}} - r_t)$")
     ax.grid(True, linestyle=":", alpha=0.5)
     ax.legend(loc="upper left", framealpha=0.9, fontsize=8)
 
@@ -279,13 +279,18 @@ def plot_figure4_per_class():
     ax = axes[1]
     rep = data["classification_report"]
     succ_rates = [rep[c]["success_rate"] * 100 for c in classes]
-    f1_scores = [rep[c]["f1_score"] * 100 for c in classes]
+    # For optimizer_instability, precision is 0/0 (undefined); F1 is consequently undefined
+    f1_scores = [rep[c]["f1_score"] * 100 if c != "optimizer_instability" else 0.0 for c in classes]
 
     x = np.arange(len(classes))
     width = 0.35
 
     ax.bar(x - width/2, f1_scores, width, label="Diagnosis F1-Score (%)", color="#9467bd", alpha=0.85)
     ax.bar(x + width/2, succ_rates, width, label="Recovery Success Rate (%)", color="#2ca02c", alpha=0.85)
+
+    # Explicitly annotate that optimizer_instability F1 is undefined
+    opt_idx = classes.index("optimizer_instability")
+    ax.text(opt_idx - width/2, 4, "Undefined*", ha="center", va="bottom", fontsize=7, color="#5c007a", rotation=90, fontweight="bold")
 
     ax.set_xticks(x)
     ax.set_xticklabels(short_classes, rotation=35, ha="right")
@@ -294,6 +299,8 @@ def plot_figure4_per_class():
     ax.set_ylim(0, 115)
     ax.legend(loc="upper right", framealpha=0.9, fontsize=8.5)
     ax.grid(True, linestyle=":", alpha=0.5, axis="y")
+    ax.text(0.5, -0.28, "*Opt Instab precision & F1 undefined (0 positive predictions; Recall = 0/50 [0.0%, 7.1%])",
+            ha="center", va="top", transform=ax.transAxes, fontsize=7.2, style="italic")
 
     plt.tight_layout()
     out_png = os.path.join(FIGURES_DIR, "figure4_per_class_confusion_and_repairs.png")

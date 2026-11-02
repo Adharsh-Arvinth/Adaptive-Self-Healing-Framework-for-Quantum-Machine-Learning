@@ -75,21 +75,27 @@ def main():
     n_calib_test = len(calib_data["test_raw_records"])
     n_calib_total = n_calib_train + n_calib_test
 
+    n_calib_seeds = len(calib_data["metadata"]["calib_seeds"])
+    n_test_seeds = len(calib_data["metadata"]["test_seeds"])
+    eps_per_calib_seed = n_calib_train / n_calib_seeds
+    eps_per_test_seed = n_calib_test / n_test_seeds
+
     n_policy_episodes = sum(len(runs) * 30 for runs in policy_data["detailed_results"].values())
     n_ablation_episodes = sum(len(runs) * 30 for runs in ablation_data["detailed_results"].values())
     n_perclass_episodes = perclass_data["metadata"]["total_episodes"]
 
     grand_total_runs = n_calib_total + n_policy_episodes + n_ablation_episodes + n_perclass_episodes
 
-    print(f"Calibration Study Runs:        {n_calib_total:5d}  (150 calib split + 150 test split)")
-    print(f"Policy Regret Runs:            {n_policy_episodes:5d}  (10 seeds x 4 policies x 30 episodes)")
-    print(f"Architectural Ablation Runs:   {n_ablation_episodes:5d}  (10 seeds x 4 configs x 30 episodes)")
-    print(f"Per-Class Performance Runs:    {n_perclass_episodes:5d}  (10 seeds x 6 failure types x 5 reps)")
+    print(f"Calibration Partition:         {n_calib_train:5d} runs  ({n_calib_seeds} seeds x 6 failure modes x 5 trials = {int(eps_per_calib_seed)} episodes/seed)")
+    print(f"Test Partition:                {n_calib_test:5d} runs  ({n_test_seeds} seeds x 6 failure modes x 5 trials = {int(eps_per_test_seed)} episodes/seed)")
+    print(f"Total Calibration Study:       {n_calib_total:5d} runs  (Seeds [1001-1005] calib vs [1006-1010] test)")
+    print(f"Policy Regret Runs:            {n_policy_episodes:5d} runs  (10 seeds x 4 policies x 30 episodes)")
+    print(f"Architectural Ablation Runs:   {n_ablation_episodes:5d} runs  (10 seeds x 4 configs x 30 episodes)")
+    print(f"Per-Class Performance Runs:    {n_perclass_episodes:5d} runs  (10 seeds x 6 failure types x 5 reps)")
     print(f"--------------------------------------------------")
-    print(f"GRAND TOTAL EXPERIMENTAL RUNS: {grand_total_runs:5d}")
-    print(f"Note on prior report: Text stated 'over 2,100 quantum circuit episodes' which accounted for")
-    print(f"Policy (1,200) + Per-Class (300) + Calibration (300) + Partial sets (~1,800-2,100), omitting")
-    print(f"the 1,200 ablation runs from the summation. True executed total is exactly {grand_total_runs:,} episodes.")
+    print(f"GRAND TOTAL EXPERIMENTAL RUNS: {grand_total_runs:5d} physical circuit executions")
+    print(f"Seed arithmetic reconciliation: Each partition consists of exactly 5 seeds with 30 episodes per seed")
+    print(f"(6 failure categories x 5 trials = 30 episodes/seed; 5 seeds x 30 = 150 episodes).")
 
     # -------------------------------------------------------------------------
     # 2. CALIBRATION COVERAGE & CONFUSION (TEST SPLIT N=150)
@@ -146,10 +152,12 @@ def main():
         return {
             "N": N, "TP": tp, "FP": fp, "TN": tn, "FN": fn,
             "Admitted": admitted, "Abstained": N - admitted,
+            "Condition_Pos": tp + fn, "Condition_Neg": fp + tn,
             "Correct": correct_count, "Incorrect": N - correct_count,
             "Accuracy": correct_count / N,
             "Coverage": admitted / N,
-            "Precision": tp / admitted if admitted > 0 else 0.0,
+            "Precision": tp / admitted if admitted > 0 else None,
+            "FDR": fp / admitted if admitted > 0 else 0.0,
             "FPR": fp / (fp + tn) if (fp + tn) > 0 else 0.0,
             "TPR": tp / (tp + fn) if (tp + fn) > 0 else 0.0,
         }
@@ -159,39 +167,59 @@ def main():
 
     print(f"Production Gate (T={T_prod:.2f}, tau={tau_prod:.2f}):")
     print(f"  TP={res_prod['TP']}, FP={res_prod['FP']}, TN={res_prod['TN']}, FN={res_prod['FN']}")
+    print(f"  Condition Positives (Correct Diagnoses) = {res_prod['Condition_Pos']}, Condition Negatives = {res_prod['Condition_Neg']}")
     print(f"  Admitted (Coverage) = {res_prod['Admitted']}/150 ({res_prod['Coverage']*100:.1f}%), Abstained = {res_prod['Abstained']}/150 ({res_prod['Abstained']/150*100:.1f}%)")
-    print(f"  FPR = {res_prod['FPR']*100:.2f}%, Precision = {res_prod['Precision']*100:.2f}%, Accuracy = {res_prod['Accuracy']*100:.2f}%")
+    print(f"  False Positive Rate (FPR = FP/N_neg) = {res_prod['FPR']*100:.2f}% (Denominator: {res_prod['Condition_Neg']} condition negatives)")
+    print(f"  False Discovery Rate (FDR = FP/Admitted) = {res_prod['FDR']*100:.2f}% (Denominator: {res_prod['Admitted']} admitted)")
+    print(f"  Precision (PPV) = {res_prod['Precision']*100:.2f}%, Top-1 Accuracy = {res_prod['Accuracy']*100:.2f}%")
 
-    p_fpr_p, l_fpr_p, u_fpr_p = wilson_ci(res_prod['FP'], res_prod['FP'] + res_prod['TN'])
+    p_fpr_p, l_fpr_p, u_fpr_p = wilson_ci(res_prod['FP'], res_prod['Condition_Neg'])
+    p_fdr_p, l_fdr_p, u_fdr_p = wilson_ci(res_prod['FP'], res_prod['Admitted'])
     p_prc_p, l_prc_p, u_prc_p = wilson_ci(res_prod['TP'], res_prod['Admitted'])
     p_cov_p, l_cov_p, u_cov_p = wilson_ci(res_prod['Admitted'], res_prod['N'])
-    print(f"  Wilson 95% CIs: FPR=[{l_fpr_p*100:.1f}%, {u_fpr_p*100:.1f}%], Precision=[{l_prc_p*100:.1f}%, {u_prc_p*100:.1f}%], Coverage=[{l_cov_p*100:.1f}%, {u_cov_p*100:.1f}%]")
+    print(f"  Wilson 95% CIs: FPR=[{l_fpr_p*100:.1f}%, {u_fpr_p*100:.1f}%], FDR=[{l_fdr_p*100:.1f}%, {u_fdr_p*100:.1f}%], Precision=[{l_prc_p*100:.1f}%, {u_prc_p*100:.1f}%], Coverage=[{l_cov_p*100:.1f}%, {u_cov_p*100:.1f}%]")
 
     print(f"\nCalibrated Gate (T*={T_star:.4f}, tau*={tau_star:.4f}):")
     print(f"  TP={res_cal['TP']}, FP={res_cal['FP']}, TN={res_cal['TN']}, FN={res_cal['FN']}")
-    print(f"  Admitted (Coverage) = {res_cal['Admitted']}/150 ({res_cal['Coverage']*100:.1f}%), Abstained = {res_cal['Abstained']}/150 ({res_cal['Abstained']/150*100:.1f}%)")
-    print(f"  FPR = {res_cal['FPR']*100:.2f}%, Precision = {res_cal['Precision']*100:.2f}%, Accuracy = {res_cal['Accuracy']*100:.2f}%")
+    print(f"  Condition Negatives (N_neg = FP+TN) = {res_cal['Condition_Neg']}, Admitted (N_admit = TP+FP) = {res_cal['Admitted']}")
 
-    p_fpr_c, l_fpr_c, u_fpr_c = wilson_ci(res_cal['FP'], res_cal['FP'] + res_cal['TN'])
+    # 1. False Positive Rate (FPR) - Denominator is condition negatives (72)
+    _, _, cp_upper_fpr = clopper_pearson_ci(res_cal['FP'], res_cal['Condition_Neg'])
+    p_fpr_c, l_fpr_c, u_fpr_c = wilson_ci(res_cal['FP'], res_cal['Condition_Neg'])
+    print(f"  1. FALSE POSITIVE RATE (FPR = FP / (FP + TN) = {res_cal['FP']}/{res_cal['Condition_Neg']}):")
+    print(f"     Empirical FPR = {res_cal['FPR']*100:.2f}%")
+    print(f"     Exact 95% Clopper-Pearson FPR Upper Bound: {cp_upper_fpr*100:.2f}% (Denominator: {res_cal['Condition_Neg']} condition negatives)")
+    print(f"     Wilson 95% CI: [{l_fpr_c*100:.2f}%, {u_fpr_c*100:.2f}%]")
+
+    # 2. False Discovery Rate (FDR / Selective Risk) - Denominator is admitted diagnoses (25)
+    _, _, cp_upper_fdr = clopper_pearson_ci(res_cal['FP'], res_cal['Admitted'])
+    rule_of_three_fdr = 3.0 / res_cal['Admitted'] if res_cal['Admitted'] > 0 else 0.0
+    p_fdr_c, l_fdr_c, u_fdr_c = wilson_ci(res_cal['FP'], res_cal['Admitted'])
+    print(f"  2. FALSE DISCOVERY RATE (FDR = FP / (TP + FP) = {res_cal['FP']}/{res_cal['Admitted']}):")
+    print(f"     Empirical FDR = {res_cal['FDR']*100:.2f}%")
+    print(f"     Exact 95% Clopper-Pearson FDR Upper Bound: {cp_upper_fdr*100:.2f}% (Denominator: {res_cal['Admitted']} admitted diagnoses)")
+    print(f"     Rule-of-Three FDR Upper Bound (3 / N_admit): {rule_of_three_fdr*100:.2f}%")
+    print(f"     Wilson 95% CI: [{l_fdr_c*100:.2f}%, {u_fdr_c*100:.2f}%]")
+
+    # 3. Precision & Coverage
     p_prc_c, l_prc_c, u_prc_c = wilson_ci(res_cal['TP'], res_cal['Admitted'])
     p_cov_c, l_cov_c, u_cov_c = wilson_ci(res_cal['Admitted'], res_cal['N'])
-    _, _, cp_upper_fpr = clopper_pearson_ci(res_cal['FP'], res_cal['FP'] + res_cal['TN'])
-    rule_of_three_risk = 3.0 / res_cal['Admitted'] if res_cal['Admitted'] > 0 else 0.0
-
-    print(f"  Wilson 95% CIs: FPR=[{l_fpr_c*100:.1f}%, {u_fpr_c*100:.1f}%], Precision=[{l_prc_c*100:.1f}%, {u_prc_c*100:.1f}%], Coverage=[{l_cov_c*100:.1f}%, {u_cov_c*100:.1f}%]")
-    print(f"  Exact Clopper-Pearson 95% Upper Bound for FPR: {cp_upper_fpr*100:.2f}%")
-    print(f"  Selective Risk on Admitted: Empirical = {res_cal['FP']/res_cal['Admitted']*100:.1f}%, Rule of Three Upper Bound = {rule_of_three_risk*100:.1f}%")
-    print(f"  CRITICAL AUDIT NOTE: Observed 0 FP on test sample of size n={res_cal['Admitted']} does NOT prove zero population risk.")
-    print(f"  The 95% statistical upper bound on false admission risk is {cp_upper_fpr*100:.1f}% (Clopper-Pearson) / {rule_of_three_risk*100:.1f}% (Rule of Three).")
+    print(f"  3. PRECISION & COVERAGE:")
+    print(f"     Precision = {res_cal['Precision']*100:.2f}% (Wilson 95% CI: [{l_prc_c*100:.1f}%, {u_prc_c*100:.1f}%])")
+    print(f"     Coverage  = {res_cal['Coverage']*100:.2f}% (Wilson 95% CI: [{l_cov_c*100:.1f}%, {u_cov_c*100:.1f}%])")
+    print(f"  CRITICAL DISTINCTION: FPR denominator is N_neg=72 (upper bound 4.99%); FDR denominator is N_admit=25 (upper bound 13.72%).")
 
     # -------------------------------------------------------------------------
-    # 3. POLICY COMPARISON (10 SEEDS)
+    # 3. POLICY COMPARISON & BENCHMARK-DEFINED CUMULATIVE REGRET (10 SEEDS)
     # -------------------------------------------------------------------------
-    print("\n[ITEM 3: POLICY COMPARISON ACROSS 10 SEEDS]")
+    print("\n[ITEM 3: POLICY COMPARISON & BENCHMARK-DEFINED CUMULATIVE REGRET (10 SEEDS)]")
+    print("Reference metric clarification: Instantaneous regret is defined against a benchmark reference reward:")
+    print("  r_ref = 0.45 if committed else 0.20; R_t = max(0, r_ref - r_t).")
+    print("  This measures a benchmark reference-reward gap rather than a dynamic counterfactual oracle.")
     policies = ["thompson_sampling", "greedy", "heuristic", "random"]
     seeds = [r["seed"] for r in policy_data["detailed_results"]["thompson_sampling"]]
     
-    print(f"{'Seed':6s} | {'TS Reward':10s} {'Greedy':10s} {'Heuristic':10s} {'Random':10s} | {'TS Regret':10s} {'Greedy':10s} {'Heuristic':10s} {'Random':10s}")
+    print(f"{'Seed':6s} | {'TS Reward':10s} {'Greedy':10s} {'Heuristic':10s} {'Random':10s} | {'TS RefGap':10s} {'Greedy':10s} {'Heuristic':10s} {'Random':10s}")
     print("-" * 95)
     
     per_seed_data = {}
@@ -283,14 +311,24 @@ def main():
         fp = sum(cm[other][c] for other in classes if other != c)
         tot = sum(cm[c].values())
         
-        prec = tp / (tp + fp) if (tp + fp) > 0 else 0.0
         rec = tp / (tp + fn) if (tp + fn) > 0 else 0.0
-        f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0.0
-        
-        _, l_p, u_p = wilson_ci(tp, tp + fp)
         _, l_r, u_r = wilson_ci(tp, tp + fn)
+        rec_str = f"{rec*100:9.1f}%"
+        ci_r_str = f"[{l_r*100:5.1f}%, {u_r*100:5.1f}%]"
+
+        if (tp + fp) == 0:
+            prec_str = "Undefined"
+            ci_p_str = "Not Estimable           "
+            f1_str = "Undefined"
+        else:
+            prec = tp / (tp + fp)
+            f1 = 2 * prec * rec / (prec + rec) if (prec + rec) > 0 else 0.0
+            _, l_p, u_p = wilson_ci(tp, tp + fp)
+            prec_str = f"{prec*100:9.1f}%"
+            ci_p_str = f"[{l_p*100:5.1f}%, {u_p*100:5.1f}%]"
+            f1_str = f"{f1:8.3f}"
         
-        print(f"{c:24s} {tp:4d} {fp:4d} {fn:4d} {tot:5d} | {prec*100:9.1f}% {rec*100:9.1f}% {f1:8.3f} | [{l_p*100:5.1f}%, {u_p*100:5.1f}%]              [{l_r*100:5.1f}%, {u_r*100:5.1f}%]")
+        print(f"{c:24s} {tp:4d} {fp:4d} {fn:4d} {tot:5d} | {prec_str:10s} {rec_str:10s} {f1_str:9s} | {ci_p_str:25s} {ci_r_str:25s}")
 
     # -------------------------------------------------------------------------
     # 6. EXPERIMENT PROVENANCE & REPRODUCIBILITY HASHES
