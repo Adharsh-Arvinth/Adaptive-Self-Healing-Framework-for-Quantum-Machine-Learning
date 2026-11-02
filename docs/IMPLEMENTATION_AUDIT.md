@@ -102,13 +102,14 @@ The Bloch sphere visualization represents qubit 0's single-qubit reduced density
      $$z_{\text{phys}} = z_{\text{ideal}} \cdot c = 0.081637 \times 0.9125 = \mathbf{0.074494}$$
      $$r_{\text{phys}} = \mathbf{0.912139} < 1.0, \quad \gamma_{\text{phys}} = \mathbf{0.915999} < 1.0$$
    - **Research Integrity Standard:** The actual physical state is **never artificially purified**.
-2. **Error-Mitigated Expectation-Value Estimates:**
-   - Under simulation-side noise mitigation (`noise_mitigation=True`), Zero-Noise Extrapolation (ZNE) rescales expectation values with inverse factor $M = 1/c = 1/0.9125 \approx 1.09589041$:
+2. **Error-Mitigated Expectation-Value Estimates (Analytical Inverse-Noise Correction):**
+   - Under simulation-side noise mitigation (`noise_mitigation=True`), analytical inverse-noise contraction correction rescales expectation values with inverse factor $M = 1/c = 1/0.9125 \approx 1.09589041$:
      $$\hat{x}_{\text{mit}} = \text{clip}(x_{\text{phys}} \cdot M, -1.0, 1.0) = 0.909092 \times 1.09589041 = \mathbf{0.996265}$$
      $$\hat{y}_{\text{mit}} = \text{clip}(y_{\text{phys}} \cdot M, -1.0, 1.0) = 0.000000 \times 1.09589041 = \mathbf{0.000000}$$
      $$\hat{z}_{\text{mit}} = \text{clip}(z_{\text{phys}} \cdot M, -1.0, 1.0) = 0.074494 \times 1.09589041 = \mathbf{0.081637}$$
      $$\hat{r}_{\text{mit}} = \mathbf{0.999605}$$
    - Reported strictly under separate diagnostic keys: `mitigated_x`, `mitigated_y`, `mitigated_z`.
+   - **Method Distinction:** The simulation applies closed-form analytical inverse contraction scaling rather than conventional multi-scale extrapolation (pulse stretching / unitary folding), which is reserved for physical QPUs.
    - **Important:** These represent mitigated operator expectation estimates, NOT the physical density matrix coordinates of the physical qubit.
 3. **Ideal Reference-State Coordinates:**
    - Evaluated on an uncorrupted simulation circuit ($p = 0.0$):

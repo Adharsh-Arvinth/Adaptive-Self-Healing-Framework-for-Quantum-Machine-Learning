@@ -63,19 +63,23 @@ Implementation: `backend/bandit.py::build_context_vector` (lines 34–110).
 | Index | Symbol | Feature Name | Mathematical Definition | Source Field | Normalization Method | True Mathematical Range | Missing / Cold-Start Handling |
 |---|---|---|---|---|---|---|---|
 | $x_1$ | $\text{Bias}$ | Constant Offset | $x_1 = 1.0$ | Constant | Identity | $\{1.0\}$ | Invariant $1.0$ |
-| $x_2$ | $\widetilde{\mathcal{L}}_t$ | Normalized Training Loss | $\tanh(\mathcal{L}_t)$ | `HealthObservation.loss` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $\mathcal{L}_t \in \{\text{NaN}, \text{Inf}\} \implies 10.0 \to \tanh(10) \approx 1.0$ |
-| $x_3$ | $\widetilde{\|\mathbf{g}\|}$ | Log Gradient Norm | $\operatorname{clip}\left(\frac{\ln(\|\mathbf{g}\| + 10^{-8}) + 8}{12}, -1, 1\right)$ | `HealthObservation.gradient_norm` | Linear log scaling | $[-1.0, 1.0]$ | $\|\mathbf{g}\| \in \{\text{NaN}, \text{Inf}, \le 10^{-12}\} \implies 0.0 \to -1.0$ |
-| $x_4$ | $\widetilde{\operatorname{Var}}(\mathbf{g})$ | Log Gradient Variance | $\operatorname{clip}\left(\frac{\ln(\operatorname{Var}(\mathbf{g}) + 10^{-10}) + 10}{14}, -1, 1\right)$ | `HealthObservation.gradient_variance` | Linear log scaling | $[-1.0, 1.0]$ | $\operatorname{Var}(\mathbf{g}) \in \{\text{NaN}, \text{Inf}, \le 10^{-12}\} \implies 0.0 \to -1.0$ |
-| $x_5$ | $\widetilde{v}_\theta$ | Normalized Parameter Velocity | $\tanh(10 \cdot v_\theta)$ | `HealthObservation.parameter_velocity` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $v_\theta \in \{\text{NaN}, \text{Inf}\} \implies 0.0$ |
-| $x_6$ | $\widetilde{D}$ | Relative Circuit Depth | $\operatorname{clip}\left(\frac{D}{D_{\text{max}}}, 0, 1\right), \; D_{\text{max}}=8$ | `HealthObservation.circuit_depth` | Linear depth scaling | $[0.125, 1.0]$ | $\max(1, D) / 8.0 \implies 0.125$ minimum |
+| $x_2$ | $\widetilde{\mathcal{L}}_t$ | Normalized Training Loss | $\tanh(\mathcal{L}_t)$ | `HealthObservation.loss` | Hyperbolic tangent | $[0.0, 1.0)$ | $\mathcal{L}_t \in \{\text{NaN}, \text{Inf}\} \implies 10.0 \to \tanh(10) \approx 1.0$ |
+| $x_3$ | $\widetilde{\|\mathbf{g}\|}$ | Log Gradient Norm | $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \|\mathbf{g}\|) + 10^{-8}) + 8}{12}, -1, 1\right)$ | `HealthObservation.gradient_norm` | Linear log scaling | $[-0.8684, 1.0]$ | $\|\mathbf{g}\| \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to -0.8684$ |
+| $x_4$ | $\widetilde{\operatorname{Var}}(\mathbf{g})$ | Log Gradient Variance | $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \operatorname{Var}(\mathbf{g})) + 10^{-10}) + 10}{14}, -1, 1\right)$ | `HealthObservation.gradient_variance` | Linear log scaling | $[-0.9297, 1.0]$ | $\operatorname{Var}(\mathbf{g}) \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to -0.9297$ |
+| $x_5$ | $\widetilde{v}_\theta$ | Normalized Parameter Velocity | $\tanh(10 \cdot v_\theta)$ | `HealthObservation.parameter_velocity` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $v_\theta \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to \tanh(0) = 0.0$ |
+| $x_6$ | $\widetilde{D}$ | Relative Circuit Depth | $\operatorname{clip}\left(\frac{\max(1, D)}{D_{\text{max}}}, 0, 1\right), \; D_{\text{max}}=8$ | `HealthObservation.circuit_depth` | Linear depth scaling | $[0.125, 1.0]$ | $\max(1, D) / 8.0 \implies 0.125$ minimum |
 | $x_7$ | $p_{\text{primary}}$ | Primary Diagnosis Confidence | $\max_c p_c$ | `DiagnosisResult.confidence` | Softmax probability | $[1/6, 1.0]$ | `diag` is None $\implies 1/6 \approx 0.1667$ (uniform) |
 | $x_8$ | $\widetilde{H}(\mathbf{p})$ | Normalized Diagnosis Entropy | $\frac{-\sum_{c=1}^6 p_c \ln(p_c + 10^{-12})}{\ln 6}$ | `DiagnosisResult.probabilities` | Shannon entropy / $\ln 6$ | $[0.0, 1.0]$ | `diag` is None $\implies 1.0$ (max uncertainty) |
 | $x_9$ | $\bar{r}_{\text{hist}}$ | Memory Prior Reward | $\operatorname{clip}(\bar{r}_{\text{top-K}}, -1, 1)$ | `SimilarEpisode.episode.reward` | Bounded clipping | $[-1.0, 1.0]$ | Empty memory or NaN/Inf $\implies 0.0$ |
 | $x_{10}$| $S_{\text{hist}}$ | Memory Top Similarity | $\max_i \operatorname{Sim}(\mathbf{e}_{\text{query}}, \mathbf{e}_i)$ | `SimilarEpisode.similarity` | Cosine similarity | $[-1.0, 1.0]$ | Empty memory or NaN/Inf $\implies 0.0$ |
-| $x_{11}$| $\widetilde{\Delta \mathcal{L}}_{\text{twin}}$ | Twin Predicted Loss Delta | $\tanh\left(\frac{\Delta\mathcal{L}_{\text{twin}}}{\mathcal{L}_t + 10^{-8}}\right)$ | `DigitalTwinPrediction.normalized_predicted_delta` | Hyperbolic tangent | $[-1.0, 1.0]$ | Unsimulated or non-viable twin $\implies 0.0$ |
+| $x_{11}$| $\widetilde{\Delta \mathcal{L}}_{\text{twin}}$ | Twin Predicted Loss Delta | $\tanh\left(\frac{\Delta\mathcal{L}_{\text{twin}}}{\mathcal{L}_t + 10^{-8}}\right)$ | `DigitalTwinPrediction.normalized_predicted_delta` | Hyperbolic tangent | $(-1.0, 1.0)$ | Unsimulated or non-viable twin $\implies 0.0$ |
 | $x_{12}$| $S_{\text{proxy}}$ | Twin Proxy Stability Score | $\operatorname{clip}\left(1 - \frac{\sigma(\mathcal{L}_{1:3})}{\bar{\mathcal{L}}_{1:3} + 10^{-8}}, 0, 1\right)$ | `DigitalTwinPrediction.proxy_stability` | Standard dev / mean | $[0.0, 1.0]$ | Unsimulated or non-viable twin $\implies 0.5$ |
 
-*\*Note on non-negative metrics:* For cross-entropy loss $\mathcal{L}_t \ge 0$ and Euclidean parameter velocity $v_\theta \ge 0$, $\tanh(\cdot) \in [0.0, 1.0)$. In extreme non-finite cases, safety fallbacks guarantee values strictly in $[-1.0, 1.0]$.
+*\*Mathematical note on parameter velocity and non-negative metrics:*
+- Because parameter velocity $v_\theta = \|\boldsymbol{\theta}_t - \boldsymbol{\theta}_{t-1}\|_2 \ge 0$ is a non-negative Euclidean displacement norm, the physical domain-constrained range of $\tanh(10 \cdot v_\theta)$ is $[0.0, 1.0)$ with stagnant/missing fallback $\tanh(0) = 0.0$.
+- For an unconstrained real input $u \in \mathbb{R}$, the general mathematical function range of $\tanh(u)$ is $(-1.0, 1.0)$.
+- For zero gradient norm, $\frac{\ln(10^{-12} + 10^{-8}) + 8}{12} \approx \frac{-18.42068 + 8}{12} = -0.86838 \implies \text{range } [-0.8684, 1.0]$ and fallback value $-0.8684$.
+- For zero gradient variance, $\frac{\ln(10^{-12} + 10^{-10}) + 10}{14} \approx \frac{-23.01586 + 10}{14} = -0.92971 \implies \text{range } [-0.9297, 1.0]$ and fallback value $-0.9297$.
 
 ---
 
@@ -85,17 +89,17 @@ Implementation: `backend/memory.py::build_failure_embedding` (lines 23–93).
 | Index | Symbol | Feature Name | Mathematical Definition | Source Field | Normalization Method | True Mathematical Range | Missing / Fallback Value |
 |---|---|---|---|---|---|---|---|
 | $e_1$ | $\text{Bias}$ | Constant Offset | $e_1 = 1.0$ | Constant | Identity | $\{1.0\}$ | Invariant $1.0$ |
-| $e_2$ | $\widetilde{\mathcal{L}}_t$ | Normalized Training Loss | $\tanh(\mathcal{L}_t)$ | `HealthObservation.loss` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $\mathcal{L}_t \in \{\text{NaN}, \text{Inf}\} \implies 10.0 \to \tanh(10) \approx 1.0$ |
-| $e_3$ | $\widetilde{\|\mathbf{g}\|}$ | Log Gradient Norm | $\operatorname{clip}\left(\frac{\ln(\|\mathbf{g}\| + 10^{-8}) + 8}{12}, -1, 1\right)$ | `HealthObservation.gradient_norm` | Linear log scaling | $[-1.0, 1.0]$ | $\|\mathbf{g}\| \in \{\text{NaN}, \text{Inf}, \le 10^{-12}\} \implies 0.0 \to -1.0$ |
-| $e_4$ | $\widetilde{\operatorname{Var}}(\mathbf{g})$ | Log Gradient Variance | $\operatorname{clip}\left(\frac{\ln(\operatorname{Var}(\mathbf{g}) + 10^{-10}) + 10}{14}, -1, 1\right)$ | `HealthObservation.gradient_variance` | Linear log scaling | $[-1.0, 1.0]$ | $\operatorname{Var}(\mathbf{g}) \in \{\text{NaN}, \text{Inf}, \le 10^{-12}\} \implies 0.0 \to -1.0$ |
-| $e_5$ | $\widetilde{v}_\theta$ | Normalized Parameter Velocity | $\tanh(10 \cdot v_\theta)$ | `HealthObservation.parameter_velocity` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $v_\theta \in \{\text{NaN}, \text{Inf}\} \implies 0.0$ |
-| $e_6$ | $\widetilde{D}$ | Relative Circuit Depth | $\operatorname{clip}\left(\frac{D}{D_{\text{max}}}, 0, 1\right), \; D_{\text{max}}=8$ | `HealthObservation.circuit_depth` | Linear depth scaling | $[0.125, 1.0]$ | $\max(1, D) / 8.0 \implies 0.125$ minimum |
+| $e_2$ | $\widetilde{\mathcal{L}}_t$ | Normalized Training Loss | $\tanh(\mathcal{L}_t)$ | `HealthObservation.loss` | Hyperbolic tangent | $[0.0, 1.0)$ | $\mathcal{L}_t \in \{\text{NaN}, \text{Inf}\} \implies 10.0 \to \tanh(10) \approx 1.0$ |
+| $e_3$ | $\widetilde{\|\mathbf{g}\|}$ | Log Gradient Norm | $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \|\mathbf{g}\|) + 10^{-8}) + 8}{12}, -1, 1\right)$ | `HealthObservation.gradient_norm` | Linear log scaling | $[-0.8684, 1.0]$ | $\|\mathbf{g}\| \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to -0.8684$ |
+| $e_4$ | $\widetilde{\operatorname{Var}}(\mathbf{g})$ | Log Gradient Variance | $\operatorname{clip}\left(\frac{\ln(\max(10^{-12}, \operatorname{Var}(\mathbf{g})) + 10^{-10}) + 10}{14}, -1, 1\right)$ | `HealthObservation.gradient_variance` | Linear log scaling | $[-0.9297, 1.0]$ | $\operatorname{Var}(\mathbf{g}) \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to -0.9297$ |
+| $e_5$ | $\widetilde{v}_\theta$ | Normalized Parameter Velocity | $\tanh(10 \cdot v_\theta)$ | `HealthObservation.parameter_velocity` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $v_\theta \in \{\text{NaN}, \text{Inf}\} \implies 0.0 \to \tanh(0) = 0.0$ |
+| $e_6$ | $\widetilde{D}$ | Relative Circuit Depth | $\operatorname{clip}\left(\frac{\max(1, D)}{D_{\text{max}}}, 0, 1\right), \; D_{\text{max}}=8$ | `HealthObservation.circuit_depth` | Linear depth scaling | $[0.125, 1.0]$ | $\max(1, D) / 8.0 \implies 0.125$ minimum |
 | $e_7$ | $p_{\text{primary}}$ | Primary Diagnosis Confidence | $\max_c p_c$ | `DiagnosisResult.confidence` | Softmax probability | $[1/6, 1.0]$ | `diag` is None $\implies 1/6 \approx 0.1667$ (uniform) |
 | $e_8$ | $\widetilde{H}(\mathbf{p})$ | Normalized Diagnosis Entropy | $\frac{-\sum_{c=1}^6 p_c \ln(p_c + 10^{-12})}{\ln 6}$ | `DiagnosisResult.probabilities` | Shannon entropy / $\ln 6$ | $[0.0, 1.0]$ | `diag` is None $\implies 1.0$ (max uncertainty) |
 | $e_9$ | $\widetilde{\beta}_{\text{loss}}$ | Normalized Loss Slope | $\tanh(5 \cdot \beta_{\text{loss}})$ | `TelemetrySummary.loss_slope` | Hyperbolic tangent | $(-1.0, 1.0)$ | $\beta_{\text{loss}} \in \{\text{NaN}, \text{Inf}\} \implies 0.0$ |
 | $e_{10}$| $\widetilde{\text{CV}}$ | Loss Coefficient of Variation | $\tanh(\operatorname{CV}(L))$ | `TelemetrySummary.loss_cv` | Hyperbolic tangent | $[0.0, 1.0)^*$ | $\text{CV} \in \{\text{NaN}, \text{Inf}\} \implies 0.0$ |
 | $e_{11}$| $\widetilde{\Delta}_{\text{gen}}$ | Train-Val Generalization Gap | $\tanh(2 \cdot (\mathcal{L}_{\text{val}} - \mathcal{L}_{\text{train}}))$ | `HealthObservation.val_loss`, `loss` | Hyperbolic tangent | $(-1.0, 1.0)$ | $\mathcal{L}_{\text{val}}$ missing/NaN $\implies 0.0$ |
-| $e_{12}$| $\widetilde{\eta}$ | Normalized Learning Rate | $\operatorname{clip}\left(\frac{\log_{10}(\eta)}{4.0} + 1.0, -1, 1\right)$ | `HealthObservation.learning_rate` | Logarithmic step scaling | $[-1.0, 1.0]$ | $\eta \le 0$ or NaN $\implies 0.05 \to \operatorname{clip} \approx 0.67$ |
+| $e_{12}$| $\widetilde{\eta}$ | Normalized Learning Rate | $\operatorname{clip}\left(\frac{\log_{10}(\eta)}{4.0} + 1.0, -1, 1\right)$ | `HealthObservation.learning_rate` | Logarithmic step scaling | $[-1.0, 1.0]$ | $\eta \le 0$ or NaN $\implies 0.05 \to \operatorname{clip} \approx 0.6747$ |
 
 ---
 
@@ -185,38 +189,77 @@ At least one term (the maximum) has $\exp(0) = 1.0$, preventing underflow to zer
 ### 4.5 Empirical Calibration Benchmark & Reliability Analysis
 Evaluated across $N = 60$ controlled failure injection trials spanning all 6 categories across 10 random seeds (`[42, 101, 202, 303, 404, 505, 606, 707, 808, 909]`):
 
-- **Brier Score Conventions & Formulation:**
-  Under the standard multi-category formulation (Brier, 1950):
-  $$\text{BS}_{\text{mc}} = \frac{1}{N} \sum_{i=1}^N \sum_{c=1}^C (p_{ic} - y_{ic})^2 \in [0.0, 2.0]$$
-  where $C = 6$ failure categories, $y_{ic} \in \{0, 1\}$ is the one-hot ground-truth indicator.
-  - **Correct Uniform Random Baseline:** For uninformative uniform guessing ($p_{ic} = 1/6$ for all $c$), the analytical Brier score is:
-    $$\text{BS}_{\text{uniform}} = \left(\frac{1}{6} - 1\right)^2 + 5 \cdot \left(\frac{1}{6} - 0\right)^2 = \frac{25}{36} + \frac{5}{36} = \frac{30}{36} = \frac{5}{6} \approx \mathbf{0.8333}$$
-    *(Note: Under the alternative normalized MSE convention $\text{BS}_{\text{norm}} = \frac{1}{2C} \sum (p - y)^2 \in [0, 1]$, the baseline is $\frac{5}{12} \approx 0.4167$)*.
-  - **Empirical Multiclass Score:** $\text{BS}_{\text{mc}} = \mathbf{0.8707}$.
-    *Critical Scientific Notice:* The empirical score slightly exceeds the uniform baseline of $0.8333$ because of confident misclassifications during blended fault transition steps (e.g. optimizer instability exhibiting secondary learning rate misconfiguration indicators). When high confidence ($p \ge 0.90$) is assigned to an incorrect class, the quadratic penalty $(0.90 - 0)^2 + (0.10 - 1)^2 \approx 1.62$ inflates the mean Brier score.
-  - **Binary Confidence Brier Score:** $\text{BS}_{\text{bin}} = \frac{1}{N} \sum_{i=1}^N (\hat{p}_i - y_i)^2 = \mathbf{0.3412}$, where $\hat{p}_i = \max_c p_{ic}$ and $y_i = \mathbb{I}[\hat{c}_i = c_{\text{true}}]$.
-  - **Expected Calibration Error (ECE, $M = 5$ bins):** $\text{ECE} = \mathbf{0.3732}$.
-- **Confidence Gate Threshold ($\tau = 0.60$ Status):**
-  - **Provisional & Uncalibrated Designation:** The current threshold $\tau = 0.60$ is an operational engineering heuristic, **not a calibrated Bayes-optimal decision boundary**.
-  - **Empirical Gate Performance:**
-    - **Abstention Rate:** $11.67\%$ (7 abstentions out of 60 trials held in `CONFIDENCE_GATE_HOLD`).
-    - **Precision at Gate:** $54.72\%$ ($29 / 53$ accepted diagnoses correct on initial observation step).
-    - **Recall at Gate:** $90.62\%$ ($29 / 32$ identifiable faults admitted to repair).
-- **Small-Sample Limitations ($N = 60$):**
-  This experiment ($N = 10$ per category) is an exploratory sensitivity test bed, insufficient for asymptotic calibration guarantees.
-- **Reproducible Stage 8 Calibration Protocol:**
-  1. *Dataset Generation:* Generate an independent synthetic campaign of $N = 300$ episodes (50 per category across 10 held-out random seeds: `1001` through `1010`).
-  2. *Data Split:* 50% calibration set ($N = 150$) / 50% evaluation set ($N = 150$).
-  3. *Temperature Optimization:* Learn temperature parameter $T^* = \arg\min_T \text{NLL}(T)$ via gradient descent on negative log-likelihood over the calibration split.
-  4. *Decision Threshold Derivation:* Derive optimal threshold $\tau^*$ by maximizing Youden's $J = \text{TPR} - \text{FPR}$ subject to false positive constraint $\text{FPR} \le 0.05$.
-- **Reliability Diagram Bins ($N = 60$):**
-  | Bin Range | Sample Count | Mean Confidence | Empirical Accuracy | Calibration Gap ($|\text{acc} - \text{conf}|$) |
-  |---|---|---|---|---|
-  | $[0.0, 0.2)$ | 4 | $0.0000$ | $0.0000$ | $0.0000$ |
-  | $[0.2, 0.4)$ | 0 | — | — | — |
-  | $[0.4, 0.6)$ | 3 | $0.5671$ | $1.0000$ | $0.4329$ |
-  | $[0.6, 0.8)$ | 5 | $0.7748$ | $0.0000$ | $0.7748$ |
-  | $[0.8, 1.0]$ | 48 | $0.9629$ | $0.6042$ | $0.3588$ |
+#### 4.5.1 Investigation of the $[0.0, 0.2)$ Reliability Bin
+In preliminary scratch test reporting, bin $[0.0, 0.2)$ recorded `count = 4` with `mean_confidence = 0.0000`.
+- **Root Cause Analysis:** Investigation revealed that the scratch benchmark recorded `confidence = 0.0` and injected a maximal multiclass squared penalty of `2.0` on $4$ trials where the upstream anomaly detector did not trigger within the initial 6 observation steps.
+- **Mathematical Invariant:** Primary diagnosis confidence is defined as $\hat{p}_i = \max_c p_{ic}$. Because the 6 class probabilities sum to $1.0$ via softmax, the analytical minimum possible confidence is:
+  $$\min \left(\max_c p_c\right) \ge \frac{1}{6} \approx \mathbf{0.1667}$$
+  It is mathematically impossible for a normalized 6-class softmax distribution to produce a maximum probability of $0.0000$.
+- **Origin of Previous Metric ($0.8707$):**
+  The previously reported multiclass Brier score of $0.8707$ was an artifact of penalizing the 4 non-triggered trials with $2.0$:
+  $$\frac{56 \times 0.79007 + 4 \times 2.0000}{60} = \mathbf{0.87073}$$
+
+#### 4.5.2 Consistent Calibration Benchmarks
+To guarantee scientific integrity without fabricating metrics, two consistent evaluations are formally reported:
+
+1. **Diagnosis-Conditional Benchmark ($N = 56$ diagnosed trials):**
+   Evaluates the diagnosis module strictly on cases where an anomaly was detected and diagnosis was executed:
+   - **Multiclass Brier Score:** $\text{BS}_{\text{mc}} = \mathbf{0.7901} < \text{BS}_{\text{uniform}} (0.8333)$.
+   - **Binary Confidence Brier Score:** $\text{BS}_{\text{bin}} = \mathbf{0.3656}$.
+   - **Expected Calibration Error ($M = 5$ bins):** $\text{ECE} = \mathbf{0.3999}$.
+   - **Observed Confidence Range:** $\min = 0.5671, \; \max = 0.9999999$.
+   - **Reliability Diagram:**
+     | Bin Range | Sample Count | Mean Confidence | Empirical Accuracy | Calibration Gap ($|\text{acc} - \text{conf}|$) |
+     |---|---|---|---|---|
+     | $[0.0, 0.2)$ | 0 | — | — | — |
+     | $[0.2, 0.4)$ | 0 | — | — | — |
+     | $[0.4, 0.6)$ | 3 | $0.5671$ | $1.0000$ | $0.4329$ |
+     | $[0.6, 0.8)$ | 5 | $0.7748$ | $0.0000$ | $0.7748$ |
+     | $[0.8, 1.0]$ | 48 | $0.9629$ | $0.6042$ | $0.3588$ |
+
+2. **Full Closed-Loop Pipeline Benchmark ($N = 60$ trials):**
+   Evaluates the end-to-end pipeline using the documented fallback ($p_c = 1/6 \approx 0.1667$, $\hat{p}_i = 0.1667$) for un-diagnosed steps:
+   - **Multiclass Brier Score:** $\text{BS}_{\text{mc}} = \mathbf{0.7930} < \text{BS}_{\text{uniform}} (0.8333)$.
+   - **Binary Confidence Brier Score:** $\text{BS}_{\text{bin}} = \mathbf{0.3430}$.
+   - **Expected Calibration Error ($M = 5$ bins):** $\text{ECE} = \mathbf{0.3843}$.
+   - **Reliability Diagram:**
+     | Bin Range | Sample Count | Mean Confidence | Empirical Accuracy | Calibration Gap ($|\text{acc} - \text{conf}|$) |
+     |---|---|---|---|---|
+     | $[0.0, 0.2)$ | 4 | $0.1667$ | $0.0000$ | $0.1667$ |
+     | $[0.2, 0.4)$ | 0 | — | — | — |
+     | $[0.4, 0.6)$ | 3 | $0.5671$ | $1.0000$ | $0.4329$ |
+     | $[0.6, 0.8)$ | 5 | $0.7748$ | $0.0000$ | $0.7748$ |
+     | $[0.8, 1.0]$ | 48 | $0.9629$ | $0.6042$ | $0.3588$ |
+
+#### 4.5.3 Confidence Gate Threshold ($\tau = 0.60$ Status)
+- **Provisional & Uncalibrated Designation:** The current operational threshold $\tau = 0.60$ is an engineering heuristic, not an optimized decision boundary.
+- **Empirical Gate Performance ($N = 60$):**
+  - **Abstention Rate:** $11.67\%$ (7 trials held in `CONFIDENCE_GATE_HOLD`).
+  - **Precision at Gate:** $54.72\%$ ($29 / 53$ accepted diagnoses correct on initial observation step).
+  - **Recall at Gate:** $90.62\%$ ($29 / 32$ identifiable faults admitted to repair).
+
+#### 4.5.4 Reproducible Stage 8 Calibration Protocol
+To systematically calibrate diagnosis probabilities prior to final publication:
+1. **Disjoint Seed-Independent Partitions ($N = 300$):**
+   - Calibration Split $\mathcal{D}_{\text{calib}}$ ($N_{\text{calib}} = 150$, 25 per category): Generated across seeds `[1001, 1002, 1003, 1004, 1005]`.
+   - Test Split $\mathcal{D}_{\text{test}}$ ($N_{\text{test}} = 150$, 25 per category): Generated across disjoint seeds `[1006, 1007, 1008, 1009, 1010]`.
+   - Partitions share zero seeds, zero runs, and zero parameters.
+2. **Binary Correctness Event Definition:**
+   - Predicted class: $\hat{c}_i = \arg\max_{c \in \{1,\dots,6\}} p_{ic}$.
+   - Binary correctness event $Y_i \in \{0, 1\}$:
+     $$Y_i = \mathbb{I}[\hat{c}_i = c_{\text{true}, i}]$$
+   - Binary decision at threshold $\tau \in [1/6, 1.0]$: $\hat{D}_i(\tau) = \mathbb{I}[\hat{p}_i \ge \tau]$.
+   - Rates:
+     $$\text{TPR}(\tau) = \frac{\sum_{i} \mathbb{I}[\hat{D}_i = 1 \land Y_i = 1]}{\sum_i \mathbb{I}[Y_i = 1]}, \quad \text{FPR}(\tau) = \frac{\sum_{i} \mathbb{I}[\hat{D}_i = 1 \land Y_i = 0]}{\sum_i \mathbb{I}[Y_i = 0]}$$
+3. **Parameter Optimization on $\mathcal{D}_{\text{calib}}$ ONLY:**
+   - Fit scalar temperature $T^* > 0$ strictly on $\mathcal{D}_{\text{calib}}$:
+     $$T^* = \arg\min_T \left[ -\frac{1}{N_{\text{calib}}} \sum_{i \in \mathcal{D}_{\text{calib}}} \ln p_{y_i}(T) \right]$$
+   - Select threshold $\tau^*$ strictly on $\mathcal{D}_{\text{calib}}$ using Youden's $J$ statistic:
+     $$J(\tau) = \text{TPR}(\tau) - \text{FPR}(\tau) = \text{Sensitivity}(\tau) + \text{Specificity}(\tau) - 1$$
+     $$\tau^* = \arg\max_{\tau \in [1/6, 1.0]} J(\tau) \quad \text{subject to } \operatorname{FPR}(\tau) \le 0.05$$
+   - *Clarification on Youden's J:* Youden's $J$ is a non-parametric informedness index weighting sensitivity and specificity equally. It is **not** Bayes-optimal unless misclassification costs and prior odds satisfy $\frac{C_{\text{FP}}}{C_{\text{FN}}} \frac{P(Y=0)}{P(Y=1)} = 1$.
+4. **Untouched Test Evaluation on $\mathcal{D}_{\text{test}}$:**
+   - Freeze $T^*$ and $\tau^*$. Evaluate test ECE, test Brier scores, test TPR, and test FPR strictly on $\mathcal{D}_{\text{test}}$. No test data informs temperature or threshold tuning.
 
 ---
 
@@ -291,7 +334,7 @@ Evaluated across 1000 sequential online rank-1 updates with periodic near-degene
 
 ---
 
-## 9. Quantum State, Bloch Sphere Coordinates & Zero-Noise Extrapolation (ZNE)
+## 9. Quantum State, Bloch Sphere Coordinates & Analytical Inverse-Noise Correction
 
 ### 9.1 Mathematical Definition & Density Matrix Formulation
 For an $n$-qubit quantum circuit producing pure state $|\psi\rangle$, the system state is $\rho = |\psi\rangle\langle\psi|$. The single-qubit reduced density matrix for wire $q=0$ is obtained by tracing out qubits $1 \dots n-1$:
@@ -301,21 +344,23 @@ $$x = \langle \sigma_x \rangle = \text{Tr}(\rho_0 \sigma_x), \quad y = \langle \
 The Bloch radius and state purity are:
 $$r = \sqrt{x^2 + y^2 + z^2} \le 1.0, \quad \gamma = \text{Tr}(\rho_0^2) = \frac{1 + r^2}{2} \le 1.0$$
 
-### 9.2 Physical Depolarizing Noise Channel & Contraction
+### 9.2 Physical Depolarizing Noise Channel & Radial Contraction
 Under quantum noise degradation with fault severity $p_{\text{fault}} \in [0.0, 1.0]$, the effective depolarizing parameter in `backend/qml_model.py` is:
 $$\lambda = 0.25 \cdot p_{\text{fault}}$$
-The single-qubit isotropic depolarizing channel contracts the state according to:
+The single-qubit isotropic depolarizing channel contracts the density matrix according to:
 $$\mathcal{E}_\lambda(\rho_0) = (1 - \lambda)\rho_0 + \frac{\lambda}{2} I$$
 In the continuous simulation proxy, the radial contraction factor is:
 $$c = \max(0.1, 1.0 - 0.5 \cdot \lambda)$$
 producing the true physical noisy-state Bloch coordinates:
 $$\mathbf{r}_{\text{phys}} = [x_{\text{phys}}, y_{\text{phys}}, z_{\text{phys}}]^T = c \cdot [x_{\text{ideal}}, y_{\text{ideal}}, z_{\text{ideal}}]^T$$
 
-### 9.3 Zero-Noise Extrapolation (ZNE) Rescaling
-When simulation-side error mitigation is enabled (`noise_mitigation=True`), Zero-Noise Extrapolation applies the inverse contraction scalar:
-$$M = \frac{1}{c} = \frac{1}{\max(0.1, 1.0 - 0.5 \cdot \lambda)}$$
-yielding the error-mitigated expectation-value estimates:
-$$\hat{x}_{\text{mit}} = \operatorname{clip}(x_{\text{phys}} \cdot M, -1.0, 1.0), \quad \hat{y}_{\text{mit}} = \operatorname{clip}(y_{\text{phys}} \cdot M, -1.0, 1.0), \quad \hat{z}_{\text{mit}} = \operatorname{clip}(z_{\text{phys}} \cdot M, -1.0, 1.0)$$
+### 9.3 Analytical Inverse-Noise Correction vs Conventional ZNE
+- **Method Classification:** When simulation-side error mitigation is enabled (`noise_mitigation=True`), the engine applies an **analytical inverse-noise contraction correction** rather than multi-scale zero-noise extrapolation (ZNE).
+- **Extrapolation Distinction:** The simulation does not execute circuits across multiple amplified noise scales (e.g., $c \in \{1, 3, 5\}$ via pulse stretching or unitary folding) to fit an empirical polynomial extrapolation curve to $c \to 0$. Instead, it computes the exact analytical inverse factor:
+  $$M = \frac{1}{c} = \frac{1}{\max(0.1, 1.0 - 0.5 \cdot \lambda)}$$
+  yielding the error-mitigated expectation-value estimates:
+  $$\hat{x}_{\text{mit}} = \operatorname{clip}(x_{\text{phys}} \cdot M, -1.0, 1.0), \quad \hat{y}_{\text{mit}} = \operatorname{clip}(y_{\text{phys}} \cdot M, -1.0, 1.0), \quad \hat{z}_{\text{mit}} = \operatorname{clip}(z_{\text{phys}} \cdot M, -1.0, 1.0)$$
+- **Hardware Trajectory:** Multi-scale pulse-stretching or unitary-folding ZNE is reserved for physical cryogenic QPUs where continuous noise channels are non-Markovian and closed-form contraction scalars cannot be directly observed.
 
 ### 9.4 Reconciled Worked Numerical Example at $p_{\text{fault}} = 0.70$
 Evaluating qubit 0 after convergence on the Iris dataset under fault injection $p_{\text{fault}} = 0.70$:
