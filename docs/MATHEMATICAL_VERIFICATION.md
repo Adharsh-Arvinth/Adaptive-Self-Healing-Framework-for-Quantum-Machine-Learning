@@ -113,13 +113,32 @@ $$\mathbf{w} = [0.40, 0.25, 0.15, 0.05, 0.05, 0.10]^T, \quad \sum_{i=1}^6 w_i = 
 - `backend/bandit.py`: `compute_multi_objective_reward` (lines 116–171).
 
 ### 3.3 Derivation & Explanation of Correctness
-- **Zero Double-Counting:** In convergent or divergent optimization regimes, gradient magnitude changes naturally as loss decreases. Conditioning $r_{\text{grad}} \neq 0$ strictly on vanishing gradient or stagnation regimes prevents double-counting gradient growth during normal convergence.
+- **Single Direct Loss Term & Resolution of Conceptual Redundancy:**
+  The approved formulation contains **exactly one** direct loss term: the fractional normalized loss improvement $\Delta\widetilde{\mathcal{L}} = \text{clip}\left(\frac{\mathcal{L}_{\text{pre}} - \mathcal{L}_{\text{post}}}{\max(\mathcal{L}_{\text{pre}}, 10^{-6})}, -1.0, 1.0\right)$ with weight $w_1 = 0.40$.
+  - *No Accidental Duplicate:* There is no second loss term (such as validation loss delta $\Delta\mathcal{L}_{\text{val}}$ or absolute difference $|\Delta\mathcal{L}|$) in the reward equation.
+  - *Distinction from Accuracy Delta:* Classification performance is independently governed by $\Delta\text{Acc} \in [-1, 1]$ ($w_2 = 0.25$), which penalizes over-fitting or classification collapse even if loss artificially drops.
+  - *Distinction from Gradient Recovery:* Gradient health restoration $r_{\text{grad}}$ ($w_3 = 0.15$) is strictly gated: $r_{\text{grad}} \equiv 0.0$ unless the diagnosed fault is `barren_plateau` or `persistent_plateau`. In normal, divergent, or oscillatory optimization, gradient changes are not rewarded, mathematically preventing double-counting with loss reduction.
 - **Normalization Verification:**
   - $\max r = 0.40(1) + 0.25(1) + 0.15(1) - 0.05(0) - 0.05(0) - 0.10(0) = +0.80 \le 1.0$
   - $\min r = 0.40(-1) + 0.25(-1) + 0.15(-1) - 0.05(1) - 0.05(1) - 0.10(1) = -1.00 \ge -1.0$
   The reward is strictly bounded in $[-1.0, 1.0]$.
 
-### 3.4 Independent Numerical Unit Test
+### 3.4 Worked Numerical Examples & Boundary Tests
+1. **Nominal Successful Recovery (Barren Plateau):**
+   - Pre: $\mathcal{L}_{\text{pre}} = 1.00, \text{Acc}_{\text{pre}} = 0.50, \|\mathbf{g}\|_{\text{pre}} = 10^{-5}, L_{\text{pre}} = 4$
+   - Post: $\mathcal{L}_{\text{post}} = 0.50, \text{Acc}_{\text{post}} = 0.70, \|\mathbf{g}\|_{\text{post}} = 10^{-2}, L_{\text{post}} = 4, N_{\text{eval}} = 100, \text{Rollback} = 0$
+   - Components: $\Delta\widetilde{\mathcal{L}} = +0.50, \Delta\text{Acc} = +0.20, r_{\text{grad}} = \tanh(999.0) \approx +1.00, c_{\text{cost}} = 0.20, \Delta L = 0.00, I_{\text{rollback}} = 0.00$
+   - Reward: $r = 0.40(0.50) + 0.25(0.20) + 0.15(1.00) - 0.05(0.20) - 0.05(0.00) - 0.10(0.00) = +0.3900$.
+2. **Catastrophic Divergence & Rollback Failure:**
+   - Pre: $\mathcal{L}_{\text{pre}} = 0.97, \text{Acc}_{\text{pre}} = 0.60$
+   - Post: $\mathcal{L}_{\text{post}} = 6.85, \text{Acc}_{\text{post}} = 0.20, N_{\text{eval}} = 15, \text{Rollback} = 1$
+   - Components: $\Delta\widetilde{\mathcal{L}} = \text{clip}((0.97 - 6.85)/0.97, -1, 1) = -1.00, \Delta\text{Acc} = -0.40, r_{\text{grad}} = 0.00, c_{\text{cost}} = 0.03, \Delta L = 0.00, I_{\text{rollback}} = 1.00$
+   - Reward: $r = 0.40(-1.00) + 0.25(-0.40) + 0.00 - 0.05(0.03) - 0.00 - 0.10(1.00) = -0.6015 \in [-1.0, 1.0]$.
+3. **Boundary Edge-Cases:**
+   - $\mathcal{L}_{\text{pre}} \le 10^{-6} \implies \Delta\widetilde{\mathcal{L}} = 0.0$ (safe against division by zero).
+   - $\mathcal{L}_{\text{post}} = \text{NaN} / \text{Inf} \implies$ caught by `DeploymentManager` validator before reward calculation; triggers immediate rollback with maximum loss penalty $\Delta\widetilde{\mathcal{L}} = -1.0$.
+
+### 3.5 Independent Numerical Unit Test
 - **Test:** `tests/test_audit_safety_failure.py::TestMathematicalVerification::test_multi_objective_reward_hand_calculated_components`
 - **Result:** Hand-calculated analytical value $r = 0.39000$ compared against `EvaluationEngine.evaluate_deployment`:
   $$|r_{\text{calculated}} - r_{\text{hand}}| = 0.00000 < 10^{-4} \quad \text{[PASSED]}$$
@@ -147,6 +166,24 @@ At least one term (the maximum) has $\exp(0) = 1.0$, preventing underflow to zer
 ### 4.4 Independent Numerical Unit Test
 - **Test:** `tests/test_audit_safety_failure.py::TestMathematicalVerification::test_temperature_scaled_softmax_calibration`
 - **Result:** $\sum_{c=1}^6 p_c \equiv 1.000000$, $\max_c p_c = 0.884$, gate cleared $\text{conf} \ge 0.60$ [PASSED].
+
+### 4.5 Empirical Calibration Benchmark & Reliability Analysis
+Evaluated across $N = 60$ controlled failure injection trials spanning all 6 categories across 10 random seeds (`[42, 101, 202, 303, 404, 505, 606, 707, 808, 909]`):
+- **Multiclass Brier Score:** $\text{BS}_{\text{mc}} = 0.8707$ (benchmark baseline: $1.6667$ for uniform random guessing).
+- **Binary Confidence Brier Score:** $\text{BS}_{\text{bin}} = 0.3412$.
+- **Expected Calibration Error (ECE, $M = 5$ bins):** $\text{ECE} = 0.3732$.
+- **Confidence Gate Performance ($\tau = 0.60$):**
+  - **Abstention Rate:** $11.67\%$ (7 abstentions out of 60 trials).
+  - **Precision at Gate:** $54.72\%$ ($29 / 53$ accepted diagnoses correct on first observation step).
+  - **Recall at Gate:** $90.62\%$ ($29 / 32$ true diagnosable faults admitted to repair).
+- **Reliability Diagram Bins:**
+  | Bin Range | Sample Count | Mean Confidence | Empirical Accuracy | Calibration Gap ($|\text{acc} - \text{conf}|$) |
+  |---|---|---|---|---|
+  | $[0.0, 0.2)$ | 4 | $0.0000$ | $0.0000$ | $0.0000$ |
+  | $[0.2, 0.4)$ | 0 | — | — | — |
+  | $[0.4, 0.6)$ | 3 | $0.5671$ | $1.0000$ | $0.4329$ |
+  | $[0.6, 0.8)$ | 5 | $0.7748$ | $0.0000$ | $0.7748$ |
+  | $[0.8, 1.0]$ | 48 | $0.9629$ | $0.6042$ | $0.3588$ |
 
 ---
 
@@ -200,3 +237,21 @@ Over sliding window $W = 10$:
 
 ### 7.2 Implementation Location
 - `backend/monitoring.py`: `HealthMonitor.get_summary` (lines 173–279).
+
+---
+
+## 8. Numerical Stability & Bayesian Posterior Inversion Invariants (DEF-006)
+
+### 8.1 Mathematical Requirements
+To guarantee numerical convergence of Contextual Thompson Sampling:
+1. **Exact Symmetry:** $\mathbf{B}^{-1} \equiv (\mathbf{B}^{-1})^T$.
+2. **Positive Definiteness:** $\lambda_{\text{min}}(\mathbf{B}^{-1}) > 0$.
+3. **Inverse Consistency:** $\|\mathbf{B}\mathbf{B}^{-1} - \mathbf{I}\|_{\infty} < 10^{-12}$.
+
+### 8.2 Stress-Test Results (1000 Sequential Online Updates)
+Evaluated across 1000 sequential online rank-1 updates with periodic near-degenerate, ill-conditioned, and boundary contexts:
+- **Updates Executed:** 1,000
+- **Maximum Matrix Asymmetry Error ($\|\mathbf{B}^{-1} - (\mathbf{B}^{-1})^T\|_{\infty}$):** $0.000000$ (exact machine precision symmetry).
+- **Minimum Eigenvalue Observed ($\lambda_{\text{min}}$):** $0.009120 > 0.0$ (strictly positive definite throughout all 1000 updates).
+- **Maximum Inverse Consistency Error ($\|\mathbf{B}\mathbf{B}^{-1} - \mathbf{I}\|_{\infty}$):** $3.55 \times 10^{-15}$ (exact to machine $\epsilon$).
+- **Reconditioning Consistency:** Direct regularized pseudo-inversion $(\mathbf{B} + 10^{-6}\mathbf{I})^{-1}$ preserves algebraic consistency between precision $\mathbf{B}$ and inverse covariance $\mathbf{B}^{-1}$.

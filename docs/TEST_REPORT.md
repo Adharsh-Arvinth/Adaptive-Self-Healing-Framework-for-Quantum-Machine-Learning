@@ -114,3 +114,16 @@ Route (app)                              Size     First Load JS
 
 Build Exit Code: 0 (Zero Errors, Zero Warnings)
 ```
+
+---
+
+## 4. Test Warnings Audit & Root Cause Analysis
+
+During pytest execution, exactly one warning was reported:
+```
+StarletteDeprecationWarning: Using `httpx` with `starlette.testclient` is deprecated; install `httpx2` instead.
+  from starlette.testclient import TestClient as TestClient
+```
+- **Originating Module:** `fastapi/testclient.py` importing Starlette's `TestClient`.
+- **Root Cause:** Starlette upstream maintenance warning signaling future migration to an alternative HTTP mock client interface (`httpx2`).
+- **Impact Assessment:** **Zero Operational Impact**. This warning is emitted exclusively during synchronous test harness initialization in `test_api.py`. It does not affect production ASGI server execution (`uvicorn`), WebSocket streaming, quantum circuit evaluations, or any core self-healing algorithms. No code change is warranted in application code.

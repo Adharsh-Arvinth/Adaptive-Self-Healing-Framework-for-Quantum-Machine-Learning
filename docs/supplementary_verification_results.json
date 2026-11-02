@@ -1,0 +1,186 @@
+{
+  "calibration": {
+    "n_samples": 60,
+    "seeds": [
+      42,
+      101,
+      202,
+      303,
+      404,
+      505,
+      606,
+      707,
+      808,
+      909
+    ],
+    "multiclass_brier_score": 0.8707320292280575,
+    "binary_confidence_brier_score": 0.3411953284219011,
+    "expected_calibration_error": 0.373228228450819,
+    "abstention_rate": 0.11666666666666667,
+    "gate_threshold": 0.6,
+    "precision_at_gate": 0.5471698113207547,
+    "recall_at_gate": 0.90625,
+    "accepted_count": 53,
+    "rejected_count": 7,
+    "reliability_diagram": [
+      {
+        "bin_range": "[0.0, 0.2]",
+        "count": 4,
+        "mean_confidence": 0.0,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.0
+      },
+      {
+        "bin_range": "[0.2, 0.4]",
+        "count": 0,
+        "mean_confidence": 0.0,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.0
+      },
+      {
+        "bin_range": "[0.4, 0.6]",
+        "count": 3,
+        "mean_confidence": 0.5670573694957475,
+        "empirical_accuracy": 1.0,
+        "calibration_gap": 0.4329426305042525
+      },
+      {
+        "bin_range": "[0.6, 0.8]",
+        "count": 5,
+        "mean_confidence": 0.7748028760568187,
+        "empirical_accuracy": 0.0,
+        "calibration_gap": 0.7748028760568187
+      },
+      {
+        "bin_range": "[0.8, 1.0]",
+        "count": 48,
+        "mean_confidence": 0.9629344049010893,
+        "empirical_accuracy": 0.6041666666666666,
+        "calibration_gap": 0.35876773823442265
+      }
+    ]
+  },
+  "trace_a_sample": [
+    {
+      "step": 1,
+      "state": "HEALTHY_TRAINING",
+      "loss": 0.9770015789031434,
+      "val_loss": 0.9770015789031434,
+      "anomalies": [],
+      "diagnosis": null,
+      "events": []
+    },
+    {
+      "step": 2,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.971430284969187,
+      "val_loss": 0.971430284969187,
+      "anomalies": [
+        "persistent_plateau"
+      ],
+      "diagnosis": "persistent_plateau",
+      "events": [
+        "Detected 1 anomaly conditions at step 2.",
+        "Contextual Thompson Sampling selected arm: 'apply_noise_mitigation' (sampled reward: 0.1943).",
+        "Deployed repair 'apply_noise_mitigation'. Transitioning to validation window (W_val=3)."
+      ]
+    },
+    {
+      "step": 3,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.9304694614652113,
+      "val_loss": 0.9304694614652113,
+      "anomalies": [],
+      "diagnosis": null,
+      "events": []
+    },
+    {
+      "step": 4,
+      "state": "VALIDATING_REPAIR",
+      "loss": 0.8896199895726556,
+      "val_loss": 0.8896199895726556,
+      "anomalies": [],
+      "diagnosis": null,
+      "events": []
+    },
+    {
+      "step": 5,
+      "state": "COMMITTED",
+      "loss": 1.0276520984560888,
+      "val_loss": 1.0276520984560888,
+      "anomalies": [],
+      "diagnosis": null,
+      "events": [
+        "Repair apply_noise_mitigation successfully committed after 3 validation steps."
+      ]
+    },
+    {
+      "step": 6,
+      "state": "VALIDATING_REPAIR",
+      "loss": 1.054724467072855,
+      "val_loss": 1.054724467072855,
+      "anomalies": [
+        "noise_degradation"
+      ],
+      "diagnosis": "noise_degradation",
+      "events": [
+        "Detected 1 anomaly conditions at step 6.",
+        "Contextual Thompson Sampling selected arm: 'perform_warm_restart' (sampled reward: 0.4378).",
+        "Deployed repair 'perform_warm_restart'. Transitioning to validation window (W_val=3)."
+      ]
+    }
+  ],
+  "trace_b": {
+    "checkpoint_loss": 0.9726953054677514,
+    "checkpoint_params_norm": 0.2686037203228434,
+    "deployed_candidate_arm": "adjust_learning_rate",
+    "deployed_status": "ROLLED_BACK",
+    "aborted_reason": "DIVERGENCE_LOSS_LIMIT: Loss (6.85) exceeded ceiling (4.0).",
+    "final_status": "ROLLED_BACK",
+    "restored_params_norm": 0.2686037203228434,
+    "parameter_restoration_exact": true,
+    "eval_actual_reward": -0.1015,
+    "eval_was_rolled_back": true,
+    "prediction_error": 0.35150000000000003
+  },
+  "stability_1000_updates": {
+    "updates_executed": 1000,
+    "max_asymmetry_error": 0.0,
+    "min_eigenvalue": 0.009119541530599991,
+    "is_strictly_positive_definite": true,
+    "max_inverse_consistency_error": 3.552713678800501e-15
+  },
+  "bloch_verification": {
+    "ideal_state": {
+      "x": 0.9962654725058504,
+      "y": 0.0,
+      "z": 0.08163747536211535,
+      "radius": 0.9996047064168943,
+      "purity": 0.9996047845454027,
+      "qubit_canonical": 0,
+      "qubit_aliases": [
+        0,
+        0
+      ]
+    },
+    "noisy_state_physical": {
+      "x": 0.9090922436615885,
+      "y": 0.0,
+      "z": 0.07449419626793026,
+      "radius": 0.912139294605416,
+      "purity": 0.915999046381633,
+      "contraction_observed": true
+    },
+    "mitigated_model": {
+      "physical_noisy_x": 0.9090922436615885,
+      "physical_noisy_y": 0.0,
+      "physical_noisy_z": 0.07449419626793026,
+      "physical_radius": 0.912139294605416,
+      "physical_purity": 0.915999046381633,
+      "mitigated_x": 0.9962654725058503,
+      "mitigated_y": 0.0,
+      "mitigated_z": 0.08163747536211535,
+      "mitigated_radius": 0.9996047064168941
+    }
+  }
+}
