@@ -1,121 +1,122 @@
-@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@600;700;800&display=swap');
-
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* --------------------------------------------------------------------------
-   Stage 10 — High-Performance Brand & Editorial Laboratory Design System
-   Inspired by Carlos Sainz (55 Hub) & Charles Leclerc Editorial Platforms
+   Modern Minimalism — Calm, Muted, Nature-Inspired Warm Earth Tones
+   Typography: SF Pro / Helvetica Neue
+   Soft Layers & Subtle Organic Surfaces (Zero Harsh Glare, Zero Cold Blurs)
    -------------------------------------------------------------------------- */
+
 :root {
-  /* Warm Alabaster Studio Canvas */
-  --bg-primary: #F7F5F0;
-  --bg-surface: #FFFFFF;
+  /* Warm Travertine & Linen Canvas */
+  --bg-primary: #F6F3ED;
+  --bg-surface: #FCFAF7;
   --bg-surface-elevated: #FFFFFF;
-  --bg-subtle: #EDE9E1;
+  --bg-subtle: #EDE7DC;
 
-  /* Architectural Hairlines */
-  --border-subtle: rgba(40, 35, 30, 0.08);
-  --border-highlight: rgba(30, 25, 20, 0.25);
+  /* Organic Hairline Borders */
+  --border-subtle: rgba(60, 50, 40, 0.08);
+  --border-highlight: rgba(50, 40, 30, 0.20);
 
-  /* Editorial High-Contrast Typography */
-  --text-primary: #121316;
-  --text-secondary: #5A564F;
-  --text-tertiary: #8E8A81;
+  /* Deep Warm Espresso & Peat Typography (Soft on Eyes) */
+  --text-primary: #1E1C19;
+  --text-secondary: #5F5950;
+  --text-tertiary: #918B80;
 
-  --content-primary: #121316;
-  --content-secondary: #5A564F;
-  --content-tertiary: #8E8A81;
+  --content-primary: #1E1C19;
+  --content-secondary: #5F5950;
+  --content-tertiary: #918B80;
 
-  /* Technical Precision Accents */
-  --accent: #2563EB;
-  --accent-primary: #2563EB;
-  --accent-hover: #1D4ED8;
-  --accent-subtle: rgba(37, 99, 235, 0.08);
+  /* Nature-Inspired Terracotta & Clay Bronze Accents */
+  --accent: #8C5338;
+  --accent-primary: #8C5338;
+  --accent-hover: #77432B;
+  --accent-subtle: rgba(140, 83, 56, 0.09);
 
-  /* Performance Telemetry Statuses */
-  --status-success: #15803D;
-  --status-success-subtle: rgba(21, 128, 61, 0.10);
+  /* Muted Organic Earth Statuses */
+  --status-success: #3D6B52;
+  --status-success-subtle: rgba(61, 107, 82, 0.10);
 
-  --status-warning: #B45309;
-  --status-warning-subtle: rgba(180, 83, 9, 0.10);
+  --status-warning: #A36B2B;
+  --status-warning-subtle: rgba(163, 107, 43, 0.10);
 
-  --status-danger: #BE123C;
-  --status-danger-subtle: rgba(190, 18, 60, 0.10);
+  --status-danger: #9E3D3D;
+  --status-danger-subtle: rgba(158, 61, 61, 0.10);
 
-  --status-info: #4338CA;
-  --status-info-subtle: rgba(67, 56, 202, 0.10);
+  --status-info: #4A6072;
+  --status-info-subtle: rgba(74, 96, 114, 0.10);
 
-  --status-ansatz: #6B21A8;
-  --status-ansatz-subtle: rgba(107, 33, 168, 0.10);
+  --status-ansatz: #6D5270;
+  --status-ansatz-subtle: rgba(109, 82, 112, 0.10);
 
-  --status-purity: #0E7490;
-  --status-purity-subtle: rgba(14, 116, 144, 0.10);
+  --status-purity: #3E6D6D;
+  --status-purity-subtle: rgba(62, 109, 109, 0.10);
 
-  --panel-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
-  --card-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.06);
+  --panel-shadow: 0 4px 20px -2px rgba(60, 45, 30, 0.04), 0 1px 2px 0 rgba(60, 45, 30, 0.02);
+  --card-shadow: 0 12px 32px -4px rgba(60, 45, 30, 0.06);
 }
 
 /* --------------------------------------------------------------------------
-   Dark Mode — Cinematic Obsidian & Motorsport Carbon Laboratory
+   Warm Minimalist Dark Mode — Rich Organic Peat & Warm Charcoal
+   (Inviting, Warm & Soft — Never Stark or Cold Blue)
    -------------------------------------------------------------------------- */
 .dark {
-  /* Deep Obsidian Carbon Canvas */
-  --bg-primary: #090A0C;
-  --bg-surface: #111317;
-  --bg-surface-elevated: #181B20;
-  --bg-subtle: rgba(255, 255, 255, 0.04);
+  /* Deep Organic Warm Peat Canvas */
+  --bg-primary: #151413;
+  --bg-surface: #1D1C19;
+  --bg-surface-elevated: #252320;
+  --bg-subtle: rgba(240, 230, 215, 0.05);
 
-  /* Razor Hairline Borders */
-  --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(255, 255, 255, 0.22);
+  /* Warm Hairline Borders */
+  --border-subtle: rgba(240, 230, 215, 0.08);
+  --border-highlight: rgba(240, 230, 215, 0.20);
 
-  /* High-Key Ivory Typography */
-  --text-primary: #F4F1EA;
-  --text-secondary: #9E998F;
-  --text-tertiary: #67635A;
+  /* Soft Warm Parchment Typography */
+  --text-primary: #EDE7DE;
+  --text-secondary: #A6A094;
+  --text-tertiary: #726C62;
 
-  --content-primary: #F4F1EA;
-  --content-secondary: #9E998F;
-  --content-tertiary: #67635A;
+  --content-primary: #EDE7DE;
+  --content-secondary: #A6A094;
+  --content-tertiary: #726C62;
 
-  /* Technical Luminescence */
-  --accent: #3B82F6;
-  --accent-primary: #3B82F6;
-  --accent-hover: #60A5FA;
-  --accent-subtle: rgba(59, 130, 246, 0.14);
+  /* Luminous Warm Terracotta Bronze */
+  --accent: #C97D58;
+  --accent-primary: #C97D58;
+  --accent-hover: #D98F6B;
+  --accent-subtle: rgba(201, 125, 88, 0.14);
 
-  /* Performance Telemetry Statuses */
-  --status-success: #10B981;
-  --status-success-subtle: rgba(16, 185, 129, 0.14);
+  /* Muted Earth Statuses */
+  --status-success: #4E8266;
+  --status-success-subtle: rgba(78, 130, 102, 0.15);
 
-  --status-warning: #F59E0B;
-  --status-warning-subtle: rgba(245, 158, 11, 0.14);
+  --status-warning: #C2853E;
+  --status-warning-subtle: rgba(194, 133, 62, 0.15);
 
-  --status-danger: #F43F5E;
-  --status-danger-subtle: rgba(244, 63, 94, 0.14);
+  --status-danger: #B85252;
+  --status-danger-subtle: rgba(184, 82, 82, 0.15);
 
-  --status-info: #6366F1;
-  --status-info-subtle: rgba(99, 102, 241, 0.14);
+  --status-info: #5F778C;
+  --status-info-subtle: rgba(95, 119, 140, 0.15);
 
-  --status-ansatz: #A855F7;
-  --status-ansatz-subtle: rgba(168, 85, 247, 0.14);
+  --status-ansatz: #846787;
+  --status-ansatz-subtle: rgba(132, 103, 135, 0.15);
 
-  --status-purity: #06B6D4;
-  --status-purity-subtle: rgba(6, 182, 212, 0.14);
+  --status-purity: #4F8282;
+  --status-purity-subtle: rgba(79, 130, 130, 0.15);
 
-  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.65);
-  --card-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.80);
+  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.50);
+  --card-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.65);
 }
 
 /* --------------------------------------------------------------------------
-   Global Reset & Typography Rules
+   Typography Rules: SF Pro / Helvetica Neue Across Entire Experience
    -------------------------------------------------------------------------- */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", Arial, sans-serif;
   letter-spacing: -0.012em;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
   font-variant-numeric: tabular-nums;
@@ -124,23 +125,22 @@ body {
   overflow-x: hidden;
 }
 
-h1, h2, h3, .font-display {
-  font-family: "Syne", sans-serif;
-  letter-spacing: -0.03em;
+h1, h2, h3, h4, h5, h6, .font-display {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Helvetica Neue", Arial, sans-serif;
+  letter-spacing: -0.025em;
+  font-weight: 700;
 }
 
 code, pre, .font-mono {
-  font-family: "JetBrains Mono", monospace;
+  font-family: "SF Mono", "JetBrains Mono", Menlo, Monaco, Consolas, monospace;
   font-feature-settings: "tnum";
 }
 
 /* --------------------------------------------------------------------------
-   Editorial Precision Glass & Panel Containers
+   Soft Layered Minimalist Panels (Calm Travertine & Soft Warm Paper)
    -------------------------------------------------------------------------- */
 .glass-panel {
-  background: rgba(255, 255, 255, 0.90);
-  backdrop-filter: blur(20px) saturate(160%);
-  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
   border-radius: 0.875rem;
   box-shadow: var(--panel-shadow);
@@ -148,11 +148,9 @@ code, pre, .font-mono {
 }
 
 .dark .glass-panel {
-  background: rgba(17, 19, 23, 0.88);
-  backdrop-filter: blur(24px) saturate(170%);
-  -webkit-backdrop-filter: blur(24px) saturate(170%);
-  border: 1px solid rgba(255, 255, 255, 0.08);
-  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.70), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  background: var(--bg-surface);
+  border: 1px solid var(--border-subtle);
+  box-shadow: var(--panel-shadow);
 }
 
 .glass-panel:hover {
@@ -160,18 +158,14 @@ code, pre, .font-mono {
 }
 
 .glass-panel-subtle {
-  background: rgba(0, 0, 0, 0.03);
-  backdrop-filter: blur(10px);
-  -webkit-backdrop-filter: blur(10px);
-  border: 1px solid rgba(0, 0, 0, 0.06);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
   border-radius: 0.625rem;
 }
 
 .dark .glass-panel-subtle {
-  background: rgba(255, 255, 255, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(255, 255, 255, 0.06);
+  background: var(--bg-subtle);
+  border: 1px solid var(--border-subtle);
 }
 
 .apple-card {
@@ -183,7 +177,7 @@ code, pre, .font-mono {
 }
 
 /* --------------------------------------------------------------------------
-   Motorsport Technical Tick Marks & Crosshairs
+   Technical Crosshair Styling
    -------------------------------------------------------------------------- */
 .tech-crosshair {
   position: relative;
@@ -192,7 +186,7 @@ code, pre, .font-mono {
 .tech-crosshair::after {
   content: "+";
   position: absolute;
-  font-family: "JetBrains Mono", monospace;
+  font-family: "SF Mono", "JetBrains Mono", monospace;
   font-size: 10px;
   color: var(--border-highlight);
   pointer-events: none;
@@ -207,37 +201,38 @@ code, pre, .font-mono {
 }
 
 /* --------------------------------------------------------------------------
-   Tactile Action Controls
+   Interactive Buttons & Scrollbars
    -------------------------------------------------------------------------- */
 .apple-btn {
-  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease;
-  user-select: none;
+  transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
 }
-
-.apple-btn:active:not(:disabled) {
+.apple-btn:hover {
+  transform: translateY(-1px);
+}
+.apple-btn:active {
   transform: scale(0.97);
 }
 
-.apple-btn:disabled {
-  opacity: 0.40;
-  cursor: not-allowed;
-}
-
-/* Subtle clean scrollbars */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
-
 ::-webkit-scrollbar-track {
   background: transparent;
 }
-
 ::-webkit-scrollbar-thumb {
-  background: var(--border-subtle);
+  background: var(--border-highlight);
   border-radius: 9999px;
 }
-
 ::-webkit-scrollbar-thumb:hover {
   background: var(--text-tertiary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *, ::before, ::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
 }

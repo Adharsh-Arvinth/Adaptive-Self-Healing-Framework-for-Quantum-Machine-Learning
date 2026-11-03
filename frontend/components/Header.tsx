@@ -152,7 +152,7 @@ export const Header: React.FC<HeaderProps> = ({
             onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
             className={`apple-btn px-4 py-2 rounded-xl text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm ${
               activeView === "dashboard"
-                ? "bg-[var(--accent)] text-white shadow-indigo-500/20"
+                ? "bg-[var(--accent)] text-white shadow-sm shadow-[var(--accent)]/20"
                 : "bg-[var(--content-primary)] text-[var(--bg-primary)] hover:opacity-90"
             }`}
           >

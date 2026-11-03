@@ -41,7 +41,7 @@ const WS_URL =
 export default function Page() {
   // Primary View Mode: "landing" (Cinematic Editorial Experience) | "dashboard" (Interactive Research Lab)
   const [activeView, setActiveView] = useState<"landing" | "dashboard">("landing");
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const [isDarkMode, setIsDarkMode] = useState(false);
 
   // Notifications & Modals
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
