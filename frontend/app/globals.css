@@ -3,56 +3,68 @@
 @tailwind utilities;
 
 /* --------------------------------------------------------------------------
-   Light Mode Design Tokens (Apple Minimalist / Scientific Clean)
+   Apple Design System - Modern macOS / iOS 17 / visionOS Refined Tokens
    -------------------------------------------------------------------------- */
 :root {
-  --bg-primary: #F8F9FB;
+  --bg-primary: #F5F6F9;
   --bg-surface: #FFFFFF;
-  --bg-surface-elevated: #F2F3F7;
-  --bg-subtle: #F0F2F6;
+  --bg-surface-elevated: #FFFFFF;
+  --bg-subtle: #EEF0F5;
 
   --border-subtle: rgba(0, 0, 0, 0.08);
   --border-highlight: rgba(37, 99, 235, 0.25);
 
-  --text-primary: #111827;
-  --text-secondary: #4B5563;
-  --text-tertiary: #9CA3AF;
+  /* Content & Typography Tokens */
+  --text-primary: #0F172A;
+  --text-secondary: #475569;
+  --text-tertiary: #94A3B8;
 
+  --content-primary: #0F172A;
+  --content-secondary: #475569;
+  --content-tertiary: #94A3B8;
+
+  --accent: #2563EB;
   --accent-primary: #2563EB;
   --accent-hover: #1D4ED8;
   --accent-subtle: rgba(37, 99, 235, 0.08);
 
-  --status-success: #059669;
-  --status-success-subtle: rgba(5, 150, 105, 0.10);
-  --status-warning: #D97706;
-  --status-warning-subtle: rgba(217, 119, 6, 0.10);
-  --status-danger: #DC2626;
-  --status-danger-subtle: rgba(220, 38, 38, 0.10);
-  --status-info: #4F46E5;
-  --status-info-subtle: rgba(79, 70, 229, 0.10);
+  --status-success: #10B981;
+  --status-success-subtle: rgba(16, 185, 129, 0.12);
+  --status-warning: #F59E0B;
+  --status-warning-subtle: rgba(245, 158, 11, 0.12);
+  --status-danger: #EF4444;
+  --status-danger-subtle: rgba(239, 68, 68, 0.12);
+  --status-info: #6366F1;
+  --status-info-subtle: rgba(99, 102, 241, 0.12);
 
-  --panel-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.03);
-  --card-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  --panel-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --card-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.06);
 }
 
 /* --------------------------------------------------------------------------
-   Dark Mode Design Tokens (Apple macOS Dark / Deep Space)
+   Dark Mode - Apple Pro Dark / Space Gray with Specular Edge Highlights
    -------------------------------------------------------------------------- */
 .dark {
   --bg-primary: #0A0C10;
-  --bg-surface: #12151D;
-  --bg-surface-elevated: #181C26;
-  --bg-subtle: rgba(255, 255, 255, 0.04);
+  --bg-surface: #12151E;
+  --bg-surface-elevated: #181C28;
+  --bg-subtle: rgba(255, 255, 255, 0.05);
 
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(99, 102, 241, 0.35);
+  --border-highlight: rgba(99, 102, 241, 0.40);
 
-  --text-primary: #F9FAFB;
-  --text-secondary: #9CA3AF;
-  --text-tertiary: #6B7280;
+  /* Content & Typography Tokens */
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
 
+  --content-primary: #F8FAFC;
+  --content-secondary: #94A3B8;
+  --content-tertiary: #64748B;
+
+  --accent: #6366F1;
   --accent-primary: #6366F1;
-  --accent-hover: #4F46E5;
+  --accent-hover: #818CF8;
   --accent-subtle: rgba(99, 102, 241, 0.15);
 
   --status-success: #10B981;
@@ -64,48 +76,76 @@
   --status-info: #8B5CF6;
   --status-info-subtle: rgba(139, 92, 246, 0.15);
 
-  --panel-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.45);
-  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55);
+  --card-shadow: 0 16px 48px -8px rgba(0, 0, 0, 0.65);
 }
 
 /* Base Body Styling */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Inter", system-ui, sans-serif;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Geist", system-ui, sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   transition: background-color 0.25s ease, color 0.25s ease;
   min-height: 100vh;
 }
 
-/* Glassmorphic Apple-inspired cards */
-.apple-card {
-  background-color: var(--bg-surface);
+/* --------------------------------------------------------------------------
+   Apple Frosted Glass Panels (WWDC 2018 Fluid Materials & Depth)
+   -------------------------------------------------------------------------- */
+.glass-panel {
+  background: rgba(255, 255, 255, 0.80);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.875rem;
+  border-radius: 1.125rem; /* 18px rounded-apple-lg */
   box-shadow: var(--panel-shadow);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
-.apple-card:hover {
+.dark .glass-panel {
+  background: rgba(18, 21, 30, 0.80);
+  backdrop-filter: blur(28px) saturate(190%);
+  -webkit-backdrop-filter: blur(28px) saturate(190%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+}
+
+.glass-panel:hover {
   border-color: var(--border-highlight);
 }
 
-.apple-card-elevated {
-  background-color: var(--bg-surface-elevated);
-  border: 1px solid var(--border-subtle);
+.glass-panel-subtle {
+  background: rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
   border-radius: 0.75rem;
 }
 
-.apple-subtle {
-  background-color: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
+.dark .glass-panel-subtle {
+  background: rgba(255, 255, 255, 0.04);
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Tactile button interaction */
+/* Backward compatibility aliases */
+.apple-card {
+  @apply glass-panel;
+}
+
+.apple-subtle {
+  @apply glass-panel-subtle;
+}
+
+/* --------------------------------------------------------------------------
+   Tactile Button & Input Physics (Apple Fluid Response & Springs)
+   -------------------------------------------------------------------------- */
 .apple-btn {
-  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  user-select: none;
 }
 
 .apple-btn:active:not(:disabled) {
@@ -113,7 +153,7 @@ body {
 }
 
 .apple-btn:disabled {
-  opacity: 0.5;
+  opacity: 0.45;
   cursor: not-allowed;
 }
 

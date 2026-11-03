@@ -484,7 +484,8 @@ export default function DashboardPage() {
         setSelectedArm(armId);
         setPipelineState("DEPLOYED");
       } else {
-        addToast("error", "Safety Rejection", data.message || "Repair arm rejected by safety filter.");
+        const reason = data.reason || data.detail || data.message || "Circuit mutation prohibited by safety filter.";
+        addToast("warning", "Safety Filter Intervened", reason);
       }
     } catch (e) {
       addToast("error", "Deploy Failed", String(e));
@@ -615,9 +616,19 @@ export default function DashboardPage() {
               </div>
             </section>
 
-            {/* Tri-Panel Overview: Diagnosis, Repair Cockpit, Deployment Status */}
-            <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+            {/* Dual Status Panels: Diagnosis & Transactional Deployment Monitor */}
+            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+              <DeploymentMonitor
+                deployment={deployment}
+                pipelineState={pipelineState}
+                onCommit={handleCommit}
+                onRollback={handleRollback}
+              />
+            </section>
+
+            {/* Six-Arm Adaptive Repair Cockpit (Full Width Spacious Mac Tiles) */}
+            <section>
               <RepairCockpit
                 selectedArm={selectedArm}
                 eligibleArms={eligibleArms}
@@ -625,12 +636,6 @@ export default function DashboardPage() {
                 currentFeatureMap={featureMap}
                 currentDepth={metrics.circuitDepth}
                 onTriggerRepair={handleTriggerRepair}
-              />
-              <DeploymentMonitor
-                deployment={deployment}
-                pipelineState={pipelineState}
-                onCommit={handleCommit}
-                onRollback={handleRollback}
               />
             </section>
 
