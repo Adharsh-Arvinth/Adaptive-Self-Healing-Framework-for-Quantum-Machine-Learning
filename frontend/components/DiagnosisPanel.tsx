@@ -38,7 +38,7 @@ const CATEGORY_LABELS: Record<string, { name: string; tag: string; desc: string 
   noise_degradation: {
     name: "Noise Contraction",
     tag: "Decoherence Mixed State",
-    desc: "Bloch vector length contracted toward origin (purity gamma < 0.90)",
+    desc: "Bloch vector length contracted toward origin (purity γ < 0.90)",
   },
 };
 
@@ -48,18 +48,26 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
   const probs = diagnosis ? diagnosis.probabilities : {};
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between h-full">
-      {/* Panel Header */}
+    <div className="glass-panel p-6 flex flex-col justify-between h-full">
+      {/* Panel Symmetrical Header */}
       <div>
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <ShieldAlert className="w-4 h-4 text-amber-400" />
-            <h2 className="text-xs font-semibold text-[var(--content-primary)]">
-              Root-Cause Diagnosis & Confidence Gate
-            </h2>
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+              <ShieldAlert className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
+                Root-Cause Diagnosis & Confidence Gate
+              </h2>
+              <p className="text-[11px] text-[var(--content-tertiary)]">
+                Bayesian posterior inference across 6 non-overlapping quantum failure classes
+              </p>
+            </div>
           </div>
+
           <div
-            className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono border flex items-center gap-1.5 ${
+            className={`px-3 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 shrink-0 ${
               gateCleared
                 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold"
                 : "bg-amber-500/10 text-amber-400 border-amber-500/30"
@@ -67,23 +75,23 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
           >
             {gateCleared ? (
               <>
-                <CheckCircle2 className="w-3 h-3" /> Cleared (≥ 0.60)
+                <CheckCircle2 className="w-3.5 h-3.5" /> Cleared (≥ 0.60)
               </>
             ) : (
               <>
-                <AlertTriangle className="w-3 h-3" /> Gate Hold (&lt; 0.60)
+                <AlertTriangle className="w-3.5 h-3.5" /> Gate Hold (&lt; 0.60)
               </>
             )}
           </div>
         </div>
 
         {/* Active Anomalies Badges */}
-        <div className="flex flex-wrap gap-1.5 mb-3.5">
+        <div className="flex flex-wrap gap-1.5 mb-4 min-h-[26px]">
           {activeAnomalies.length > 0 ? (
             activeAnomalies.map((anom) => (
               <span
                 key={anom}
-                className="px-2 py-0.5 rounded-md bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[11px] font-mono flex items-center gap-1"
+                className="px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[11px] font-mono flex items-center gap-1"
               >
                 <Activity className="w-3 h-3" />
                 FAULT: {CATEGORY_LABELS[anom]?.name || anom}
@@ -97,97 +105,78 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
         </div>
 
         {/* Bayesian Confidence Gauge with tau = 0.60 Threshold Notch */}
-        <div className="mb-4 p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-          <div className="flex justify-between items-center text-[11px] font-mono text-[var(--content-secondary)] mb-1.5">
-            <span>Primary Cause Confidence</span>
-            <span
-              className={`font-bold ${
-                confidence >= 0.60 ? "text-emerald-400" : "text-[var(--content-primary)]"
-              }`}
-            >
+        <div className="mb-4 p-3.5 rounded-xl glass-panel-subtle border border-[var(--border-subtle)]">
+          <div className="flex justify-between items-center text-xs font-mono mb-2">
+            <span className="text-[var(--content-secondary)]">Primary Cause Confidence</span>
+            <span className={`font-semibold ${confidence >= 0.6 ? "text-emerald-400" : "text-[var(--content-primary)]"}`}>
               {(confidence * 100).toFixed(1)}%
             </span>
           </div>
-          <div className="relative w-full h-2.5 rounded-full bg-[var(--border-subtle)] overflow-hidden">
+
+          {/* Progress bar with production gate threshold line */}
+          <div className="relative w-full h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
             <div
               className={`h-full transition-all duration-300 rounded-full ${
-                confidence >= 0.60
-                  ? "bg-gradient-to-r from-emerald-500 to-teal-400"
-                  : "bg-gradient-to-r from-amber-500 to-amber-400"
+                confidence >= 0.6 ? "bg-emerald-500" : "bg-amber-500"
               }`}
-              style={{ width: `${Math.min(100, Math.max(0, confidence * 100))}%` }}
+              style={{ width: `${Math.min(100, confidence * 100)}%` }}
             />
-            {/* 60% Gate Threshold Notch */}
+            {/* Notch at tau = 0.60 */}
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-white/80 shadow-sm"
+              className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10"
               style={{ left: "60%" }}
-              title="Confidence Gate (tau = 0.60)"
+              title="Production Gate Threshold tau = 0.60"
             />
           </div>
-          <div className="flex justify-between text-[9px] font-mono text-[var(--content-secondary)] mt-1.5">
+
+          <div className="flex justify-between text-[10px] font-mono text-[var(--content-tertiary)] mt-1.5">
             <span>0.00</span>
-            <span className="text-purple-400 font-semibold">Production Gate τ = 0.60</span>
+            <span className="text-rose-400 font-medium">Production Gate τ = 0.60</span>
             <span>1.00</span>
           </div>
         </div>
 
-        {/* Six Categories Probability Distribution */}
-        <div className="space-y-2 mb-3">
-          {Object.entries(CATEGORY_LABELS).map(([key, meta]) => {
-            const prob = probs[key] || 0.0;
-            const isPrimary = diagnosis?.primary_cause === key;
+        {/* Multiclass Failure Probabilities Grid */}
+        <div className="space-y-2">
+          {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
+            const prob = probs[key] ?? 0.0;
+            const isHighest = diagnosis?.primary_cause === key && prob > 0.0;
+
             return (
-              <div key={key} className="space-y-1">
-                <div className="flex justify-between text-[11px] font-mono">
-                  <span
-                    className={
-                      isPrimary
-                        ? "text-purple-400 font-semibold flex items-center gap-1"
-                        : "text-[var(--content-secondary)]"
-                    }
-                  >
-                    {meta.name} {isPrimary && "★"}
-                  </span>
-                  <span
-                    className={
-                      isPrimary
-                        ? "text-purple-400 font-semibold"
-                        : "text-[var(--content-secondary)]"
-                    }
-                  >
-                    {(prob * 100).toFixed(1)}%
-                  </span>
+              <div
+                key={key}
+                className={`p-2 rounded-lg flex items-center justify-between text-xs transition-colors ${
+                  isHighest ? "bg-amber-500/10 border border-amber-500/30" : "hover:bg-[var(--bg-subtle)]"
+                }`}
+              >
+                <div className="flex-1 pr-3">
+                  <div className="flex items-center gap-1.5">
+                    <span className="font-medium text-[var(--content-primary)]">{label.name}</span>
+                    <span className="text-[10px] text-[var(--content-tertiary)] font-mono">({label.tag})</span>
+                  </div>
+                  <div className="w-full bg-[var(--bg-subtle)] h-1 rounded-full overflow-hidden mt-1">
+                    <div
+                      className={`h-full transition-all duration-300 ${
+                        isHighest ? "bg-amber-400" : "bg-[var(--content-tertiary)]/40"
+                      }`}
+                      style={{ width: `${Math.min(100, prob * 100)}%` }}
+                    />
+                  </div>
                 </div>
-                <div className="w-full h-1.5 rounded-full bg-[var(--border-subtle)] overflow-hidden">
-                  <div
-                    className={`h-full transition-all duration-300 rounded-full ${
-                      isPrimary ? "bg-purple-500" : "bg-[var(--content-secondary)]/30"
-                    }`}
-                    style={{ width: `${Math.min(100, Math.max(0, prob * 100))}%` }}
-                  />
-                </div>
+                <span className="font-mono text-[11px] text-[var(--content-primary)] font-semibold shrink-0">
+                  {(prob * 100).toFixed(1)}%
+                </span>
               </div>
             );
           })}
         </div>
       </div>
 
-      {/* Supporting Diagnostic Evidence */}
-      {diagnosis && diagnosis.supporting_evidence && diagnosis.supporting_evidence.length > 0 && (
-        <div className="pt-2.5 border-t border-[var(--border-subtle)]">
-          <span className="text-[10px] font-mono text-[var(--content-secondary)] uppercase tracking-wider block mb-1">
-            Diagnostic Evidence
-          </span>
-          <ul className="text-[11px] text-[var(--content-primary)] space-y-1 font-mono">
-            {diagnosis.supporting_evidence.slice(0, 3).map((ev, i) => (
-              <li key={i} className="flex items-start gap-1.5">
-                <span className="text-amber-400 shrink-0">•</span>
-                <span className="leading-tight">{ev}</span>
-              </li>
-            ))}
-          </ul>
-        </div>
-      )}
+      {/* Panel Footer */}
+      <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
+        <span>Deterministic Rule + Bayesian Categorical Posterior</span>
+        <span>Threshold τ = 0.60</span>
+      </div>
     </div>
   );
 };

@@ -68,23 +68,23 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
   const activePoint = hoveredIdx !== null && history[hoveredIdx] ? history[hoveredIdx] : history[history.length - 1];
 
   return (
-    <div className="apple-card p-5 flex flex-col justify-between">
-      {/* Chart Header & Segmented Mode Switcher */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4">
-        <div className="flex items-center gap-2">
-          <div className="p-1.5 rounded-lg bg-accent-subtle text-accent">
+    <div className="glass-panel p-6 flex flex-col justify-between h-full">
+      {/* Symmetrical Header */}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
             <BarChart2 className="w-4 h-4" />
           </div>
           <div>
-            <h3 className="text-xs font-semibold text-content-primary tracking-tight">
+            <h3 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
               {mode === "loss"
                 ? "Binary Cross-Entropy Loss Trajectory"
                 : mode === "accuracy"
                 ? "Classification Accuracy Convergence"
                 : "Dual Loss & Accuracy Dynamics"}
             </h3>
-            <p className="text-[11px] text-content-tertiary">
-              Continuous step-by-step quantum model optimization
+            <p className="text-[11px] text-[var(--content-tertiary)]">
+              Continuous step-by-step quantum model optimization & convergence
             </p>
           </div>
         </div>

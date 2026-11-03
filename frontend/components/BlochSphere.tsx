@@ -127,12 +127,21 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     : null;
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between items-center text-center select-none">
-      {/* Header */}
-      <div className="w-full flex items-center justify-between mb-2">
-        <div className="flex items-center gap-1.5 text-xs font-semibold text-[var(--content-primary)]">
-          <Atom className="w-4 h-4 text-purple-400" />
-          <span>Qubit {qubitIndex} Bloch Sphere</span>
+    <div className="glass-panel p-6 flex flex-col justify-between items-center text-center select-none h-full">
+      {/* Symmetrical Header */}
+      <div className="w-full flex items-center justify-between mb-3 pb-3 border-b border-[var(--border-subtle)]">
+        <div className="flex items-center gap-2.5">
+          <div className="w-8 h-8 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+            <Atom className="w-4 h-4" />
+          </div>
+          <div className="text-left">
+            <h3 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
+              Qubit {qubitIndex} State Vector
+            </h3>
+            <p className="text-[11px] text-[var(--content-tertiary)]">
+              Interactive 3D Bloch sphere & state purity
+            </p>
+          </div>
         </div>
         <div className="flex items-center gap-1.5">
           <button

@@ -651,6 +651,14 @@ export default function DashboardPage() {
           <div className="space-y-6 animate-fade-in">
             <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
               <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+              <DeploymentMonitor
+                deployment={deployment}
+                pipelineState={pipelineState}
+                onCommit={handleCommit}
+                onRollback={handleRollback}
+              />
+            </section>
+            <section>
               <RepairCockpit
                 selectedArm={selectedArm}
                 eligibleArms={eligibleArms}

@@ -53,7 +53,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
   };
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between h-full">
+    <div className="glass-panel p-6 flex flex-col justify-between h-full">
       <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-3">

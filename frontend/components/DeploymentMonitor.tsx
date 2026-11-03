@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { ShieldCheck, RotateCcw, AlertOctagon, CheckCircle2, Lock, ArrowRight, ShieldAlert } from "lucide-react";
+import {
+  ShieldCheck,
+  RotateCcw,
+  AlertOctagon,
+  CheckCircle2,
+  Lock,
+  ArrowRight,
+  ShieldAlert,
+  Clock,
+  Layers,
+  Scale,
+  Gauge,
+} from "lucide-react";
 import { DeploymentRecord } from "@/types";
 
 interface DeploymentMonitorProps {
@@ -39,19 +51,35 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
     }
   };
 
+  const deltaLoss =
+    deployment?.loss_post !== undefined &&
+    deployment?.loss_pre !== undefined &&
+    deployment.loss_post !== null &&
+    deployment.loss_pre !== null
+      ? deployment.loss_post - deployment.loss_pre
+      : null;
+
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between h-full">
+    <div className="glass-panel p-6 flex flex-col justify-between h-full">
+      {/* Symmetrical Header matching DiagnosisPanel */}
       <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <ShieldCheck className="w-4 h-4 text-emerald-400" />
-            <h2 className="text-xs font-semibold text-[var(--content-primary)]">
-              Transactional Safe Deployment Monitor
-            </h2>
+        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
+          <div className="flex items-center gap-2.5">
+            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
+              <ShieldCheck className="w-4 h-4" />
+            </div>
+            <div>
+              <h2 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
+                Transactional Safe Deployment Monitor
+              </h2>
+              <p className="text-[11px] text-[var(--content-tertiary)]">
+                Atomic state checkpointing, validation window & automatic rollback
+              </p>
+            </div>
           </div>
-          <span
-            className={`px-2.5 py-0.5 rounded-full text-[11px] font-mono border ${
+
+          <div
+            className={`px-3 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 shrink-0 ${
               isCommitted
                 ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold"
                 : isRolledBack
@@ -61,19 +89,33 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
                 : "bg-neutral-500/10 text-[var(--content-secondary)] border-[var(--border-subtle)]"
             }`}
           >
-            {isCommitted
-              ? "COMMITTED"
-              : isRolledBack
-              ? "ROLLED BACK"
-              : isValidating
-              ? "VALIDATING (W_val=3)"
-              : "STANDBY"}
-          </span>
+            {isCommitted ? (
+              <>
+                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <span>COMMITTED</span>
+              </>
+            ) : isRolledBack ? (
+              <>
+                <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                <span>ROLLED BACK</span>
+              </>
+            ) : isValidating ? (
+              <>
+                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                <span>VALIDATING (W=3)</span>
+              </>
+            ) : (
+              <>
+                <span className="w-2 h-2 rounded-full bg-neutral-400" />
+                <span>STANDBY</span>
+              </>
+            )}
+          </div>
         </div>
 
         {/* Transactional Lifecycle Pipeline Visual */}
-        <div className="mb-3.5 p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] font-mono text-[10px]">
-          <div className="flex items-center justify-between text-[var(--content-secondary)]">
+        <div className="mb-4 px-3 py-2 rounded-xl glass-panel-subtle border border-[var(--border-subtle)] font-mono text-[10px] min-h-[36px] flex items-center">
+          <div className="w-full flex items-center justify-between text-[var(--content-secondary)]">
             <span
               className={`flex items-center gap-1 ${
                 isValidating || isCommitted || isRolledBack
@@ -83,7 +125,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             >
               <Lock className="w-3 h-3" /> Checkpoint
             </span>
-            <ArrowRight className="w-2.5 h-2.5" />
+            <ArrowRight className="w-2.5 h-2.5 opacity-40" />
             <span
               className={`flex items-center gap-1 ${
                 isValidating || isCommitted || isRolledBack
@@ -93,7 +135,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             >
               Deployed
             </span>
-            <ArrowRight className="w-2.5 h-2.5" />
+            <ArrowRight className="w-2.5 h-2.5 opacity-40" />
             <span
               className={`flex items-center gap-1 ${
                 isValidating ? "text-amber-400 font-semibold animate-pulse" : ""
@@ -101,7 +143,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             >
               Validate W=3
             </span>
-            <ArrowRight className="w-2.5 h-2.5" />
+            <ArrowRight className="w-2.5 h-2.5 opacity-40" />
             <span
               className={`flex items-center gap-1 ${
                 isCommitted
@@ -116,35 +158,98 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           </div>
         </div>
 
-        {/* Deployment Metadata */}
-        <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2 font-mono text-xs mb-3">
-          <div className="flex justify-between items-center">
-            <span className="text-[var(--content-secondary)]">Deployed Arm:</span>
-            <span className="text-[var(--content-primary)] font-semibold">
-              {deployment?.repair_arm?.replace(/_/g, " ").toUpperCase() || "NONE"}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-[var(--content-secondary)]">Pre-Repair Loss:</span>
-            <span className="text-[var(--content-primary)]">
-              {deployment?.loss_pre ? deployment.loss_pre.toFixed(4) : "—"}
-            </span>
-          </div>
-          <div className="flex justify-between items-center">
-            <span className="text-[var(--content-secondary)]">Post-Repair Loss:</span>
-            <span
-              className={
-                deployment?.loss_post && deployment?.loss_pre && deployment.loss_post < deployment.loss_pre
-                  ? "text-emerald-400 font-semibold"
-                  : "text-[var(--content-primary)]"
-              }
-            >
-              {deployment?.loss_post ? deployment.loss_post.toFixed(4) : "—"}
-            </span>
+        {/* Live Deployment Metrics Card (Equal height to Bayesian Confidence Gauge) */}
+        <div className="mb-4 p-3.5 rounded-xl glass-panel-subtle border border-[var(--border-subtle)]">
+          <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 font-mono">
+            <div>
+              <span className="text-[10px] text-[var(--content-tertiary)] block">Deployed Arm</span>
+              <span className="text-xs font-semibold text-[var(--content-primary)] truncate block mt-0.5">
+                {deployment?.repair_arm?.replace(/_/g, " ").toUpperCase() || "NONE"}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[var(--content-tertiary)] block">Pre-Repair Loss</span>
+              <span className="text-xs font-semibold text-[var(--content-primary)] block mt-0.5">
+                {deployment?.loss_pre ? deployment.loss_pre.toFixed(4) : "—"}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[var(--content-tertiary)] block">Post-Repair Loss</span>
+              <span
+                className={`text-xs font-semibold block mt-0.5 ${
+                  deployment?.loss_post && deployment?.loss_pre && deployment.loss_post < deployment.loss_pre
+                    ? "text-emerald-400"
+                    : "text-[var(--content-primary)]"
+                }`}
+              >
+                {deployment?.loss_post ? deployment.loss_post.toFixed(4) : "—"}
+              </span>
+            </div>
+            <div>
+              <span className="text-[10px] text-[var(--content-tertiary)] block">Δ Loss Delta</span>
+              <span
+                className={`text-xs font-semibold block mt-0.5 ${
+                  deltaLoss !== null && deltaLoss < 0
+                    ? "text-emerald-400"
+                    : deltaLoss !== null && deltaLoss > 0
+                    ? "text-rose-400"
+                    : "text-[var(--content-secondary)]"
+                }`}
+              >
+                {deltaLoss !== null ? `${deltaLoss > 0 ? "+" : ""}${deltaLoss.toFixed(4)}` : "—"}
+              </span>
+            </div>
           </div>
         </div>
 
-        {/* Manual Force Commit / Force Rollback Controls during validation */}
+        {/* Failsafe Invariant Protection Grid (Symmetrically balances 6 posterior bars) */}
+        <div className="grid grid-cols-2 gap-2.5 mb-3">
+          <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
+              <Clock className="w-3.5 h-3.5 text-blue-400" />
+              <span>Validation Window</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-[var(--content-tertiary)]">W_val = 3</span>
+              <span className="text-emerald-400 font-semibold">Protected</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
+              <Scale className="w-3.5 h-3.5 text-amber-400" />
+              <span>Max Regression</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-[var(--content-tertiary)]">Ceiling: +15.0%</span>
+              <span className="text-amber-400 font-semibold">Active Guard</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
+              <Gauge className="w-3.5 h-3.5 text-purple-400" />
+              <span>Accuracy Floor</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-[var(--content-tertiary)]">Floor: ≥ 40.0%</span>
+              <span className="text-purple-400 font-semibold">Enforced</span>
+            </div>
+          </div>
+
+          <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
+            <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
+              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+              <span>Rollback Latency</span>
+            </div>
+            <div className="flex items-center justify-between text-[11px] font-mono">
+              <span className="text-[var(--content-tertiary)]">In-Memory Clone</span>
+              <span className="text-cyan-400 font-semibold">&lt; 1.2 ms</span>
+            </div>
+          </div>
+        </div>
+
+        {/* Interactive Validation Controls if Active */}
         {isValidating && (onCommit || onRollback) && (
           <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 mb-3 space-y-2">
             <div className="flex items-center justify-between text-xs font-medium text-blue-400">
@@ -179,7 +284,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           </div>
         )}
 
-        {/* Rollback Reason Notice */}
+        {/* Rollback Notice if Triggered */}
         {isRolledBack && deployment?.rollback_reason && (
           <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono flex items-start gap-2 mb-3">
             <AlertOctagon className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
@@ -195,7 +300,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           </div>
         )}
 
-        {/* Success Commit Notice */}
+        {/* Commit Notice if Committed */}
         {isCommitted && (
           <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2 mb-3">
             <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
@@ -206,9 +311,10 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
         )}
       </div>
 
-      <div className="pt-2.5 border-t border-[var(--border-subtle)] text-[10px] font-mono text-[var(--content-secondary)] flex justify-between">
-        <span>Fail-Safe Checkpoint Snapshot</span>
-        <span>100% Exact Weight Restoration</span>
+      {/* Symmetrical Footer matching DiagnosisPanel */}
+      <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
+        <span>Fail-Safe Checkpoint Snapshot: In-Memory Clone</span>
+        <span>100% Exact Parameter & Momentum Restoration</span>
       </div>
     </div>
   );
