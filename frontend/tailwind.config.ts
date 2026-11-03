@@ -1,5 +1,16 @@
 import type { Config } from "tailwindcss";
 
+const appleFontStack = [
+  "SF Pro Display",
+  "SF Pro Text",
+  "-apple-system",
+  "BlinkMacSystemFont",
+  "Helvetica Neue",
+  "Helvetica",
+  "Arial",
+  "sans-serif",
+];
+
 const config: Config = {
   darkMode: "class",
   content: [
@@ -42,24 +53,8 @@ const config: Config = {
         },
       },
       fontFamily: {
-        sans: [
-          "-apple-system",
-          "BlinkMacSystemFont",
-          "SF Pro Text",
-          "SF Pro Display",
-          "Inter",
-          "system-ui",
-          "-apple-system",
-          "sans-serif",
-        ],
-        mono: [
-          "SF Mono",
-          "ui-monospace",
-          "Menlo",
-          "Monaco",
-          "Consolas",
-          "monospace",
-        ],
+        sans: appleFontStack,
+        mono: appleFontStack,
       },
       boxShadow: {
         apple: "0 1px 2px 0 rgba(0, 0, 0, 0.05)",
