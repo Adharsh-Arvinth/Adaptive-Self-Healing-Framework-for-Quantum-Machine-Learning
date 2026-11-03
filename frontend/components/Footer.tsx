@@ -17,7 +17,7 @@ export const Footer: React.FC = () => {
           {/* Brand Identity & Mission */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#8B4C2F] via-[#A65E3E] to-[#6E432A] flex items-center justify-center text-white font-mono font-bold text-xs shadow-md shadow-[#A65E3E]/20">
+              <div className="w-8 h-8 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-xs shadow-sm">
                 QML
               </div>
               <span className="text-base font-bold font-display tracking-tight text-[var(--content-primary)] uppercase">
@@ -40,7 +40,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* Quick Links Column */}
-          <div className="md:col-span-3 space-y-3 font-mono text-xs">
+          <div className="md:col-span-3 space-y-3 font-sans text-xs">
             <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
               ARCHITECTURE & SPECIFICATIONS
             </span>
@@ -69,7 +69,7 @@ export const Footer: React.FC = () => {
           </div>
 
           {/* External Links & Repository */}
-          <div className="md:col-span-4 space-y-3 font-mono text-xs">
+          <div className="md:col-span-4 space-y-3 font-sans text-xs">
             <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
               OPEN SOURCE REPOSITORY
             </span>

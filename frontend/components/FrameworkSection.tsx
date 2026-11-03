@@ -98,7 +98,7 @@ export const FrameworkSection: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
+          <div className="flex items-center gap-2 font-sans text-xs font-semibold text-[var(--accent)]">
             <span>[02 // AUTONOMOUS ARCHITECTURE]</span>
           </div>
           <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">

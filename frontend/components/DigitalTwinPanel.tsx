@@ -53,12 +53,12 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
   };
 
   return (
-    <div className="glass-panel p-6 flex flex-col justify-between h-full">
+    <div className="glass-panel p-5 font-sans flex flex-col justify-between h-full">
       <div>
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-indigo-400" />
+            <Eye className="w-4 h-4 text-[var(--accent)]" />
             <h2 className="text-xs font-semibold text-[var(--content-primary)]">
               Digital-Twin Proxy Simulator (H = 3)
             </h2>
@@ -154,7 +154,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
           <div className="p-2.5 rounded-xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] mb-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--content-primary)]">
-                <FlaskConical className="w-3.5 h-3.5 text-indigo-400" />
+                <FlaskConical className="w-3.5 h-3.5 text-[var(--accent)]" />
                 <span>Sandbox Test:</span>
               </div>
               <div className="flex items-center gap-1.5 flex-1 max-w-[220px]">
@@ -192,7 +192,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
           <div className="flex justify-between items-center text-xs">
             <span>
               Pred:{" "}
-              <span className="text-indigo-400 font-semibold">
+              <span className="text-[var(--accent)] font-semibold">
                 {evaluation.predicted_reward?.toFixed(4) ?? "N/A"}
               </span>
             </span>

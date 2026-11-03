@@ -8,6 +8,7 @@ import {
   Menu,
   X,
   Terminal,
+  ArrowLeft,
 } from "lucide-react";
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -42,7 +43,6 @@ export const Header: React.FC<HeaderProps> = ({
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
-  // Suggested primary navigation: Home | Framework | Technology | Research | Documentation | GitHub | Live Lab
   const navLinks = [
     { label: "Home", href: "#hero" },
     { label: "Framework", href: "#the-framework" },
@@ -51,9 +51,9 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-xl bg-[var(--bg-primary)]/90 border-b border-[var(--border-subtle)] transition-colors h-14">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center justify-between gap-4">
-        {/* Brand Lockup: Clean horizontal lockup with at most 2 intentional lines */}
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
+        {/* Brand Lockup: Refined, un-cramped horizontal lockup */}
         <div
           onClick={() => onToggleView("landing")}
           className="flex items-center gap-2.5 cursor-pointer select-none shrink-0 group"
@@ -61,83 +61,90 @@ export const Header: React.FC<HeaderProps> = ({
           tabIndex={0}
           aria-label="Navigate to Home"
         >
-          <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm group-hover:opacity-95 transition-opacity shrink-0">
+          <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-xs shadow-sm group-hover:opacity-90 transition-opacity shrink-0">
             QML
           </div>
           <div className="flex flex-col justify-center leading-tight">
-            <span className="font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
+            <span className="font-sans font-semibold text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
               Adaptive Self-Healing VQC
             </span>
-            <span className="text-[10px] font-mono text-[var(--content-secondary)] whitespace-nowrap">
-              Autonomous Closed-Loop Runtime
+            <span className="text-[11px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
+              Autonomous Quantum Closed-Loop Framework
             </span>
           </div>
         </div>
 
-        {/* Primary Desktop Navigation: Compact, non-wrapping horizontal row */}
-        <nav className="hidden md:flex items-center gap-6 font-mono text-xs whitespace-nowrap">
-          {navLinks.map((link) => (
+        {/* Public Desktop Navigation: SF Pro Text, not monospace */}
+        {activeView === "landing" ? (
+          <nav className="hidden md:flex items-center gap-6 font-sans text-sm whitespace-nowrap">
+            {navLinks.map((link) => (
+              <a
+                key={link.label}
+                href={link.href}
+                className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 font-medium"
+              >
+                {link.label}
+              </a>
+            ))}
+
             <a
-              key={link.label}
-              href={link.href}
-              onClick={(e) => {
-                if (activeView === "dashboard") {
-                  e.preventDefault();
-                  onToggleView("landing");
-                  setTimeout(() => {
-                    const el = document.querySelector(link.href);
-                    el?.scrollIntoView({ behavior: "smooth" });
-                  }, 100);
-                }
-              }}
-              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 font-medium"
+              href="https://qml-backend-nczx.onrender.com/docs"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
             >
-              {link.label}
+              <span>Documentation</span>
+              <ExternalLink className="w-3 h-3 text-[var(--content-secondary)]" />
             </a>
-          ))}
 
-          <a
-            href="https://qml-backend-nczx.onrender.com/docs"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
-          >
-            <span>Docs</span>
-            <ExternalLink className="w-3 h-3 text-[var(--content-secondary)]" />
-          </a>
+            <a
+              href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
+              target="_blank"
+              rel="noreferrer"
+              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
+            >
+              <GithubIcon className="w-3.5 h-3.5" />
+              <span>GitHub</span>
+            </a>
+          </nav>
+        ) : (
+          <div className="hidden md:flex items-center gap-3 font-sans text-xs text-[var(--content-secondary)]">
+            <span className="font-semibold text-[var(--content-primary)]">Interactive Research Laboratory</span>
+            <span>•</span>
+            <span>Closed-Loop Telemetry & Control System</span>
+          </div>
+        )}
 
-          <a
-            href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
-            target="_blank"
-            rel="noreferrer"
-            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
-          >
-            <GithubIcon className="w-3.5 h-3.5" />
-            <span>GitHub</span>
-          </a>
-        </nav>
-
-        {/* Header Right Actions: Live Lab CTA & Theme Toggle */}
-        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+        {/* Header Right Actions */}
+        <div className="flex items-center gap-2.5 shrink-0 font-sans">
           {/* Status Indicator Pill */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
+          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-[var(--border-subtle)] bg-[var(--bg-subtle)]">
+            <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
             <span className="text-[var(--content-secondary)] font-medium">
-              {isConnected ? "TELEMETRY LIVE" : "STANDBY"}
+              {isConnected ? "Simulator Live" : "Standby"}
             </span>
           </div>
 
-          {/* Live Lab View Toggle */}
+          {/* Primary View Toggle Button */}
           <button
             onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
-            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm whitespace-nowrap ${
+            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
               activeView === "dashboard"
-                ? "bg-[var(--accent)] text-white shadow-sm hover:opacity-90"
-                : "bg-[var(--content-primary)] text-[var(--bg-primary)] hover:opacity-90 active:scale-95"
+                ? "bg-[var(--bg-subtle)] text-[var(--content-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)]"
+                : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
             }`}
           >
-            <Terminal className="w-3.5 h-3.5" />
-            <span>{activeView === "dashboard" ? "Landing Page" : "Live Lab"}</span>
+            {activeView === "dashboard" ? (
+              <>
+                <ArrowLeft className="w-3.5 h-3.5" />
+                <span>Return to Overview</span>
+              </>
+            ) : (
+              <>
+                <Terminal className="w-3.5 h-3.5" />
+                <span>Launch Live Lab</span>
+              </>
+            )}
           </button>
 
           {/* Compact Theme Toggle */}
@@ -146,39 +153,31 @@ export const Header: React.FC<HeaderProps> = ({
             className="p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)] transition-colors"
             aria-label="Toggle theme"
           >
-            {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+            {isDarkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4" />}
           </button>
 
           {/* Mobile Menu Toggle Button */}
-          <button
-            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="md:hidden p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
-            aria-label="Open mobile navigation"
-          >
-            {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
-          </button>
+          {activeView === "landing" && (
+            <button
+              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+              className="md:hidden p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+              aria-label="Open mobile navigation"
+            >
+              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+            </button>
+          )}
         </div>
       </div>
 
-      {/* Refined Mobile Navigation Drawer */}
-      {mobileMenuOpen && (
-        <div className="md:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] backdrop-blur-2xl px-6 py-4 space-y-3 font-mono text-xs shadow-lg animate-fade-in">
+      {/* Mobile Menu Drawer */}
+      {mobileMenuOpen && activeView === "landing" && (
+        <div className="md:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 space-y-2 shadow-lg font-sans">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              onClick={(e) => {
-                setMobileMenuOpen(false);
-                if (activeView === "dashboard") {
-                  e.preventDefault();
-                  onToggleView("landing");
-                  setTimeout(() => {
-                    const el = document.querySelector(link.href);
-                    el?.scrollIntoView({ behavior: "smooth" });
-                  }, 100);
-                }
-              }}
-              className="block text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
+              onClick={() => setMobileMenuOpen(false)}
+              className="block py-2 text-sm text-[var(--content-secondary)] hover:text-[var(--content-primary)] font-medium"
             >
               {link.label}
             </a>
@@ -187,21 +186,17 @@ export const Header: React.FC<HeaderProps> = ({
             href="https://qml-backend-nczx.onrender.com/docs"
             target="_blank"
             rel="noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-between text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
+            className="block py-2 text-sm text-[var(--content-secondary)] hover:text-[var(--content-primary)] font-medium"
           >
-            <span>Documentation (Swagger)</span>
-            <ExternalLink className="w-3.5 h-3.5" />
+            Documentation
           </a>
           <a
             href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
             target="_blank"
             rel="noreferrer"
-            onClick={() => setMobileMenuOpen(false)}
-            className="flex items-center justify-between text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
+            className="block py-2 text-sm text-[var(--content-secondary)] hover:text-[var(--content-primary)] font-medium"
           >
-            <span>GitHub Repository</span>
-            <GithubIcon className="w-3.5 h-3.5" />
+            GitHub Repository
           </a>
         </div>
       )}

@@ -101,7 +101,7 @@ export const ProblemSection: React.FC = () => {
       <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
+          <div className="flex items-center gap-2 font-sans text-xs font-semibold text-[var(--accent)]">
             <span>[04 // TAXONOMY OF DIVERGENCE]</span>
           </div>
           <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">

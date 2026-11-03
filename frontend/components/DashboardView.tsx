@@ -12,14 +12,10 @@ import {
   Pause,
   StepForward,
   RotateCcw,
-  Sparkles,
-  BarChart3,
   Sliders,
   ShieldCheck,
   History,
-  Terminal,
   Search,
-  ExternalLink,
 } from "lucide-react";
 import { MetricsRow } from "./MetricsRow";
 import { LossChart } from "./LossChart";
@@ -156,7 +152,6 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   const [memorySearch, setMemorySearch] = useState("");
   const [memoryFilter, setMemoryFilter] = useState("all");
 
-  // Synchronized single-qubit reduced mixed state purity gamma = (1 + ||r||^2)/2
   const rPhys = Math.sqrt(bloch.x * bloch.x + bloch.y * bloch.y + bloch.z * bloch.z);
   const physicalPurity =
     stepCount > 0 || history.length > 0
@@ -164,16 +159,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       : 1.0;
 
   const tabs = [
-    { id: "overview" as DashboardTab, label: "01 Overview", icon: Activity },
-    { id: "experiment" as DashboardTab, label: "02 Live Experiments", icon: Play },
-    { id: "diagnosis" as DashboardTab, label: "03 Failure Diagnosis", icon: ShieldAlert },
-    { id: "repairs" as DashboardTab, label: "04 Repair Intelligence", icon: Sliders },
-    { id: "twin" as DashboardTab, label: "05 Digital Twin", icon: Layers },
-    { id: "safety" as DashboardTab, label: "06 Safety & Deployment", icon: ShieldCheck },
-    { id: "bandit" as DashboardTab, label: "07 Bandit Intelligence", icon: Cpu },
-    { id: "memory" as DashboardTab, label: "08 Persistent Memory", icon: Database },
-    { id: "audit" as DashboardTab, label: "09 Audit History", icon: History },
-    { id: "settings" as DashboardTab, label: "10 Settings", icon: Settings },
+    { id: "overview" as DashboardTab, label: "Overview", icon: Activity },
+    { id: "experiment" as DashboardTab, label: "Live Experiments", icon: Play },
+    { id: "diagnosis" as DashboardTab, label: "Failure Diagnosis", icon: ShieldAlert },
+    { id: "repairs" as DashboardTab, label: "Repair Actuators", icon: Sliders },
+    { id: "twin" as DashboardTab, label: "Digital Twin", icon: Layers },
+    { id: "safety" as DashboardTab, label: "Safety & Deployment", icon: ShieldCheck },
+    { id: "bandit" as DashboardTab, label: "Bandit Intelligence", icon: Cpu },
+    { id: "memory" as DashboardTab, label: "Persistent Memory", icon: Database },
+    { id: "audit" as DashboardTab, label: "Audit History", icon: History },
+    { id: "settings" as DashboardTab, label: "Settings", icon: Settings },
   ];
 
   const latestTelemetry = history.length > 0 ? history[history.length - 1] : null;
@@ -189,42 +184,42 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   });
 
   return (
-    <div id="dashboard" className="space-y-8 animate-fade-in pb-16">
+    <div id="dashboard" className="space-y-6 animate-fade-in pb-16 font-sans">
       {/* Top Laboratory Control Strip */}
-      <div className="glass-panel p-4 tech-crosshair flex flex-col md:flex-row md:items-center justify-between gap-4">
+      <div className="glass-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Left: Experiment Status & Telemetry Tag */}
-        <div className="flex items-center gap-3">
+        <div className="flex items-center flex-wrap gap-2.5 sm:gap-4 text-xs">
           <div className="flex items-center gap-2">
-            <span className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-rose-500"}`} />
-            <span className="font-mono text-xs font-bold text-[var(--content-primary)] uppercase tracking-wider">
-              QUANTUM RESEARCH LAB COCKPIT
+            <span className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
+            <span className="font-semibold text-[var(--content-primary)]">
+              Quantum Research Laboratory
             </span>
           </div>
-          <span className="text-[var(--content-tertiary)]">•</span>
-          <div className="text-[11px] font-mono text-[var(--content-secondary)]">
-            STATE: <span className="text-[var(--content-primary)] font-bold">{pipelineState.replace(/_/g, " ")}</span>
+          <span className="text-[var(--border-highlight)]">•</span>
+          <div className="text-[var(--content-secondary)]">
+            Status: <span className="text-[var(--content-primary)] font-semibold">{pipelineState.replace(/_/g, " ")}</span>
           </div>
-          <span className="text-[var(--content-tertiary)]">•</span>
-          <div className="text-[11px] font-mono text-[var(--content-secondary)]">
-            STEP: <span className="text-[var(--content-primary)] font-bold">{stepCount} / {maxSteps}</span>
+          <span className="text-[var(--border-highlight)]">•</span>
+          <div className="text-[var(--content-secondary)]">
+            Step: <span className="font-mono text-[var(--content-primary)] font-semibold">{stepCount}</span> / <span className="font-mono">{maxSteps}</span>
           </div>
         </div>
 
-        {/* Right: Tactile Hardware-Grade Action Controls */}
-        <div className="flex items-center gap-2 font-mono text-xs">
+        {/* Right: Tactile Hardware Action Controls */}
+        <div className="flex items-center gap-2">
           <div className="flex items-center p-1 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] gap-1">
             {isRunning ? (
               <button
                 onClick={onPause}
-                className="apple-btn px-3 py-1.5 rounded-lg font-medium bg-[var(--status-warning-subtle)] text-[var(--status-warning)] flex items-center gap-1.5 active:scale-95"
+                className="apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--status-warning-subtle)] text-[var(--status-warning)] flex items-center gap-1.5 active:scale-95"
               >
                 <Pause className="w-3.5 h-3.5" />
-                <span>Pause</span>
+                <span>Pause Execution</span>
               </button>
             ) : (
               <button
                 onClick={stepCount === 0 ? onStart : onResume}
-                className="apple-btn px-3 py-1.5 rounded-lg font-medium bg-[var(--accent)] text-white shadow-sm flex items-center gap-1.5 active:scale-95"
+                className="apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--accent)] text-white shadow-sm flex items-center gap-1.5 active:scale-95 hover:bg-[var(--accent-hover)]"
               >
                 <Play className="w-3.5 h-3.5 fill-current" />
                 <span>{stepCount === 0 ? "Start Autonomous" : "Resume"}</span>
@@ -234,7 +229,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               onClick={onStep}
               disabled={isRunning || stepCount >= maxSteps}
-              className="apple-btn px-3 py-1.5 rounded-lg font-medium hover:bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] disabled:opacity-40 flex items-center gap-1.5 active:scale-95"
+              className="apple-btn px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] disabled:opacity-40 flex items-center gap-1.5 active:scale-95"
               title="Execute a single discrete parameter-shift descent step"
             >
               <StepForward className="w-3.5 h-3.5" />
@@ -252,8 +247,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       </div>
 
-      {/* 10-Tab Navigation Dock */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-2 border-b border-[var(--border-subtle)] scrollbar-none font-mono text-xs">
+      {/* Primary Dashboard Navigation Dock */}
+      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[var(--border-subtle)] scrollbar-none">
         {tabs.map((tab) => {
           const TabIcon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -262,9 +257,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-2 rounded-xl transition-all whitespace-nowrap ${
+              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
                 isActive
-                  ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-bold shadow-sm"
+                  ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-semibold shadow-sm"
                   : "text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:bg-[var(--bg-subtle)]"
               }`}
             >
@@ -275,23 +270,40 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         })}
       </div>
 
-      {/* Synchronized 8-KPI Real-Time Strip */}
-      <MetricsRow
-        loss={stepCount > 0 ? metrics.loss : 0}
-        valLoss={stepCount > 0 ? metrics.valLoss : 0}
-        accuracy={stepCount > 0 ? metrics.accuracy : 0}
-        valAccuracy={stepCount > 0 ? metrics.valAccuracy : 0}
-        gradientNorm={stepCount > 0 ? metrics.gradientNorm : 0}
-        gradientVariance={metrics.gradientVariance}
-        parameterVelocity={stepCount > 0 ? metrics.parameterVelocity : 0}
-        learningRate={metrics.learningRate}
-        circuitDepth={metrics.circuitDepth}
-        purity={physicalPurity}
-      />
-
       {/* VIEW 1: SYSTEM OVERVIEW */}
       {activeTab === "overview" && (
         <div className="space-y-6 animate-fade-in">
+          {/* Active Model Topology Strip */}
+          <div className="p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
+            <div className="flex items-center gap-4 text-[var(--content-secondary)]">
+              <span>Dataset: <strong className="text-[var(--content-primary)] font-mono">{dataset.toUpperCase()} (Seed 42)</strong></span>
+              <span>•</span>
+              <span>Topology: <strong className="text-[var(--content-primary)] font-mono">{nQbits} Qubits • {nLayers} Layers</strong></span>
+              <span>•</span>
+              <span>Optimizer: <strong className="text-[var(--content-primary)] font-mono">{optimizerName.toUpperCase()}</strong></span>
+              <span>•</span>
+              <span>Encoding: <strong className="text-[var(--content-primary)] font-mono">{featureMap.toUpperCase()} Map</strong></span>
+            </div>
+            <div className="text-[11px] text-[var(--content-tertiary)] font-mono">
+              PennyLane 0.45.1 • CPU Statevector Engine
+            </div>
+          </div>
+
+          {/* Synchronized Primary Metrics Row */}
+          <MetricsRow
+            loss={stepCount > 0 ? metrics.loss : 0}
+            valLoss={stepCount > 0 ? metrics.valLoss : 0}
+            accuracy={stepCount > 0 ? metrics.accuracy : 0}
+            valAccuracy={stepCount > 0 ? metrics.valAccuracy : 0}
+            gradientNorm={stepCount > 0 ? metrics.gradientNorm : 0}
+            gradientVariance={metrics.gradientVariance}
+            parameterVelocity={stepCount > 0 ? metrics.parameterVelocity : 0}
+            learningRate={metrics.learningRate}
+            circuitDepth={metrics.circuitDepth}
+            purity={physicalPurity}
+          />
+
+          {/* 2-Column: Training Curve (2/3 width) + Bloch Sphere (1/3 width) */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
             <div className="lg:col-span-2">
               <LossChart history={history} />
@@ -309,6 +321,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
           </section>
 
+          {/* 2-Column: Diagnostic Engine + Transactional Deployment Monitor */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
             <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
             <DeploymentMonitor
@@ -319,6 +332,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             />
           </section>
 
+          {/* Full-Width 6-Arm Adaptive Repair Matrix */}
           <section>
             <RepairCockpit
               selectedArm={selectedArm}
@@ -332,33 +346,33 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* VIEW 2: LIVE EXPERIMENTS */}
+      {/* VIEW 2: LIVE EXPERIMENTS & FAULT INJECTION */}
       {activeTab === "experiment" && (
         <div className="space-y-6 animate-fade-in">
           <section>
             <FailureInjectionPanel onInject={onInjectFailure} isRunning={isRunning} />
           </section>
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass-panel p-6 space-y-4">
-              <h3 className="text-sm font-bold font-mono uppercase text-[var(--content-primary)]">
+            <div className="glass-panel p-5 space-y-3">
+              <h3 className="text-sm font-semibold text-[var(--content-primary)]">
                 Active Quantum Circuit Model Configuration
               </h3>
-              <div className="grid grid-cols-2 gap-3 font-mono text-xs">
+              <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--content-tertiary)] block">DATASET SEED</span>
-                  <span className="text-[var(--content-primary)] font-bold">{dataset.toUpperCase()} (Seed 42)</span>
+                  <span className="text-[11px] text-[var(--content-tertiary)] block">DATASET SEED</span>
+                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{dataset.toUpperCase()} (Seed 42)</span>
                 </div>
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--content-tertiary)] block">CIRCUIT TOPOLOGY</span>
-                  <span className="text-[var(--content-primary)] font-bold">{nQbits} Qubits • {nLayers} Layers</span>
+                  <span className="text-[11px] text-[var(--content-tertiary)] block">CIRCUIT TOPOLOGY</span>
+                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{nQbits} Qubits • {nLayers} Layers</span>
                 </div>
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--content-tertiary)] block">CLASSICAL OPTIMIZER</span>
-                  <span className="text-[var(--content-primary)] font-bold">{optimizerName.toUpperCase()}</span>
+                  <span className="text-[11px] text-[var(--content-tertiary)] block">CLASSICAL OPTIMIZER</span>
+                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{optimizerName.toUpperCase()}</span>
                 </div>
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[10px] text-[var(--content-tertiary)] block">FEATURE EMBEDDING</span>
-                  <span className="text-[var(--content-primary)] font-bold">{featureMap.toUpperCase()}</span>
+                  <span className="text-[11px] text-[var(--content-tertiary)] block">FEATURE EMBEDDING</span>
+                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{featureMap.toUpperCase()} Map</span>
                 </div>
               </div>
             </div>
@@ -380,7 +394,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* VIEW 4: REPAIR INTELLIGENCE */}
+      {/* VIEW 4: REPAIR ACTUATORS */}
       {activeTab === "repairs" && (
         <div className="space-y-6 animate-fade-in">
           <RepairCockpit
@@ -432,24 +446,22 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* VIEW 8: PERSISTENT MEMORY */}
       {activeTab === "memory" && (
         <div className="space-y-6 animate-fade-in">
-          <div className="glass-panel p-6 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 pb-4 border-b border-[var(--border-subtle)]">
-              <div className="flex items-center gap-2">
-                <Database className="w-5 h-5 text-[var(--accent)]" />
-                <div>
-                  <h3 className="text-sm font-bold font-mono uppercase text-[var(--content-primary)]">
+          <div className="glass-panel p-5 space-y-4">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <Database className="w-4 h-4 text-[var(--accent)]" />
+                  <h3 className="text-sm font-semibold text-[var(--content-primary)]">
                     Episodic Failure Memory Store (SQLite Backend)
                   </h3>
-                  <span className="text-xs text-[var(--content-secondary)] font-mono">
-                    `data/failure_memory.db` • Cosine Similarity Nearest-Neighbor Search (k=3)
-                  </span>
                 </div>
+                <p className="text-xs text-[var(--content-secondary)] mt-0.5">
+                  Cosine similarity nearest-neighbor lookup over 12D historical failure embeddings
+                </p>
               </div>
 
-              <div className="flex items-center gap-2">
-                <span className="text-xs font-mono text-[var(--content-secondary)]">
-                  {filteredEpisodes.length} / {episodes.length} Episodes
-                </span>
+              <div className="text-xs text-[var(--content-secondary)] font-mono">
+                {filteredEpisodes.length} / {episodes.length} Episodes
               </div>
             </div>
 
@@ -459,17 +471,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--content-tertiary)]" />
                 <input
                   type="text"
-                  placeholder="Search memory episodes by cause, repair arm, or episode ID..."
+                  placeholder="Search episodes by cause, repair arm, or ID..."
                   value={memorySearch}
                   onChange={(e) => setMemorySearch(e.target.value)}
-                  className="w-full text-xs font-mono pl-9 pr-3 py-2 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none focus:border-[var(--border-highlight)]"
+                  className="w-full text-xs pl-9 pr-3 py-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none focus:border-[var(--border-highlight)]"
                 />
               </div>
 
               <select
                 value={memoryFilter}
                 onChange={(e) => setMemoryFilter(e.target.value)}
-                className="text-xs font-mono px-3 py-2 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none"
+                className="text-xs px-3 py-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none"
               >
                 <option value="all">All Outcomes</option>
                 <option value="resolved">Resolved</option>
@@ -479,39 +491,39 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             </div>
 
             {/* Episodes Table */}
-            <div className="border border-[var(--border-subtle)] rounded-xl overflow-hidden overflow-x-auto">
-              <table className="w-full text-left font-mono text-xs">
+            <div className="border border-[var(--border-subtle)] rounded-lg overflow-hidden overflow-x-auto">
+              <table className="w-full text-left text-xs font-sans">
                 <thead className="bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] text-[11px] text-[var(--content-tertiary)]">
                   <tr>
                     <th className="p-3">EPISODE ID</th>
-                    <th className="p-3">CAUSE</th>
+                    <th className="p-3">DIAGNOSED CAUSE</th>
                     <th className="p-3">REPAIR ARM</th>
-                    <th className="p-3">LOSS DELTA</th>
+                    <th className="p-3">LOSS IMPROVEMENT</th>
                     <th className="p-3">REWARD</th>
                     <th className="p-3">STATUS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)]">
+                <tbody className="divide-y divide-[var(--border-subtle)] font-mono">
                   {filteredEpisodes.length === 0 ? (
                     <tr>
-                      <td colSpan={6} className="p-8 text-center text-[var(--content-tertiary)]">
-                        No episodic memory records found matching query.
+                      <td colSpan={6} className="p-8 text-center text-[var(--content-tertiary)] font-sans">
+                        No episodic memory records found.
                       </td>
                     </tr>
                   ) : (
                     filteredEpisodes.map((ep) => (
                       <tr key={ep.episode_id} className="hover:bg-[var(--bg-subtle)]/50 transition-colors">
-                        <td className="p-3 font-bold text-[var(--content-primary)]">{ep.episode_id.slice(0, 12)}...</td>
-                        <td className="p-3 text-[var(--accent)] font-semibold">{ep.diagnosed_cause}</td>
-                        <td className="p-3 text-[var(--content-secondary)]">{ep.selected_repair}</td>
+                        <td className="p-3 font-semibold text-[var(--content-primary)]">{ep.episode_id.slice(0, 12)}...</td>
+                        <td className="p-3 text-[var(--accent)] font-semibold font-sans">{ep.diagnosed_cause}</td>
+                        <td className="p-3 text-[var(--content-secondary)] font-sans">{ep.selected_repair}</td>
                         <td className="p-3">
                           <span className={ep.loss_improvement >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"}>
                             {ep.loss_improvement >= 0 ? "-" : "+"}{Math.abs(ep.loss_improvement).toFixed(4)}
                           </span>
                         </td>
-                        <td className="p-3 font-bold text-[var(--content-primary)]">{ep.reward.toFixed(4)}</td>
-                        <td className="p-3">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-bold ${
+                        <td className="p-3 font-semibold text-[var(--content-primary)]">{ep.reward.toFixed(4)}</td>
+                        <td className="p-3 font-sans">
+                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
                             ep.status === "RESOLVED"
                               ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
                               : ep.status === "ROLLED_BACK"
@@ -531,32 +543,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         </div>
       )}
 
-      {/* VIEW 9: AUDIT HISTORY */}
+      {/* VIEW 9: AUDIT LOG */}
       {activeTab === "audit" && (
         <div className="space-y-6 animate-fade-in">
-          <div className="glass-panel p-6 space-y-4">
-            <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
-              <div className="flex items-center gap-2">
-                <History className="w-5 h-5 text-[var(--accent)]" />
-                <div>
-                  <h3 className="text-sm font-bold font-mono uppercase text-[var(--content-primary)]">
+          <div className="glass-panel p-5 space-y-4">
+            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
+              <div>
+                <div className="flex items-center gap-2">
+                  <History className="w-4 h-4 text-[var(--accent)]" />
+                  <h3 className="text-sm font-semibold text-[var(--content-primary)]">
                     Deterministic Chronological Audit Log
                   </h3>
-                  <span className="text-xs text-[var(--content-secondary)] font-mono">
-                    State Machine Transitions • Transaction Snapshots • Diagnostic Traces
-                  </span>
                 </div>
+                <p className="text-xs text-[var(--content-secondary)] mt-0.5">
+                  State machine transitions, transaction snapshots, and diagnostic traces
+                </p>
               </div>
 
               <button
                 onClick={onClearEvents}
-                className="apple-btn px-3 py-1 rounded-lg border border-[var(--border-subtle)] text-xs font-mono text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                className="apple-btn px-3 py-1 rounded-lg border border-[var(--border-subtle)] text-xs text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
               >
                 Clear Log
               </button>
             </div>
 
-            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 font-mono text-xs">
+            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 text-xs">
               {events.length === 0 ? (
                 <div className="p-8 text-center text-[var(--content-tertiary)]">
                   Audit log buffer is currently empty.
@@ -569,10 +581,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                   >
                     <div className="space-y-1">
                       <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-bold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--accent)]">
+                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--accent)]">
                           {ev.state}
                         </span>
-                        <span className="text-[10px] text-[var(--content-tertiary)]">
+                        <span className="text-[10px] text-[var(--content-tertiary)] font-mono">
                           EVENT #{events.length - idx}
                         </span>
                       </div>

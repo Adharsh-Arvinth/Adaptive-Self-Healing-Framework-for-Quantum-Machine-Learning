@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { Activity, BarChart2 } from "lucide-react";
+import { BarChart2, Info, Sparkles, TrendingDown } from "lucide-react";
 import { TelemetryPoint } from "@/types";
 
 interface LossChartProps {
@@ -14,111 +14,112 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
   const [mode, setMode] = useState<ChartMode>("loss");
   const [hoveredIdx, setHoveredIdx] = useState<number | null>(null);
 
-  if (history.length === 0) {
-    return (
-      <div className="apple-card p-6 flex flex-col items-center justify-center min-h-[340px] text-content-tertiary">
-        <Activity className="w-8 h-8 mb-3 animate-pulse text-content-secondary" />
-        <span className="text-sm font-medium text-content-primary">Awaiting Real-Time Telemetry</span>
-        <span className="text-xs text-content-secondary mt-1">
-          Click &quot;Start Experiment&quot; in the header bar to initiate autonomous VQC training.
-        </span>
-      </div>
-    );
-  }
+  const hasData = history.length > 0;
 
-  const padding = { top: 25, right: 30, bottom: 35, left: 55 };
+  // Chart Dimensions & Padding
   const width = 800;
   const height = 300;
-
+  const padding = { top: 25, right: 30, bottom: 35, left: 50 };
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
 
   // Extents
-  const maxStep = Math.max(10, ...history.map((d) => d.step));
+  const maxStep = hasData ? Math.max(10, ...history.map((d) => d.step)) : 60;
   const minStep = 0;
-
-  // Loss bounds
-  const maxLoss = Math.min(3.0, Math.max(1.0, ...history.map((d) => Math.max(d.loss, d.val_loss))));
+  const maxLoss = hasData ? Math.min(3.0, Math.max(1.0, ...history.map((d) => Math.max(d.loss, d.val_loss)))) : 1.2;
 
   // Coordinate scales
   const getX = (step: number) => padding.left + ((step - minStep) / (maxStep - minStep)) * innerWidth;
   const getYLoss = (lossVal: number) =>
     padding.top + innerHeight - (Math.min(lossVal, maxLoss) / maxLoss) * innerHeight;
   const getYAcc = (accVal: number) =>
-    padding.top + innerHeight - (Math.min(1.0, Math.max(0.0, accVal))) * innerHeight;
+    padding.top + innerHeight - Math.min(1.0, Math.max(0.0, accVal)) * innerHeight;
 
-  // Generate SVG path for Loss
-  const trainLossPath = history
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.loss).toFixed(1)}`)
-    .join(" ");
+  // SVG Paths
+  const trainLossPath = hasData
+    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.loss).toFixed(1)}`).join(" ")
+    : "";
 
-  const valLossPath = history
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.val_loss).toFixed(1)}`)
-    .join(" ");
+  const valLossPath = hasData
+    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.val_loss).toFixed(1)}`).join(" ")
+    : "";
 
-  // Generate SVG path for Accuracy
-  const trainAccPath = history
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.accuracy).toFixed(1)}`)
-    .join(" ");
+  const trainAccPath = hasData
+    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.accuracy).toFixed(1)}`).join(" ")
+    : "";
 
-  const valAccPath = history
-    .map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.val_accuracy).toFixed(1)}`)
-    .join(" ");
+  const valAccPath = hasData
+    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.val_accuracy).toFixed(1)}`).join(" ")
+    : "";
 
-  const activePoint = hoveredIdx !== null && history[hoveredIdx] ? history[hoveredIdx] : history[history.length - 1];
+  const activePoint = hoveredIdx !== null && history[hoveredIdx] ? history[hoveredIdx] : (hasData ? history[history.length - 1] : null);
 
   return (
-    <div className="glass-panel p-6 flex flex-col justify-between h-full">
+    <div className="glass-panel p-5 flex flex-col justify-between h-full font-sans">
       {/* Symmetrical Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
-            <BarChart2 className="w-4 h-4" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-[var(--border-subtle)]">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-[var(--content-primary)]">
               {mode === "loss"
                 ? "Binary Cross-Entropy Loss Trajectory"
                 : mode === "accuracy"
                 ? "Classification Accuracy Convergence"
                 : "Dual Loss & Accuracy Dynamics"}
             </h3>
-            <p className="text-[11px] text-[var(--content-tertiary)]">
-              Continuous step-by-step quantum model optimization & convergence
-            </p>
+            {hasData && (
+              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[var(--bg-subtle)] text-[var(--content-secondary)]">
+                Step {activePoint?.step ?? 0}
+              </span>
+            )}
           </div>
+          <p className="text-xs text-[var(--content-secondary)] mt-0.5">
+            Step-by-step optimization curve showing training vs validation holdout
+          </p>
         </div>
 
-        {/* Right: Legend & Segmented Mode Toggle */}
-        <div className="flex items-center gap-3">
+        {/* Right Controls: Mode Switcher & Legend */}
+        <div className="flex items-center gap-3 text-xs">
+          {/* Legend */}
+          <div className="hidden sm:flex items-center gap-3 text-[11px]">
+            <span className="flex items-center gap-1.5 text-[var(--content-secondary)]">
+              <span className="w-2.5 h-0.5 bg-[var(--accent)] rounded-full" />
+              <span>Training</span>
+            </span>
+            <span className="flex items-center gap-1.5 text-[var(--content-secondary)]">
+              <span className="w-2.5 h-0.5 border-b border-dashed border-[var(--status-warning)]" />
+              <span>Validation</span>
+            </span>
+          </div>
+
           {/* Segmented Mode Toggle */}
-          <div className="flex items-center p-0.5 rounded-lg bg-bg-subtle border border-border-subtle text-xs">
+          <div className="flex items-center p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
             <button
               onClick={() => setMode("loss")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 mode === "loss"
-                  ? "bg-bg-surface text-content-primary shadow-apple"
-                  : "text-content-secondary hover:text-content-primary"
+                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
+                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
               }`}
             >
               Loss
             </button>
             <button
               onClick={() => setMode("accuracy")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 mode === "accuracy"
-                  ? "bg-bg-surface text-content-primary shadow-apple"
-                  : "text-content-secondary hover:text-content-primary"
+                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
+                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
               }`}
             >
               Accuracy
             </button>
             <button
               onClick={() => setMode("dual")}
-              className={`px-2.5 py-1 rounded-md text-[11px] font-medium transition-all ${
+              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
                 mode === "dual"
-                  ? "bg-bg-surface text-content-primary shadow-apple"
-                  : "text-content-secondary hover:text-content-primary"
+                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
+                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
               }`}
             >
               Dual
@@ -127,251 +128,222 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
         </div>
       </div>
 
-      {/* SVG Canvas Chart */}
-      <div className="relative w-full overflow-hidden">
+      {/* SVG Canvas Area */}
+      <div className="relative w-full overflow-hidden flex-1 min-h-[220px]">
         <svg
           viewBox={`0 0 ${width} ${height}`}
-          className="w-full h-auto select-none"
+          className="w-full h-full select-none"
+          preserveAspectRatio="none"
           onMouseLeave={() => setHoveredIdx(null)}
         >
-          {/* Defs: Gradients for area under curves */}
-          <defs>
-            <linearGradient id="trainLossGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#3B82F6" stopOpacity="0.20" />
-              <stop offset="100%" stopColor="#3B82F6" stopOpacity="0.00" />
-            </linearGradient>
-            <linearGradient id="trainAccGrad" x1="0" y1="0" x2="0" y2="1">
-              <stop offset="0%" stopColor="#10B981" stopOpacity="0.20" />
-              <stop offset="100%" stopColor="#10B981" stopOpacity="0.00" />
-            </linearGradient>
-          </defs>
-
-          {/* Background Grid Lines (Horizontal) */}
-          {[0.2, 0.4, 0.6, 0.8, 1.0].map((frac) => {
-            const y = padding.top + innerHeight * (1.0 - frac);
-            const valLabel =
-              mode === "accuracy"
-                ? `${(frac * 100).toFixed(0)}%`
-                : (frac * maxLoss).toFixed(2);
+          {/* Background Grid Lines */}
+          {[0, 0.25, 0.5, 0.75, 1.0].map((ratio) => {
+            const y = padding.top + innerHeight * (1 - ratio);
+            const val = mode === "loss" ? (ratio * maxLoss).toFixed(2) : `${(ratio * 100).toFixed(0)}%`;
             return (
-              <g key={frac}>
+              <g key={ratio}>
                 <line
                   x1={padding.left}
                   y1={y}
                   x2={width - padding.right}
                   y2={y}
                   stroke="currentColor"
-                  className="text-border-subtle"
-                  strokeDasharray="3 3"
+                  className="text-[var(--border-subtle)]"
+                  strokeWidth="1"
+                  strokeDasharray="4 4"
                 />
                 <text
                   x={padding.left - 8}
                   y={y + 3}
                   textAnchor="end"
-                  className="text-[10px] fill-content-tertiary font-mono"
+                  className="fill-[var(--content-tertiary)] text-[10px] font-mono"
                 >
-                  {valLabel}
+                  {val}
                 </text>
               </g>
             );
           })}
 
-          {/* Vertical Step Grid */}
-          {[0, 0.25, 0.5, 0.75, 1.0].map((frac) => {
-            const stepVal = Math.round(minStep + frac * (maxStep - minStep));
-            const x = getX(stepVal);
-            return (
-              <g key={frac}>
-                <line
-                  x1={x}
-                  y1={padding.top}
-                  x2={x}
-                  y2={height - padding.bottom}
-                  stroke="currentColor"
-                  className="text-border-subtle"
-                  strokeDasharray="3 3"
-                />
-                <text
-                  x={x}
-                  y={height - padding.bottom + 16}
-                  textAnchor="middle"
-                  className="text-[10px] fill-content-tertiary font-mono"
-                >
-                  Step {stepVal}
-                </text>
-              </g>
-            );
-          })}
-
-          {/* Event Annotations (Anomalies & Commits) */}
-          {history.map((pt) => {
-            if (pt.anomalies && pt.anomalies.length > 0) {
-              const x = getX(pt.step);
-              return (
-                <g key={`anom-${pt.step}`}>
-                  <line
-                    x1={x}
-                    y1={padding.top}
-                    x2={x}
-                    y2={height - padding.bottom}
-                    stroke="#EF4444"
-                    strokeWidth="1.2"
-                    strokeDasharray="2 2"
-                    opacity="0.6"
-                  />
-                  <circle cx={x} cy={padding.top + 8} r="3" fill="#EF4444" />
-                </g>
-              );
-            }
-            if (pt.state === "COMMITTED") {
-              const x = getX(pt.step);
-              return (
-                <g key={`commit-${pt.step}`}>
-                  <line
-                    x1={x}
-                    y1={padding.top}
-                    x2={x}
-                    y2={height - padding.bottom}
-                    stroke="var(--status-success)"
-                    strokeWidth="1.5"
-                    opacity="0.7"
-                  />
-                  <circle cx={x} cy={padding.top + 8} r="3.5" fill="#10B981" />
-                </g>
-              );
-            }
-            return null;
-          })}
-
-          {/* Paths: LOSS MODE */}
-          {(mode === "loss" || mode === "dual") && (
-            <>
-              {/* Training Loss Path */}
-              <path
-                d={trainLossPath}
-                fill="none"
-                stroke="var(--accent)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Validation Loss Path (Dashed) */}
-              <path
-                d={valLossPath}
-                fill="none"
-                stroke="var(--status-warning)"
-                strokeWidth="1.8"
-                strokeDasharray="4 3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </>
-          )}
-
-          {/* Paths: ACCURACY MODE */}
-          {(mode === "accuracy" || mode === "dual") && (
-            <>
-              {/* Training Accuracy Path */}
-              <path
-                d={trainAccPath}
-                fill="none"
-                stroke="var(--status-success)"
-                strokeWidth="2"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-              {/* Validation Accuracy Path */}
-              <path
-                d={valAccPath}
-                fill="none"
-                stroke="var(--status-purity)"
-                strokeWidth="1.8"
-                strokeDasharray="4 3"
-                strokeLinecap="round"
-                strokeLinejoin="round"
-              />
-            </>
-          )}
-
-          {/* Interactive Hover Crosshair */}
-          {hoveredIdx !== null && history[hoveredIdx] && (
+          {/* Theoretical Cross-Entropy Baseline line at 0.6931 */}
+          {mode !== "accuracy" && (
             <g>
               <line
-                x1={getX(history[hoveredIdx].step)}
-                y1={padding.top}
-                x2={getX(history[hoveredIdx].step)}
-                y2={height - padding.bottom}
-                stroke="currentColor"
-                className="text-content-secondary"
+                x1={padding.left}
+                y1={getYLoss(0.6931)}
+                x2={width - padding.right}
+                y2={getYLoss(0.6931)}
+                stroke="#C25E38"
                 strokeWidth="1"
                 strokeDasharray="2 2"
+                opacity="0.6"
               />
-              <circle
-                cx={getX(history[hoveredIdx].step)}
-                cy={mode === "accuracy" ? getYAcc(history[hoveredIdx].val_accuracy) : getYLoss(history[hoveredIdx].loss)}
-                r="4.5"
-                fill="var(--accent)"
-                stroke="#FFFFFF"
-                strokeWidth="2"
-              />
+              <text
+                x={width - padding.right - 4}
+                y={getYLoss(0.6931) - 4}
+                textAnchor="end"
+                className="fill-[#C25E38] text-[9px] font-mono"
+              >
+                ln(2) = 0.6931 Baseline
+              </text>
             </g>
           )}
 
-          {/* Invisible Overlay Rectangles for Hover Hit Detection */}
-          {history.map((d, i) => {
-            const barWidth = innerWidth / Math.max(1, history.length);
+          {/* X Axis Labels */}
+          {[0, 0.25, 0.5, 0.75, 1.0].map((ratio) => {
+            const stepVal = Math.round(minStep + ratio * (maxStep - minStep));
+            const x = padding.left + ratio * innerWidth;
             return (
-              <rect
-                key={d.step}
-                x={getX(d.step) - barWidth / 2}
-                y={padding.top}
-                width={barWidth}
-                height={innerHeight}
-                fill="transparent"
-                className="cursor-crosshair"
-                onMouseEnter={() => setHoveredIdx(i)}
-              />
+              <text
+                key={ratio}
+                x={x}
+                y={height - 12}
+                textAnchor="middle"
+                className="fill-[var(--content-tertiary)] text-[10px] font-mono"
+              >
+                t={stepVal}
+              </text>
             );
           })}
+
+          {/* If history exists, render actual lines */}
+          {hasData ? (
+            <>
+              {/* Training Loss Curve */}
+              {(mode === "loss" || mode === "dual") && (
+                <path
+                  d={trainLossPath}
+                  fill="none"
+                  stroke="var(--accent)"
+                  strokeWidth="2.5"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* Validation Loss Curve */}
+              {(mode === "loss" || mode === "dual") && (
+                <path
+                  d={valLossPath}
+                  fill="none"
+                  stroke="var(--status-warning)"
+                  strokeWidth="2"
+                  strokeDasharray="4 3"
+                  strokeLinecap="round"
+                  strokeLinejoin="round"
+                />
+              )}
+
+              {/* Accuracy Curves */}
+              {(mode === "accuracy" || mode === "dual") && (
+                <>
+                  <path
+                    d={trainAccPath}
+                    fill="none"
+                    stroke="var(--status-success)"
+                    strokeWidth="2.5"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                  <path
+                    d={valAccPath}
+                    fill="none"
+                    stroke="var(--status-info)"
+                    strokeWidth="1.5"
+                    strokeDasharray="3 3"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                  />
+                </>
+              )}
+
+              {/* Interactive Hover Columns */}
+              {history.map((d, i) => {
+                const x = getX(d.step);
+                return (
+                  <rect
+                    key={d.step}
+                    x={x - 6}
+                    y={padding.top}
+                    width={12}
+                    height={innerHeight}
+                    fill="transparent"
+                    className="cursor-pointer"
+                    onMouseEnter={() => setHoveredIdx(i)}
+                  />
+                );
+              })}
+
+              {/* Hover Indicator Crosshair */}
+              {hoveredIdx !== null && history[hoveredIdx] && (
+                <g>
+                  <line
+                    x1={getX(history[hoveredIdx].step)}
+                    y1={padding.top}
+                    x2={getX(history[hoveredIdx].step)}
+                    y2={padding.top + innerHeight}
+                    stroke="var(--content-secondary)"
+                    strokeWidth="1"
+                    strokeDasharray="3 3"
+                  />
+                  <circle
+                    cx={getX(history[hoveredIdx].step)}
+                    cy={mode === "accuracy" ? getYAcc(history[hoveredIdx].accuracy) : getYLoss(history[hoveredIdx].loss)}
+                    r="4"
+                    fill="var(--bg-surface)"
+                    stroke="var(--accent)"
+                    strokeWidth="2"
+                  />
+                </g>
+              )}
+            </>
+          ) : (
+            /* Meaningful Idle State Canvas Overlay */
+            <g>
+              {/* Soft baseline trajectory preview */}
+              <path
+                d={`M ${padding.left} ${getYLoss(0.6931)} Q ${padding.left + innerWidth * 0.4} ${getYLoss(0.60)}, ${padding.left + innerWidth} ${getYLoss(0.20)}`}
+                fill="none"
+                stroke="var(--border-highlight)"
+                strokeWidth="1.5"
+                strokeDasharray="3 4"
+                opacity="0.5"
+              />
+            </g>
+          )}
         </svg>
+
+        {/* Meaningful Idle State Notice Overlay if No Data */}
+        {!hasData && (
+          <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-4">
+            <div className="max-w-md bg-[var(--bg-surface)]/95 backdrop-blur-sm border border-[var(--border-subtle)] p-4 rounded-xl shadow-sm text-center">
+              <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--content-primary)]">
+                <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>Simulation Ready for Execution</span>
+              </div>
+              <p className="text-xs text-[var(--content-secondary)] mt-1 leading-relaxed">
+                The Variational Quantum Classifier is initialized at the random-guess baseline (L0 ≈ 0.6931).
+                Click <strong className="text-[var(--content-primary)]">Start Autonomous</strong> in the cockpit controls to stream parameter-shift descent steps.
+              </p>
+            </div>
+          </div>
+        )}
       </div>
 
-      {/* Footer Readout & Legend */}
-      <div className="flex flex-wrap items-center justify-between gap-3 pt-3 mt-2 border-t border-border-subtle text-xs font-mono">
+      {/* Footer Readout Strip */}
+      <div className="pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between text-xs text-[var(--content-secondary)]">
         <div className="flex items-center gap-4">
-          {(mode === "loss" || mode === "dual") && (
-            <>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-[var(--accent)] rounded-full" />
-                <span className="text-content-secondary">Train Loss:</span>
-                <span className="text-content-primary font-semibold">{activePoint.loss.toFixed(4)}</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-[var(--status-warning)] rounded-full border-dashed" />
-                <span className="text-content-secondary">Val Loss:</span>
-                <span className="text-[var(--status-warning)] font-semibold">{activePoint.val_loss.toFixed(4)}</span>
-              </div>
-            </>
-          )}
-
-          {(mode === "accuracy" || mode === "dual") && (
-            <>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-[var(--status-success)] rounded-full" />
-                <span className="text-content-secondary">Train Acc:</span>
-                <span className="text-[var(--status-success)] font-semibold">{(activePoint.accuracy * 100).toFixed(1)}%</span>
-              </div>
-              <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-[var(--status-purity)] rounded-full border-dashed" />
-                <span className="text-content-secondary">Val Acc:</span>
-                <span className="text-[var(--status-purity)] font-semibold">{(activePoint.val_accuracy * 100).toFixed(1)}%</span>
-              </div>
-            </>
-          )}
+          <span>
+            Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? activePoint.loss.toFixed(4) : "0.6931"}</strong>
+          </span>
+          <span>
+            Val Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? activePoint.val_loss.toFixed(4) : "0.6931"}</strong>
+          </span>
+          <span>
+            Accuracy: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? `${(activePoint.accuracy * 100).toFixed(1)}%` : "50.0%"}</strong>
+          </span>
         </div>
-
-        <div className="text-[11px] text-content-tertiary">
-          Hover over data points to inspect step metrics
+        <div className="text-[11px] text-[var(--content-tertiary)] font-mono">
+          Loss Function: BCE • Ansatz: Hardware-Efficient $R_y(\theta)$-$R_z(\theta)$
         </div>
       </div>
     </div>

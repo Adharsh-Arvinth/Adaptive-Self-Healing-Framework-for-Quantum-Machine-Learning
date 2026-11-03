@@ -1,7 +1,19 @@
 "use client";
 
 import React, { useState } from "react";
-import { Wrench, Shield, Layers, RefreshCw, Zap, Sliders, Cpu, GitBranch, Play } from "lucide-react";
+import {
+  Wrench,
+  Shield,
+  Layers,
+  RefreshCw,
+  Zap,
+  Sliders,
+  Cpu,
+  GitBranch,
+  Play,
+  CheckCircle2,
+  AlertCircle,
+} from "lucide-react";
 
 interface RepairCockpitProps {
   selectedArm: string | null;
@@ -14,96 +26,82 @@ interface RepairCockpitProps {
 
 interface ArmSpec {
   id: string;
+  number: string;
   name: string;
   desc: string;
   icon: React.ElementType;
-  category: string;
-  colorScheme: {
-    bg: string;
-    text: string;
-    border: string;
-  };
-  subInfo: (opt: string, feat: string, depth: number) => string;
+  domain: string;
+  targetParameter: string;
+  safetyRule: string;
+  getParamPreview: (opt: string, feat: string, depth: number) => string;
 }
 
 const LOCKED_ARMS: ArmSpec[] = [
   {
     id: "change_optimizer",
+    number: "ARM 01",
     name: "Change Optimizer",
-    desc: "Cycle Adam / RMSprop / SGD and reset momentum state",
+    desc: "Cycles classical optimizer state (Adam ↔ RMSprop ↔ SGD) and purges momentum buffers.",
     icon: Sliders,
-    category: "Classical",
-    colorScheme: {
-      bg: "bg-[var(--status-info-subtle)]",
-      text: "text-[var(--status-info)]",
-      border: "border-[var(--status-info)]/20",
-    },
-    subInfo: (opt) => `Current: ${opt.toUpperCase()}`,
+    domain: "Classical Optimization",
+    targetParameter: "Optimizer State",
+    safetyRule: "Anti-oscillation (W_osc=4) prevents rapid cyclic optimizer switching.",
+    getParamPreview: (opt) => `Active: ${opt.toUpperCase()}`,
   },
   {
     id: "reduce_circuit_depth",
-    name: "Reduce Depth",
-    desc: "Truncate ansatz layers L → L - 1 to relieve barren plateaus",
+    number: "ARM 02",
+    name: "Reduce Circuit Depth",
+    desc: "Truncates variational ansatz layers (L → L - 1) to relieve barren plateau gradient vanishing.",
     icon: Layers,
-    category: "Ansatz",
-    colorScheme: {
-      bg: "bg-[var(--status-ansatz-subtle)]",
-      text: "text-[var(--status-ansatz)]",
-      border: "border-[var(--status-ansatz)]/20",
-    },
-    subInfo: (_, __, depth) => `Layers: L = ${depth}`,
+    domain: "Ansatz Architecture",
+    targetParameter: "Circuit Depth L",
+    safetyRule: "Minimum depth bound L_min = 2 preserves expressibility.",
+    getParamPreview: (_, __, depth) => `Capacity: L = ${depth}`,
   },
   {
     id: "modify_feature_map",
+    number: "ARM 03",
     name: "Modify Feature Map",
-    desc: "Toggle Angle ↔ IQP Hilbert space embedding",
+    desc: "Toggles data embedding between Angle encoding and IQP Hilbert space embedding.",
     icon: GitBranch,
-    category: "Embedding",
-    colorScheme: {
-      bg: "bg-[var(--accent-subtle)]",
-      text: "text-[var(--accent)]",
-      border: "border-[var(--accent)]/20",
-    },
-    subInfo: (_, feat) => `Map: ${feat.toUpperCase()}`,
+    domain: "Quantum Embedding",
+    targetParameter: "Kernel Map U_Φ(x)",
+    safetyRule: "Feature map alteration requires 4-step stabilization window.",
+    getParamPreview: (_, feat) => `Map: ${feat.toUpperCase()}`,
   },
   {
     id: "adjust_learning_rate",
+    number: "ARM 04",
     name: "Adjust Learning Rate",
-    desc: "Dynamic scaling of eta within safe bounds [1e-4, 1.0]",
+    desc: "Scales gradient descent step size η (0.5× reduction or 1.5× acceleration) within safe bounds.",
     icon: Zap,
-    category: "Rate",
-    colorScheme: {
-      bg: "bg-[var(--status-warning-subtle)]",
-      text: "text-[var(--status-warning)]",
-      border: "border-[var(--status-warning)]/20",
-    },
-    subInfo: () => "Scale: 0.5x or 1.5x",
+    domain: "Optimization Step",
+    targetParameter: "Learning Rate η",
+    safetyRule: "Strict clamping within operational envelope [1e-4, 1.0].",
+    getParamPreview: () => "Adaptive Factor: 0.5× / 1.5×",
   },
   {
     id: "apply_noise_mitigation",
+    number: "ARM 05",
     name: "Noise Mitigation",
-    desc: "Analytical inverse-noise correction over radial contraction",
+    desc: "Applies analytical inverse-noise contraction correction across the single-qubit Bloch state.",
     icon: Cpu,
-    category: "Mitigation",
-    colorScheme: {
-      bg: "bg-[var(--status-purity-subtle)]",
-      text: "text-[var(--status-purity)]",
-      border: "border-[var(--status-purity)]/20",
-    },
-    subInfo: () => "Inverse Contraction",
+    domain: "Simulation Mitigation",
+    targetParameter: "Bloch Radius ||r||",
+    safetyRule: "Simulation-side analytical correction; non-destructive.",
+    getParamPreview: () => "Inverse Contraction Mode",
   },
   {
     id: "perform_warm_restart",
+    number: "ARM 06",
     name: "Warm Restart",
-    desc: "Perturb parameters (σ=0.05) or reset near-identity",
+    desc: "Perturbs parameter coordinates (Gaussian σ=0.05) or resets near identity to escape saddle points.",
     icon: RefreshCw,
-    category: "Restart",
-    colorScheme: {
-      bg: "bg-[var(--status-danger-subtle)]",
-      text: "text-[var(--status-danger)]",
-      border: "border-[var(--status-danger)]/20",
-    },
-    subInfo: () => "Perturbation (σ=0.05)",
+    domain: "Parameter Space",
+    targetParameter: "Variational Weights θ",
+    safetyRule: "Perturbation bounded to prevent catastrophic unlearning.",
+    getParamPreview: () => "Stochastic Jitter σ = 0.05",
   },
 ];
 
@@ -128,114 +126,119 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
   };
 
   return (
-    <div className="glass-panel p-6">
-      {/* Cockpit Symmetrical Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
-            <Wrench className="w-4 h-4" />
+    <div className="glass-panel p-5 font-sans">
+      {/* Symmetrical Header */}
+      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 mb-4 border-b border-[var(--border-subtle)]">
+        <div>
+          <div className="flex items-center gap-2">
+            <h3 className="text-sm font-semibold text-[var(--content-primary)]">
+              Six-Arm Adaptive Repair Matrix
+            </h3>
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--content-secondary)] border border-[var(--border-subtle)]">
+              Contextual Thompson Sampling
+            </span>
           </div>
-          <div>
-            <h2 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
-              Six-Arm Adaptive Repair Cockpit
-            </h2>
-            <p className="text-[11px] text-[var(--content-tertiary)]">
-              Autonomous Contextual Thompson Sampling repair arms with safety validation
-            </p>
-          </div>
+          <p className="text-xs text-[var(--content-secondary)] mt-0.5">
+            Autonomous closed-loop repair actuators evaluated by Thompson Sampling and validated by safety filters
+          </p>
         </div>
 
-        <div className="flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel-subtle text-xs font-mono text-[var(--content-secondary)] self-start sm:self-auto">
+        <div className="flex items-center gap-2 text-xs text-[var(--content-secondary)]">
           <Shield className="w-3.5 h-3.5 text-[var(--status-success)]" />
-          <span>Safety Filter Active (W_osc=4)</span>
+          <span>Safety Filter Active (W_osc = 4)</span>
         </div>
       </div>
 
-      {/* Symmetrical 6-Column Grid of Arms */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 xl:grid-cols-6 gap-3.5">
-        {LOCKED_ARMS.map((arm, index) => {
+      {/* Structured Matrix Grid: 6 Distinct Scientific Actuator Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5">
+        {LOCKED_ARMS.map((arm) => {
           const isSelected = selectedArm === arm.id;
           const isEligible = eligibleArms.includes(arm.id);
           const isDeploying = deployingArm === arm.id;
-          const isMinDepth = arm.id === "reduce_circuit_depth" && currentDepth <= 2;
+          const isDepthConstrained = arm.id === "reduce_circuit_depth" && currentDepth <= 2;
           const Icon = arm.icon;
 
           return (
             <div
               key={arm.id}
-              className={`p-3.5 rounded-xl border transition-all duration-200 flex flex-col justify-between h-[195px] ${
+              className={`p-4 rounded-xl border transition-all flex flex-col justify-between ${
                 isSelected
-                  ? "bg-[var(--accent-subtle)] border-[var(--accent)]/40 shadow-sm"
-                  : "glass-panel-subtle hover:border-[var(--border-highlight)]"
+                  ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-sm"
+                  : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-highlight)]"
               }`}
             >
               <div>
-                {/* Top Row: Icon Badge, Category & Status Tag */}
-                <div className="flex items-center justify-between gap-1 mb-2">
-                  <div
-                    className={`w-7 h-7 rounded-lg flex items-center justify-center shrink-0 border ${arm.colorScheme.bg} ${arm.colorScheme.text} ${arm.colorScheme.border}`}
-                  >
-                    <Icon className="w-3.5 h-3.5" />
+                {/* Header: Arm Number, Domain, and Status Badge */}
+                <div className="flex items-center justify-between mb-2">
+                  <div className="flex items-center gap-2">
+                    <div className="w-6 h-6 rounded-md bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] shrink-0">
+                      <Icon className="w-3.5 h-3.5" />
+                    </div>
+                    <div>
+                      <span className="text-[10px] font-mono text-[var(--content-tertiary)] block">
+                        {arm.number}
+                      </span>
+                      <span className="text-xs font-semibold text-[var(--content-primary)] block leading-tight">
+                        {arm.name}
+                      </span>
+                    </div>
                   </div>
 
-                  {/* Status Pill */}
+                  {/* Operational Status Pill */}
                   {isSelected ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-[var(--status-ansatz-subtle)] text-[var(--status-ansatz)] border border-[var(--status-ansatz)]/30 shrink-0">
-                      ACTIVE
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--accent)] text-white">
+                      SELECTED
                     </span>
-                  ) : isMinDepth ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border border-[var(--status-warning)]/30 shrink-0">
+                  ) : isDepthConstrained ? (
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[var(--bg-subtle)] text-[var(--content-tertiary)] border border-[var(--border-subtle)]">
                       MIN L=2
                     </span>
                   ) : isEligible ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-emerald-500/15 text-[var(--status-success)] border border-emerald-500/30 shrink-0">
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--status-success)]/30">
                       ELIGIBLE
                     </span>
                   ) : (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-neutral-500/10 text-[var(--content-tertiary)] border border-[var(--border-subtle)] shrink-0">
-                      NOMINAL
+                    <span className="px-2 py-0.5 rounded text-[10px] font-mono text-[var(--content-tertiary)] bg-[var(--bg-subtle)]">
+                      STANDBY
                     </span>
                   )}
                 </div>
 
-                {/* Arm Name & Category */}
-                <div className="text-xs font-semibold text-[var(--content-primary)] leading-tight truncate">
-                  {arm.name}
-                </div>
-                <div className="text-[10px] text-[var(--content-tertiary)] font-mono mb-2">
-                  Arm #{index + 1} • {arm.category}
-                </div>
-
                 {/* Description */}
-                <p className="text-[10px] text-[var(--content-secondary)] leading-snug line-clamp-2 min-h-[28px]">
+                <p className="text-xs text-[var(--content-secondary)] leading-relaxed mt-2 min-h-[36px]">
                   {arm.desc}
                 </p>
+
+                {/* Safety Rule Note */}
+                <div className="mt-2 text-[11px] text-[var(--content-tertiary)] font-mono leading-tight">
+                  Constraint: {arm.safetyRule}
+                </div>
               </div>
 
-              {/* Bottom Row: State readout & Aligned Action Button */}
-              <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] font-mono">
-                <span className="text-[var(--content-tertiary)] truncate max-w-[85px]">
-                  {arm.subInfo(currentOptimizer, currentFeatureMap, currentDepth)}
+              {/* Bottom Control Strip */}
+              <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between">
+                <span className="text-[11px] font-mono text-[var(--content-secondary)]">
+                  {arm.getParamPreview(currentOptimizer, currentFeatureMap, currentDepth)}
                 </span>
 
                 {onTriggerRepair && (
                   <button
                     onClick={() => handleDeploy(arm.id)}
-                    disabled={isDeploying || isSelected || isMinDepth}
-                    className={`apple-btn px-2.5 py-1 rounded-lg text-[10px] font-medium flex items-center gap-1 transition-all shadow-sm ${
+                    disabled={isDeploying || isSelected || isDepthConstrained}
+                    className={`apple-btn px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm ${
                       isSelected
-                        ? "bg-[var(--status-ansatz-subtle)] text-[var(--status-ansatz)] cursor-default"
-                        : isMinDepth
-                        ? "opacity-40 cursor-not-allowed bg-[var(--bg-subtle)] text-[var(--content-tertiary)] border border-[var(--border-subtle)]"
+                        ? "bg-[var(--accent-subtle)] text-[var(--accent)] cursor-default"
+                        : isDepthConstrained
+                        ? "opacity-50 cursor-not-allowed bg-[var(--bg-subtle)] text-[var(--content-tertiary)] border border-[var(--border-subtle)]"
                         : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white active:scale-95"
                     }`}
                     title={
-                      isMinDepth
-                        ? "Safety filter constraint: Circuit depth L=2 is already at minimum allowable limit"
+                      isDepthConstrained
+                        ? "Safety constraint: Circuit depth L=2 is at minimum limit"
                         : `Deploy repair arm '${arm.name}'`
                     }
                   >
-                    <Play className="w-2.5 h-2.5 fill-current" />
+                    <Play className="w-3 h-3 fill-current" />
                     <span>{isDeploying ? "Deploying..." : "Deploy"}</span>
                   </button>
                 )}

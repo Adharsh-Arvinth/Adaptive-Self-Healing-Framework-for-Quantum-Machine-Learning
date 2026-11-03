@@ -127,7 +127,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     : null;
 
   return (
-    <div className="glass-panel p-6 flex flex-col justify-between items-center text-center select-none h-full">
+    <div className="glass-panel p-5 flex flex-col justify-between items-center text-center select-none h-full font-sans">
       {/* Symmetrical Header */}
       <div className="w-full flex items-center justify-between mb-3 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
@@ -157,7 +157,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
               className={
                 purityPhysical >= 0.95
                   ? "text-[var(--status-success)] font-semibold"
-                  : "text-amber-400 font-semibold"
+                  : "text-[var(--status-warning)] font-semibold"
               }
             >
               {purityPhysical.toFixed(4)}

@@ -70,7 +70,7 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
   };
 
   return (
-    <div className="glass-panel p-6 flex flex-col justify-between">
+    <div className="glass-panel p-5 font-sans flex flex-col justify-between">
       {/* Symmetrical Header */}
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[var(--border-subtle)]">

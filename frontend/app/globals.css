@@ -3,132 +3,134 @@
 @tailwind utilities;
 
 /* --------------------------------------------------------------------------
-   Modern Minimalism — Calm, Muted, Nature-Inspired Warm Earth Tones
-   Typography: SF Pro / Helvetica Neue
-   Soft Layers & Subtle Organic Surfaces (Zero Harsh Glare, Zero Cold Blurs)
+   Stage 11.3 Design System — Modern Scientific Minimalism
+   Typography: SF Pro Display / SF Pro Text / Helvetica Neue Stack
+   Palette: Warm Neutral / Light Grey, Crisp White Surfaces, Deep Charcoal
    -------------------------------------------------------------------------- */
 
 :root {
-  /* Warm Travertine & Linen Canvas */
-  --bg-primary: #F6F3ED;
-  --bg-surface: #FCFAF7;
+  /* Warm neutral / sophisticated light grey background */
+  --bg-primary: #F8F9FA;
+  --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
-  --bg-subtle: #EDE7DC;
+  --bg-subtle: #F1F3F5;
+  --bg-hover: #E9ECEF;
 
-  /* Organic Hairline Borders */
-  --border-subtle: rgba(60, 50, 40, 0.08);
-  --border-highlight: rgba(50, 40, 30, 0.20);
+  /* Subtle neutral hairline borders */
+  --border-subtle: #E5E7EB;
+  --border-highlight: #D1D5DB;
 
-  /* Deep Warm Espresso & Peat Typography (Soft on Eyes) */
-  --text-primary: #1E1C19;
-  --text-secondary: #5F5950;
-  --text-tertiary: #918B80;
+  /* Deep charcoal typography with restrained secondary grey */
+  --text-primary: #111827;
+  --text-secondary: #4B5563;
+  --text-tertiary: #9CA3AF;
 
-  --content-primary: #1E1C19;
-  --content-secondary: #5F5950;
-  --content-tertiary: #918B80;
+  --content-primary: #111827;
+  --content-secondary: #4B5563;
+  --content-tertiary: #9CA3AF;
 
-  /* Nature-Inspired Terracotta & Clay Bronze Accents */
-  --accent: #8C5338;
-  --accent-primary: #8C5338;
-  --accent-hover: #77432B;
-  --accent-subtle: rgba(140, 83, 56, 0.09);
+  /* Primary Accent: Restrained scientific blue / indigo */
+  --accent: #2563EB;
+  --accent-primary: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
 
-  /* Muted Organic Earth Statuses */
-  --status-success: #3D6B52;
-  --status-success-subtle: rgba(61, 107, 82, 0.10);
+  /* Secondary Accent: Muted copper bronze */
+  --accent-copper: #C25E38;
+  --accent-copper-subtle: rgba(194, 94, 56, 0.08);
 
-  --status-warning: #A36B2B;
-  --status-warning-subtle: rgba(163, 107, 43, 0.10);
+  /* Semantic status colors: Understated green, warm amber, muted red */
+  --status-success: #15803D;
+  --status-success-subtle: rgba(21, 128, 61, 0.08);
 
-  --status-danger: #9E3D3D;
-  --status-danger-subtle: rgba(158, 61, 61, 0.10);
+  --status-warning: #B45309;
+  --status-warning-subtle: rgba(180, 83, 9, 0.08);
 
-  --status-info: #4A6072;
-  --status-info-subtle: rgba(74, 96, 114, 0.10);
+  --status-danger: #B91C1C;
+  --status-danger-subtle: rgba(185, 28, 28, 0.08);
 
-  --status-ansatz: #6D5270;
-  --status-ansatz-subtle: rgba(109, 82, 112, 0.10);
+  --status-info: #1D4ED8;
+  --status-info-subtle: rgba(29, 78, 216, 0.08);
 
-  --status-purity: #3E6D6D;
-  --status-purity-subtle: rgba(62, 109, 109, 0.10);
+  --status-ansatz: #6B21A8;
+  --status-ansatz-subtle: rgba(107, 33, 168, 0.08);
 
-  --panel-shadow: 0 4px 20px -2px rgba(60, 45, 30, 0.04), 0 1px 2px 0 rgba(60, 45, 30, 0.02);
-  --card-shadow: 0 12px 32px -4px rgba(60, 45, 30, 0.06);
+  --status-purity: #0F766E;
+  --status-purity-subtle: rgba(15, 118, 110, 0.08);
+
+  --panel-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
+  --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
 }
 
 /* --------------------------------------------------------------------------
-   Warm Minimalist Dark Mode — Rich Organic Peat & Warm Charcoal
-   (Inviting, Warm & Soft — Never Stark or Cold Blue)
+   Consistent Dark Mode — Titanium Slate & Organic Carbon
    -------------------------------------------------------------------------- */
 .dark {
-  /* Deep Organic Warm Peat Canvas */
-  --bg-primary: #151413;
-  --bg-surface: #1D1C19;
-  --bg-surface-elevated: #252320;
-  --bg-subtle: rgba(240, 230, 215, 0.05);
+  --bg-primary: #0F1115;
+  --bg-surface: #16181D;
+  --bg-surface-elevated: #1D2026;
+  --bg-subtle: #23262E;
+  --bg-hover: #2B2F38;
 
-  /* Warm Hairline Borders */
-  --border-subtle: rgba(240, 230, 215, 0.08);
-  --border-highlight: rgba(240, 230, 215, 0.20);
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-highlight: rgba(255, 255, 255, 0.16);
 
-  /* Soft Warm Parchment Typography */
-  --text-primary: #EDE7DE;
-  --text-secondary: #A6A094;
-  --text-tertiary: #726C62;
+  --text-primary: #F3F4F6;
+  --text-secondary: #9CA3AF;
+  --text-tertiary: #6B7280;
 
-  --content-primary: #EDE7DE;
-  --content-secondary: #A6A094;
-  --content-tertiary: #726C62;
+  --content-primary: #F3F4F6;
+  --content-secondary: #9CA3AF;
+  --content-tertiary: #6B7280;
 
-  /* Luminous Warm Terracotta Bronze */
-  --accent: #C97D58;
-  --accent-primary: #C97D58;
-  --accent-hover: #D98F6B;
-  --accent-subtle: rgba(201, 125, 88, 0.14);
+  --accent: #3B82F6;
+  --accent-primary: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-subtle: rgba(59, 130, 246, 0.14);
 
-  /* Muted Earth Statuses */
-  --status-success: #4E8266;
-  --status-success-subtle: rgba(78, 130, 102, 0.15);
+  --accent-copper: #E07A5F;
+  --accent-copper-subtle: rgba(224, 122, 95, 0.15);
 
-  --status-warning: #C2853E;
-  --status-warning-subtle: rgba(194, 133, 62, 0.15);
+  --status-success: #22C55E;
+  --status-success-subtle: rgba(34, 197, 94, 0.14);
 
-  --status-danger: #B85252;
-  --status-danger-subtle: rgba(184, 82, 82, 0.15);
+  --status-warning: #F59E0B;
+  --status-warning-subtle: rgba(245, 158, 11, 0.14);
 
-  --status-info: #5F778C;
-  --status-info-subtle: rgba(95, 119, 140, 0.15);
+  --status-danger: #EF4444;
+  --status-danger-subtle: rgba(239, 68, 68, 0.14);
 
-  --status-ansatz: #846787;
-  --status-ansatz-subtle: rgba(132, 103, 135, 0.15);
+  --status-info: #38BDF8;
+  --status-info-subtle: rgba(56, 189, 248, 0.14);
 
-  --status-purity: #4F8282;
-  --status-purity-subtle: rgba(79, 130, 130, 0.15);
+  --status-ansatz: #C084FC;
+  --status-ansatz-subtle: rgba(192, 132, 252, 0.14);
 
-  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.50);
-  --card-shadow: 0 20px 48px -10px rgba(0, 0, 0, 0.65);
+  --status-purity: #2DD4BF;
+  --status-purity-subtle: rgba(45, 212, 191, 0.14);
+
+  --panel-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.35);
+  --card-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.45);
 }
 
 /* --------------------------------------------------------------------------
-   Typography Rules: SF Pro / Helvetica Neue Across Entire Experience
+   Mandatory Global Typography — SF Pro / Helvetica Neue
    -------------------------------------------------------------------------- */
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro", "Helvetica Neue", Arial, sans-serif;
-  letter-spacing: -0.012em;
-  font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
-  font-variant-numeric: tabular-nums;
-  transition: background-color 0.3s ease, color 0.3s ease;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.011em;
+  font-feature-settings: "cv02", "cv03", "cv04", "cv11";
+  transition: background-color 0.2s ease, color 0.2s ease;
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6, .font-display {
-  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro", "Helvetica Neue", Arial, sans-serif;
-  letter-spacing: -0.025em;
-  font-weight: 700;
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
+  letter-spacing: -0.022em;
+  font-weight: 600;
 }
 
 code, pre, .font-mono {
@@ -137,20 +139,14 @@ code, pre, .font-mono {
 }
 
 /* --------------------------------------------------------------------------
-   Soft Layered Minimalist Panels (Calm Travertine & Soft Warm Paper)
+   Clean Minimalist Panels
    -------------------------------------------------------------------------- */
 .glass-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.875rem;
+  border-radius: 0.75rem;
   box-shadow: var(--panel-shadow);
-  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
-}
-
-.dark .glass-panel {
-  background: var(--bg-surface);
-  border: 1px solid var(--border-subtle);
-  box-shadow: var(--panel-shadow);
+  transition: border-color 0.15s ease, box-shadow 0.15s ease;
 }
 
 .glass-panel:hover {
@@ -160,12 +156,7 @@ code, pre, .font-mono {
 .glass-panel-subtle {
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.625rem;
-}
-
-.dark .glass-panel-subtle {
-  background: var(--bg-subtle);
-  border: 1px solid var(--border-subtle);
+  border-radius: 0.5rem;
 }
 
 .apple-card {
@@ -177,31 +168,7 @@ code, pre, .font-mono {
 }
 
 /* --------------------------------------------------------------------------
-   Technical Crosshair Styling
-   -------------------------------------------------------------------------- */
-.tech-crosshair {
-  position: relative;
-}
-.tech-crosshair::before,
-.tech-crosshair::after {
-  content: "+";
-  position: absolute;
-  font-family: "SF Mono", "JetBrains Mono", monospace;
-  font-size: 10px;
-  color: var(--border-highlight);
-  pointer-events: none;
-}
-.tech-crosshair::before {
-  top: -6px;
-  left: -6px;
-}
-.tech-crosshair::after {
-  bottom: -6px;
-  right: -6px;
-}
-
-/* --------------------------------------------------------------------------
-   Interactive Buttons & Scrollbars
+   Tactile Interactive Controls
    -------------------------------------------------------------------------- */
 .apple-btn {
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -210,12 +177,12 @@ code, pre, .font-mono {
   transform: translateY(-1px);
 }
 .apple-btn:active {
-  transform: scale(0.97);
+  transform: scale(0.98);
 }
 
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;
@@ -223,9 +190,6 @@ code, pre, .font-mono {
 ::-webkit-scrollbar-thumb {
   background: var(--border-highlight);
   border-radius: 9999px;
-}
-::-webkit-scrollbar-thumb:hover {
-  background: var(--text-tertiary);
 }
 
 @media (prefers-reduced-motion: reduce) {

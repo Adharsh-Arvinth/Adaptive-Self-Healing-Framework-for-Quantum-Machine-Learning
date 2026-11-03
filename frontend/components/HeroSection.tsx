@@ -226,7 +226,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         </div>
 
         {/* Bottom Technical Specifications Strip (Clean, Grounded) */}
-        <div className="pt-6 border-t border-[var(--border-subtle)] grid grid-cols-2 md:grid-cols-4 gap-4 font-mono text-xs">
+        <div className="pt-6 border-t border-[var(--border-subtle)] grid grid-cols-2 md:grid-cols-4 gap-4 font-sans text-xs">
           <div>
             <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">Decision Engine</span>
             <span className="text-xs sm:text-sm font-semibold text-[var(--content-primary)] mt-0.5 block">Contextual Thompson Sampling</span>

@@ -36,132 +36,126 @@ export const MetricsRow: React.FC<MetricsRowProps> = ({
   circuitDepth,
   purity = 0.985,
 }) => {
-  const cards = [
+  const isStarted = loss > 0 || accuracy > 0;
+
+  // Primary High-Level KPIs
+  const primaryMetrics = [
     {
+      id: "train-loss",
       label: "Training Loss",
-      sublabel: "BCE on mini-batch",
-      value: loss.toFixed(4),
+      spec: "Binary Cross-Entropy",
+      value: isStarted ? loss.toFixed(4) : "0.6931",
+      status: isStarted ? (loss < 0.35 ? "Optimal" : loss < 0.65 ? "Converging" : "Elevated") : "Baseline",
       icon: TrendingDown,
       color: "text-[var(--accent)]",
-      badge: loss < 0.60 ? "Converging" : "Active",
-      badgeColor:
-        loss < 0.60
-          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
-          : "bg-[var(--accent-subtle)] text-[var(--accent)]",
     },
     {
+      id: "val-acc",
       label: "Validation Accuracy",
-      sublabel: `Train: ${(accuracy * 100).toFixed(0)}% • Holdout`,
-      value: `${(valAccuracy * 100).toFixed(1)}%`,
+      spec: `Holdout Generalization`,
+      value: isStarted ? `${(valAccuracy * 100).toFixed(1)}%` : "50.0%",
+      status: isStarted ? (valAccuracy > 0.80 ? "High" : valAccuracy > 0.60 ? "Moderate" : "Sub-optimal") : "Random Guess",
       icon: Target,
       color: "text-[var(--status-success)]",
-      badge: valAccuracy >= 0.70 ? "High" : valAccuracy >= 0.55 ? "Moderate" : "Low",
-      badgeColor:
-        valAccuracy >= 0.70
-          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
-          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
+      id: "val-loss",
       label: "Validation Loss",
-      sublabel: "Generalization",
-      value: valLoss.toFixed(4),
+      spec: isStarted ? `Δ Gap: ${Math.abs(valLoss - loss).toFixed(3)}` : "Generalization Delta",
+      value: isStarted ? valLoss.toFixed(4) : "0.6931",
+      status: isStarted ? (Math.abs(valLoss - loss) < 0.15 ? "Generalizing" : "Variance Gap") : "Baseline",
       icon: TrendingUp,
       color: "text-[var(--status-warning)]",
-      badge: Math.abs(valLoss - loss) < 0.15 ? "Generalizing" : "Gap Observed",
-      badgeColor:
-        Math.abs(valLoss - loss) < 0.15
-          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
-          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
+  ];
+
+  // Secondary Auxiliary Quantum Telemetry
+  const telemetryStrip = [
     {
-      label: "Gradient Norm",
-      sublabel: "Parameter-shift ||g||",
-      value: gradientNorm.toFixed(4),
+      label: "Gradient Norm ||g||",
+      value: isStarted ? gradientNorm.toFixed(4) : "—",
+      sub: "Parameter-Shift",
       icon: Gauge,
-      color: "text-[var(--status-info)]",
-      badge: gradientNorm > 1e-4 ? "Active" : "Vanishing",
-      badgeColor:
-        gradientNorm > 1e-4
-          ? "bg-[var(--status-info-subtle)] text-[var(--status-info)]"
-          : "bg-[var(--status-danger-subtle)] text-[var(--status-danger)]",
     },
     {
-      label: "Parameter Velocity",
-      sublabel: "||θ_t - θ_{t-1}||",
-      value: parameterVelocity.toFixed(4),
+      label: "Param Velocity",
+      value: isStarted ? parameterVelocity.toFixed(4) : "—",
+      sub: "||θ_t - θ_{t-1}||",
       icon: Activity,
-      color: "text-[var(--status-purity)]",
-      badge: parameterVelocity < 1e-4 ? "Saddle Trap" : "Dynamic",
-      badgeColor:
-        parameterVelocity >= 1e-4
-          ? "bg-[var(--status-purity-subtle)] text-[var(--status-purity)]"
-          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
-      label: "Learning Rate",
-      sublabel: "Step size η",
+      label: "Learning Rate η",
       value: learningRate.toFixed(4),
+      sub: "Adaptive Step",
       icon: Zap,
-      color: "text-[var(--status-warning)]",
-      badge: `${learningRate.toFixed(3)}`,
-      badgeColor: "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
-      label: "Circuit Depth",
-      sublabel: "Ansatz layers (L)",
-      value: `${circuitDepth} Layers`,
+      label: "Ansatz Layers",
+      value: `L = ${circuitDepth}`,
+      sub: "Hardware Depth",
       icon: Layers,
-      color: "text-[var(--content-secondary)]",
-      badge: `D = ${circuitDepth}`,
-      badgeColor: "glass-panel-subtle text-[var(--content-secondary)]",
     },
     {
-      label: "State Purity",
-      sublabel: "γ = (1 + ||r||²)/2",
-      value: purity.toFixed(4),
+      label: "Bloch Purity γ",
+      value: isStarted ? purity.toFixed(3) : "1.000",
+      sub: "Tr(ρ²)",
       icon: Atom,
-      color: "text-[var(--status-ansatz)]",
-      badge: purity >= 0.90 ? "Pure State" : "Mixed State",
-      badgeColor:
-        purity >= 0.90
-          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
-          : "bg-[var(--status-danger-subtle)] text-[var(--status-danger)]",
     },
   ];
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-4 lg:grid-cols-8 gap-3">
-      {cards.map((card, idx) => {
-        const Icon = card.icon;
-        return (
-          <div
-            key={idx}
-            className="apple-card p-3.5 flex flex-col justify-between hover:shadow-apple-md transition-all"
-          >
-            <div className="flex items-center justify-between gap-1 mb-2">
-              <span className="text-[11px] font-medium text-content-secondary truncate">
-                {card.label}
-              </span>
-              <Icon className={`w-3.5 h-3.5 ${card.color} shrink-0`} />
+    <div className="space-y-3 font-sans">
+      {/* Tier 1: Primary Metrics with Distinct Visual Weight */}
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-3.5">
+        {primaryMetrics.map((m) => {
+          const Icon = m.icon;
+          return (
+            <div
+              key={m.id}
+              className="glass-panel p-4 flex flex-col justify-between transition-all"
+            >
+              <div className="flex items-center justify-between text-xs text-[var(--content-secondary)]">
+                <span className="font-medium">{m.label}</span>
+                <span className="text-[11px] font-mono text-[var(--content-tertiary)]">{m.spec}</span>
+              </div>
+              <div className="flex items-baseline justify-between mt-2">
+                <div className="text-2xl sm:text-3xl font-semibold tracking-tight text-[var(--content-primary)] font-sans">
+                  {m.value}
+                </div>
+                <div className="text-xs font-medium text-[var(--content-secondary)] flex items-center gap-1.5">
+                  <Icon className={`w-3.5 h-3.5 ${m.color}`} />
+                  <span>{m.status}</span>
+                </div>
+              </div>
             </div>
+          );
+        })}
+      </div>
 
-            <div className="my-1">
-              <span className="text-lg font-semibold tracking-tight text-content-primary font-mono block">
-                {card.value}
-              </span>
+      {/* Tier 2: Compact Scannable Auxiliary Telemetry Strip */}
+      <div className="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-2.5">
+        {telemetryStrip.map((item) => {
+          const Icon = item.icon;
+          return (
+            <div
+              key={item.label}
+              className="p-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between"
+            >
+              <div>
+                <div className="text-[11px] text-[var(--content-secondary)] font-medium truncate">
+                  {item.label}
+                </div>
+                <div className="text-sm font-semibold text-[var(--content-primary)] mt-0.5 font-mono">
+                  {item.value}
+                </div>
+              </div>
+              <div className="text-[10px] text-[var(--content-tertiary)] text-right font-mono hidden sm:block">
+                {item.sub}
+              </div>
             </div>
-
-            <div className="flex items-center justify-between gap-1 mt-1 pt-1.5 border-t border-border-subtle">
-              <span className="text-[10px] text-content-tertiary truncate">
-                {card.sublabel}
-              </span>
-              <span className={`text-[9px] px-1.5 py-0.2 rounded font-mono shrink-0 ${card.badgeColor}`}>
-                {card.badge}
-              </span>
-            </div>
-          </div>
-        );
-      })}
+          );
+        })}
+      </div>
     </div>
   );
 };

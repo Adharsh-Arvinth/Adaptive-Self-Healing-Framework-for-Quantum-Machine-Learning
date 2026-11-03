@@ -1,7 +1,17 @@
 "use client";
 
-import React from "react";
-import { AlertTriangle, CheckCircle2, ShieldAlert, Sparkles, Activity } from "lucide-react";
+import React, { useState } from "react";
+import {
+  ShieldAlert,
+  ShieldCheck,
+  CheckCircle2,
+  AlertTriangle,
+  ChevronDown,
+  ChevronUp,
+  Activity,
+  Layers,
+  Sparkles,
+} from "lucide-react";
 import { DiagnosisData } from "@/types";
 
 interface DiagnosisPanelProps {
@@ -9,173 +19,242 @@ interface DiagnosisPanelProps {
   activeAnomalies: string[];
 }
 
-const CATEGORY_LABELS: Record<string, { name: string; tag: string; desc: string }> = {
+const CANONICAL_FAILURES: Record<
+  string,
+  { name: string; mechanism: string; invariant: string; category: string }
+> = {
   barren_plateau: {
     name: "Barren Plateau",
-    tag: "Vanishing Gradients",
-    desc: "Gradient variance Var(g) < 1e-5 exponentially attenuated with depth",
+    mechanism: "Vanishing variance Var(g) < 1e-5",
+    invariant: "Exponential gradient suppression under deep Haar-random states",
+    category: "Ansatz Depth",
   },
   lr_misconfiguration: {
     name: "LR Misconfiguration",
-    tag: "Oscillation / Stagnation",
-    desc: "Sub-optimal learning rate causing loss jitter or frozen progress",
+    mechanism: "Loss jitter / non-monotonic step",
+    invariant: "Step-size outside stable lipschitz contraction bounds",
+    category: "Optimization",
   },
   optimizer_instability: {
     name: "Optimizer Instability",
-    tag: "Momentum Explosion",
-    desc: "Parameter velocity norm surges without descent progress",
+    mechanism: "Surging parameter velocity norm",
+    invariant: "Momentum explosion without loss descent progress",
+    category: "Optimization",
   },
   training_divergence: {
     name: "Training Divergence",
-    tag: "Loss Exploded / NaN",
-    desc: "Loss diverges exponentially or produces non-finite gradients",
+    mechanism: "Loss exploded or NaN gradient",
+    invariant: "Numerical singularity or parameter runaway",
+    category: "Numerical",
   },
   persistent_plateau: {
     name: "Persistent Plateau",
-    tag: "Zero Curvature",
-    desc: "Loss stalled across multiple epochs despite non-zero gradient norm",
+    mechanism: "Zero curvature across epochs",
+    invariant: "Stalled loss trajectory despite non-zero gradient norm",
+    category: "Landscape",
   },
   noise_degradation: {
     name: "Noise Contraction",
-    tag: "Decoherence Mixed State",
-    desc: "Bloch vector length contracted toward origin (purity γ < 0.90)",
+    mechanism: "Bloch vector shrinkage (γ < 0.90)",
+    invariant: "Decoherence radial contraction towards maximally mixed state",
+    category: "Quantum State",
   },
 };
 
-export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activeAnomalies }) => {
-  const confidence = diagnosis ? diagnosis.confidence : 0.0;
-  const gateCleared = diagnosis ? diagnosis.confidence_gate_cleared : false;
-  const probs = diagnosis ? diagnosis.probabilities : {};
+export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
+  diagnosis,
+  activeAnomalies = [],
+}) => {
+  const [showFullTaxonomy, setShowFullTaxonomy] = useState(false);
+
+  const confidence = diagnosis?.confidence ?? 0.0;
+  const gateCleared = diagnosis?.confidence_gate_cleared ?? false;
+  const probs = diagnosis?.probabilities ?? {};
+  const hasActiveAnomalies = activeAnomalies.length > 0;
+  const primaryCause = diagnosis?.primary_cause;
 
   return (
-    <div className="glass-panel p-6 flex flex-col justify-between h-full">
-      {/* Panel Symmetrical Header */}
+    <div className="glass-panel p-5 flex flex-col justify-between h-full font-sans">
+      {/* Symmetrical Panel Header */}
       <div>
-        <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[var(--status-warning-subtle)] flex items-center justify-center text-[var(--status-warning)] shrink-0">
-              <ShieldAlert className="w-4 h-4" />
+        <div className="flex items-center justify-between pb-3 mb-3 border-b border-[var(--border-subtle)]">
+          <div>
+            <div className="flex items-center gap-2">
+              <h3 className="text-sm font-semibold text-[var(--content-primary)]">
+                Root-Cause Diagnosis & Bayesian Gate
+              </h3>
+              <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--content-secondary)] border border-[var(--border-subtle)]">
+                Threshold τ = 0.60
+              </span>
             </div>
-            <div>
-              <h2 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
-                Root-Cause Diagnosis & Confidence Gate
-              </h2>
-              <p className="text-[11px] text-[var(--content-tertiary)]">
-                Bayesian posterior inference across 6 non-overlapping quantum failure classes
-              </p>
-            </div>
+            <p className="text-xs text-[var(--content-secondary)] mt-0.5">
+              Bayesian categorical posterior evaluation over 6 canonical quantum failure modes
+            </p>
           </div>
 
           <div
-            className={`px-3 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 shrink-0 ${
+            className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 shrink-0 ${
               gateCleared
                 ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold"
-                : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-[var(--status-warning)]/30"
+                : "bg-[var(--bg-subtle)] text-[var(--content-secondary)] border-[var(--border-subtle)]"
             }`}
           >
             {gateCleared ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5" /> Cleared (≥ 0.60)
+                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--status-success)]" />
+                <span>Gate Cleared (≥ 0.60)</span>
               </>
             ) : (
               <>
-                <AlertTriangle className="w-3.5 h-3.5" /> Gate Hold (&lt; 0.60)
+                <ShieldCheck className="w-3.5 h-3.5 text-[var(--content-tertiary)]" />
+                <span>Gate Hold (&lt; 0.60)</span>
               </>
             )}
           </div>
         </div>
 
-        {/* Active Anomalies Badges */}
-        <div className="flex flex-wrap gap-1.5 mb-4 min-h-[26px]">
-          {activeAnomalies.length > 0 ? (
-            activeAnomalies.map((anom) => (
-              <span
-                key={anom}
-                className="px-2.5 py-0.5 rounded-full bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-[var(--status-danger)]/30 text-[11px] font-mono flex items-center gap-1"
-              >
-                <Activity className="w-3 h-3" />
-                FAULT: {CATEGORY_LABELS[anom]?.name || anom}
+        {/* State Display: Either Nominal State OR Detected Anomaly */}
+        {!hasActiveAnomalies && (!primaryCause || primaryCause === "nominal") ? (
+          /* High-Quality Meaningful Nominal State */
+          <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <span className="text-xs font-semibold text-[var(--content-primary)]">
+                  Nominal Regime — Zero Active Anomalies
+                </span>
+              </div>
+              <span className="text-[11px] font-mono text-[var(--status-success)] font-medium">
+                P(Nominal) &gt; 99%
               </span>
-            ))
-          ) : (
-            <span className="text-xs text-[var(--content-secondary)] flex items-center gap-1.5 font-mono">
-              <Sparkles className="w-3.5 h-3.5 text-[var(--status-success)]" /> Nominal state — zero active anomalies
-            </span>
-          )}
-        </div>
+            </div>
 
-        {/* Bayesian Confidence Gauge with tau = 0.60 Threshold Notch */}
-        <div className="mb-4 p-3.5 rounded-xl glass-panel-subtle border border-[var(--border-subtle)]">
-          <div className="flex justify-between items-center text-xs font-mono mb-2">
-            <span className="text-[var(--content-secondary)]">Primary Cause Confidence</span>
-            <span className={`font-semibold ${confidence >= 0.6 ? "text-[var(--status-success)]" : "text-[var(--content-primary)]"}`}>
+            <p className="text-xs text-[var(--content-secondary)] leading-relaxed">
+              Model parameters are traversing a stable descent trajectory. Gradient variance, parameter velocity,
+              and quantum purity satisfy operational invariants. Automatic repair intervention is intentionally held to prevent unnecessary parameter perturbation.
+            </p>
+
+            <div className="grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)] text-[11px] font-mono">
+              <div>
+                <span className="text-[10px] text-[var(--content-tertiary)] block">Gradient Field</span>
+                <span className="text-[var(--content-primary)] font-semibold">Variance Normal</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-[var(--content-tertiary)] block">Quantum State</span>
+                <span className="text-[var(--content-primary)] font-semibold">Purity γ ≥ 0.90</span>
+              </div>
+              <div>
+                <span className="text-[10px] text-[var(--content-tertiary)] block">Gate Policy</span>
+                <span className="text-[var(--content-secondary)] font-semibold">Intervention Hold</span>
+              </div>
+            </div>
+          </div>
+        ) : (
+          /* Active Failure Alert Stage */
+          <div className="p-4 rounded-xl bg-[var(--status-danger-subtle)] border border-[var(--status-danger)]/30 space-y-3">
+            <div className="flex items-center justify-between">
+              <div className="flex items-center gap-2">
+                <Activity className="w-4 h-4 text-[var(--status-danger)]" />
+                <span className="text-xs font-semibold text-[var(--status-danger)]">
+                  Primary Failure: {CANONICAL_FAILURES[primaryCause || ""]?.name || primaryCause}
+                </span>
+              </div>
+              <span className="text-xs font-mono font-bold text-[var(--status-danger)]">
+                {(confidence * 100).toFixed(1)}% Confidence
+              </span>
+            </div>
+
+            <p className="text-xs text-[var(--content-secondary)] leading-relaxed">
+              {CANONICAL_FAILURES[primaryCause || ""]?.mechanism || "Invariant violation observed in telemetry."}
+            </p>
+
+            <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-[var(--status-danger)]/20">
+              <span className="text-[var(--content-secondary)]">Confidence Gate τ = 0.60</span>
+              <span className={gateCleared ? "text-[var(--status-success)] font-semibold" : "text-[var(--status-warning)] font-semibold"}>
+                {gateCleared ? "Cleared: Interventions Permitted" : "Held: Confidence Insufficient"}
+              </span>
+            </div>
+          </div>
+        )}
+
+        {/* Bayesian Confidence Progress Bar */}
+        <div className="mt-3.5 space-y-1.5">
+          <div className="flex items-center justify-between text-xs font-medium text-[var(--content-secondary)]">
+            <span>Primary Cause Posterior Probability</span>
+            <span className="font-mono text-[var(--content-primary)] font-semibold">
               {(confidence * 100).toFixed(1)}%
             </span>
           </div>
 
-          {/* Progress bar with production gate threshold line */}
           <div className="relative w-full h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
             <div
-              className={`h-full transition-all duration-300 rounded-full ${
-                confidence >= 0.6 ? "bg-[var(--status-success)]" : "bg-[var(--status-warning)]"
+              className={`h-full rounded-full transition-all duration-300 ${
+                confidence >= 0.60 ? "bg-[var(--status-success)]" : "bg-[var(--accent)]"
               }`}
-              style={{ width: `${Math.min(100, confidence * 100)}%` }}
+              style={{ width: `${Math.min(100, Math.max(3, confidence * 100))}%` }}
             />
             {/* Notch at tau = 0.60 */}
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-[var(--accent)] z-10"
+              className="absolute top-0 bottom-0 w-0.5 bg-[var(--status-warning)] z-10"
               style={{ left: "60%" }}
-              title="Production Gate Threshold tau = 0.60"
+              title="Confidence Gate Threshold τ = 0.60"
             />
           </div>
 
-          <div className="flex justify-between text-[10px] font-mono text-[var(--content-tertiary)] mt-1.5">
+          <div className="flex items-center justify-between text-[10px] text-[var(--content-tertiary)] font-mono">
             <span>0.00</span>
-            <span className="text-[var(--accent)] font-medium">Production Gate τ = 0.60</span>
+            <span className="text-[var(--status-warning)] font-medium">τ = 0.60 Decision Threshold</span>
             <span>1.00</span>
           </div>
         </div>
 
-        {/* Multiclass Failure Probabilities Grid */}
-        <div className="space-y-2">
-          {Object.entries(CATEGORY_LABELS).map(([key, label]) => {
-            const prob = probs[key] ?? 0.0;
-            const isHighest = diagnosis?.primary_cause === key && prob > 0.0;
+        {/* Expandable 6-Failure Posterior Inspector */}
+        <div className="mt-3 pt-3 border-t border-[var(--border-subtle)]">
+          <button
+            onClick={() => setShowFullTaxonomy(!showFullTaxonomy)}
+            className="w-full flex items-center justify-between text-xs text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 font-medium"
+          >
+            <span>Inspect 6 Canonical Failure Posteriors</span>
+            <span className="flex items-center gap-1 text-[11px] font-mono text-[var(--content-tertiary)]">
+              {showFullTaxonomy ? <ChevronUp className="w-3.5 h-3.5" /> : <ChevronDown className="w-3.5 h-3.5" />}
+              <span>{showFullTaxonomy ? "Hide" : "Show All"}</span>
+            </span>
+          </button>
 
-            return (
-              <div
-                key={key}
-                className={`p-2 rounded-lg flex items-center justify-between text-xs transition-colors ${
-                  isHighest ? "bg-[var(--status-warning-subtle)] border border-[var(--status-warning)]/30" : "hover:bg-[var(--bg-subtle)]"
-                }`}
-              >
-                <div className="flex-1 pr-3">
-                  <div className="flex items-center gap-1.5">
-                    <span className="font-medium text-[var(--content-primary)]">{label.name}</span>
-                    <span className="text-[10px] text-[var(--content-tertiary)] font-mono">({label.tag})</span>
+          {showFullTaxonomy && (
+            <div className="mt-2.5 space-y-1.5 rounded-lg border border-[var(--border-subtle)] p-2.5 bg-[var(--bg-surface)]">
+              {Object.entries(CANONICAL_FAILURES).map(([key, item]) => {
+                const p = probs[key] ?? 0.0;
+                const isSelected = primaryCause === key && p > 0.0;
+                return (
+                  <div
+                    key={key}
+                    className={`p-2 rounded-md flex items-center justify-between text-xs transition-colors ${
+                      isSelected ? "bg-[var(--status-warning-subtle)] font-medium" : "hover:bg-[var(--bg-subtle)]"
+                    }`}
+                  >
+                    <div>
+                      <div className="flex items-center gap-2">
+                        <span className="text-[var(--content-primary)] font-medium">{item.name}</span>
+                        <span className="text-[10px] font-mono text-[var(--content-tertiary)]">{item.category}</span>
+                      </div>
+                      <div className="text-[11px] text-[var(--content-secondary)]">{item.mechanism}</div>
+                    </div>
+                    <span className="font-mono text-xs text-[var(--content-primary)] font-semibold shrink-0">
+                      {(p * 100).toFixed(1)}%
+                    </span>
                   </div>
-                  <div className="w-full bg-[var(--bg-subtle)] h-1 rounded-full overflow-hidden mt-1">
-                    <div
-                      className={`h-full transition-all duration-300 ${
-                        isHighest ? "bg-[var(--status-warning)]" : "bg-[var(--content-tertiary)]/40"
-                      }`}
-                      style={{ width: `${Math.min(100, prob * 100)}%` }}
-                    />
-                  </div>
-                </div>
-                <span className="font-mono text-[11px] text-[var(--content-primary)] font-semibold shrink-0">
-                  {(prob * 100).toFixed(1)}%
-                </span>
-              </div>
-            );
-          })}
+                );
+              })}
+            </div>
+          )}
         </div>
       </div>
 
-      {/* Panel Footer */}
-      <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
+      {/* Symmetrical Panel Footer */}
+      <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--content-tertiary)] font-mono">
         <span>Deterministic Rule + Bayesian Categorical Posterior</span>
-        <span>Threshold τ = 0.60</span>
+        <span>Decision: {gateCleared ? "Intervene" : "Hold"}</span>
       </div>
     </div>
   );
