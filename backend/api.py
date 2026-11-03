@@ -293,6 +293,20 @@ app.add_middleware(
 # REST Endpoints
 # ----------------------------------------------------------------------
 
+@app.get("/")
+def get_root():
+    """Root landing info endpoint."""
+    return {
+        "service": "Adaptive Self-Healing Quantum ML Gateway",
+        "status": "online",
+        "version": "1.0.0",
+        "framework": "PennyLane 0.45.1",
+        "documentation": "/docs",
+        "health": "/health",
+        "frontend": "https://adaptive-self-healing-framework-for.vercel.app/"
+    }
+
+
 @app.get("/health", response_model=HealthResponse)
 @app.get("/api/health", response_model=HealthResponse)
 def get_health():
