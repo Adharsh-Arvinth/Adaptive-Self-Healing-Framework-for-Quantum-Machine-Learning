@@ -59,9 +59,16 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navLinks = [
     { label: "Home", href: "#hero" },
-    { label: "The Framework", href: "#the-framework" },
-    { label: "Technology", href: "#technology" },
-    { label: "Research Evidence", href: "#research" },
+    { label: "The Challenge", href: "#the-challenge" },
+    { label: "Failure Modes", href: "#the-problem" },
+    { label: "The Concept", href: "#self-healing-concept" },
+    { label: "Lifecycle", href: "#the-framework" },
+    { label: "6 Repair Arms", href: "#repair-mechanisms" },
+    { label: "12D Bandit", href: "#contextual-intelligence" },
+    { label: "Digital Twin", href: "#digital-twin" },
+    { label: "Safety", href: "#safety-recovery" },
+    { label: "Evidence", href: "#research" },
+    { label: "Limitations", href: "#limitations" },
   ];
 
   return (
@@ -88,7 +95,7 @@ export const Header: React.FC<HeaderProps> = ({
         </div>
 
         {/* Center Navigation Links (Editorial Display) */}
-        <nav className="hidden lg:flex items-center gap-6 font-mono text-xs">
+        <nav className="hidden xl:flex items-center gap-4 font-mono text-xs">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -131,10 +138,10 @@ export const Header: React.FC<HeaderProps> = ({
               {isConnected && (
                 <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
               )}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+              <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`}></span>
             </span>
             <span className="text-[var(--content-secondary)]">
-              {isConnected ? "LIVE STREAM" : "OFFLINE"}
+              {isConnected ? "WSS TELEMETRY ONLINE" : "BACKEND STANDBY"}
             </span>
           </div>
 
@@ -163,7 +170,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Mobile Hamburger Menu Toggle */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="lg:hidden p-2 rounded-xl border border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+            className="xl:hidden p-2 rounded-xl border border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             aria-label="Toggle Menu"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -173,7 +180,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Drawer Menu */}
       {mobileMenuOpen && (
-        <div className="lg:hidden p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] font-mono text-xs space-y-3 animate-slide-down">
+        <div className="xl:hidden p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] font-mono text-xs space-y-2.5 animate-slide-down max-h-[80vh] overflow-y-auto">
           {navLinks.map((link) => (
             <a
               key={link.label}
@@ -182,27 +189,29 @@ export const Header: React.FC<HeaderProps> = ({
                 setMobileMenuOpen(false);
                 if (activeView === "dashboard") onToggleView("landing");
               }}
-              className="block py-2 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             >
               {link.label}
             </a>
           ))}
-          <a
-            href="https://qml-backend-nczx.onrender.com/docs"
-            target="_blank"
-            rel="noreferrer"
-            className="block py-2 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-          >
-            FastAPI Interactive Docs ↗
-          </a>
-          <a
-            href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
-            target="_blank"
-            rel="noreferrer"
-            className="block py-2 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-          >
-            GitHub Repository ↗
-          </a>
+          <div className="pt-2 border-t border-[var(--border-subtle)] space-y-2">
+            <a
+              href="https://qml-backend-nczx.onrender.com/docs"
+              target="_blank"
+              rel="noreferrer"
+              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+            >
+              FastAPI Interactive Docs ↗
+            </a>
+            <a
+              href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
+              target="_blank"
+              rel="noreferrer"
+              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+            >
+              GitHub Repository ↗
+            </a>
+          </div>
         </div>
       )}
     </header>

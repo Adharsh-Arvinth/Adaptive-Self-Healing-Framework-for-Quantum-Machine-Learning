@@ -3,10 +3,17 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
+import { ChallengeSection } from "@/components/ChallengeSection";
 import { ProblemSection } from "@/components/ProblemSection";
+import { SelfHealingConceptSection } from "@/components/SelfHealingConceptSection";
 import { FrameworkSection } from "@/components/FrameworkSection";
-import { TechnologySection } from "@/components/TechnologySection";
+import { RepairMechanismsSection } from "@/components/RepairMechanismsSection";
+import { ContextualIntelligenceSection } from "@/components/ContextualIntelligenceSection";
+import { DigitalTwinSection } from "@/components/DigitalTwinSection";
+import { SafetyAndRecoverySection } from "@/components/SafetyAndRecoverySection";
 import { ResearchEvidenceSection } from "@/components/ResearchEvidenceSection";
+import { LimitationsSection } from "@/components/LimitationsSection";
+import { FinalCtaSection } from "@/components/FinalCtaSection";
 import { DashboardView } from "@/components/DashboardView";
 import { Footer } from "@/components/Footer";
 import { ToastContainer } from "@/components/Toast";
@@ -639,35 +646,72 @@ export default function Page() {
               pipelineState={pipelineState}
               stepCount={stepCount}
               onExploreClick={() => {
-                const el = document.getElementById("the-framework");
+                const el = document.getElementById("the-challenge");
                 if (el) el.scrollIntoView({ behavior: "smooth" });
               }}
               onLaunchLabClick={() => setActiveView("dashboard")}
             />
           </div>
 
-          {/* Section 2: The Problem */}
+          {/* Section 2: The Challenge */}
+          <div id="the-challenge">
+            <ChallengeSection />
+          </div>
+
+          {/* Section 3: Why Quantum Models Fail */}
           <div id="the-problem">
             <ProblemSection />
           </div>
 
-          {/* Section 3: The Framework */}
+          {/* Section 4: The Self-Healing Concept */}
+          <div id="self-healing-concept">
+            <SelfHealingConceptSection />
+          </div>
+
+          {/* Section 5: The Recovery Lifecycle (MAPE-K) */}
           <div id="the-framework">
             <FrameworkSection />
           </div>
 
-          {/* Section 4: Technology */}
-          <div id="technology">
-            <TechnologySection />
+          {/* Section 6: The Six Repair Mechanisms */}
+          <div id="repair-mechanisms">
+            <RepairMechanismsSection />
           </div>
 
-          {/* Section 5: Research Evidence */}
+          {/* Section 7: Contextual Intelligence (12D Context) */}
+          <div id="contextual-intelligence">
+            <ContextualIntelligenceSection />
+          </div>
+
+          {/* Section 8: Digital Twin Lookahead */}
+          <div id="digital-twin">
+            <DigitalTwinSection />
+          </div>
+
+          {/* Section 9: Safety and Recovery */}
+          <div id="safety-recovery">
+            <SafetyAndRecoverySection />
+          </div>
+
+          {/* Section 10: Experimental Evidence */}
           <div id="research">
             <ResearchEvidenceSection />
           </div>
 
-          {/* Editorial Footer */}
-          <Footer />
+          {/* Section 11: Limitations & Threats to Validity */}
+          <div id="limitations">
+            <LimitationsSection />
+          </div>
+
+          {/* Section 12: Final Call to Action */}
+          <div id="cockpit-cta">
+            <FinalCtaSection onLaunchLabClick={() => setActiveView("dashboard")} />
+          </div>
+
+          {/* Section 13: Editorial Brand Footer */}
+          <div id="footer">
+            <Footer />
+          </div>
         </main>
       ) : (
         <main className="flex-1 w-full animate-fade-in py-6">

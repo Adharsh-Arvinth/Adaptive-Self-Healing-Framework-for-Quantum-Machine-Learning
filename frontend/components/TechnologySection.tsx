@@ -15,7 +15,7 @@ const TECHNOLOGIES: TechCard[] = [
   {
     title: "Variational Quantum Circuits",
     category: "Quantum Hardware Model",
-    description: "Parameterized unitary transformations U(θ) evaluating energy expectation values on PennyLane's high-performance statevector simulator with analytical parameter-shift gradient computation.",
+    description: "Parameterized unitary transformations U(θ) evaluating energy expectation values on PennyLane&apos;s high-performance statevector simulator with analytical parameter-shift gradient computation.",
     specs: ["PennyLane 0.45.1 Engine", "Basic Entangling Layers", "Angle & IQP Feature Maps"],
     icon: Cpu,
   },

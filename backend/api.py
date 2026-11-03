@@ -19,7 +19,8 @@ import time
 from typing import Any, Dict, List, Optional, Set
 import numpy as np
 
-from fastapi import FastAPI, HTTPException, WebSocket, WebSocketDisconnect
+from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
@@ -300,8 +301,188 @@ app.add_middleware(
 # ----------------------------------------------------------------------
 
 @app.get("/")
-def get_root():
-    """Root landing info endpoint."""
+@app.get("/api")
+@app.get("/api/")
+def get_root(request: Request):
+    """Root landing info endpoint, supporting both JSON API and interactive HTML gateway."""
+    accept = request.headers.get("accept", "")
+    if "text/html" in accept and "application/json" not in accept:
+        html_content = """<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Adaptive Self-Healing Quantum ML Gateway</title>
+  <style>
+    :root {
+      --bg: #0C0D0E;
+      --surface: #141618;
+      --border: #22262A;
+      --text-pri: #F5F4F0;
+      --text-sec: #8E9296;
+      --accent: #D97736;
+      --emerald: #34D399;
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background-color: var(--bg);
+      color: var(--text-pri);
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", sans-serif;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 24px;
+      line-height: 1.5;
+    }
+    .card {
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: 40px;
+      max-width: 680px;
+      width: 100%;
+      box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+    }
+    .badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 4px 12px;
+      border-radius: 999px;
+      background: rgba(52, 211, 153, 0.1);
+      border: 1px solid rgba(52, 211, 153, 0.3);
+      color: var(--emerald);
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 11px;
+      font-weight: 600;
+      letter-spacing: 0.05em;
+      margin-bottom: 20px;
+    }
+    .dot {
+      width: 7px;
+      height: 7px;
+      background: var(--emerald);
+      border-radius: 50%;
+      box-shadow: 0 0 8px var(--emerald);
+    }
+    h1 {
+      font-size: 24px;
+      font-weight: 700;
+      letter-spacing: -0.02em;
+      margin-bottom: 8px;
+      line-height: 1.25;
+    }
+    p.desc {
+      color: var(--text-sec);
+      font-size: 14px;
+      margin-bottom: 28px;
+    }
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+      gap: 12px;
+      margin-bottom: 28px;
+    }
+    .btn {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 14px 18px;
+      border-radius: 12px;
+      background: #1A1D20;
+      border: 1px solid var(--border);
+      color: var(--text-pri);
+      text-decoration: none;
+      font-size: 13px;
+      font-weight: 500;
+      transition: all 0.15s ease;
+    }
+    .btn:hover {
+      background: #22262B;
+      border-color: #353B42;
+      transform: translateY(-1px);
+    }
+    .btn.primary {
+      background: var(--accent);
+      border-color: var(--accent);
+      color: #FFFFFF;
+      font-weight: 600;
+      grid-column: 1 / -1;
+    }
+    .btn.primary:hover {
+      background: #E58744;
+      border-color: #E58744;
+    }
+    .code-box {
+      background: #090A0B;
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 14px 16px;
+      font-family: ui-monospace, SFMono-Regular, Menlo, monospace;
+      font-size: 12px;
+      color: #9CA3AF;
+      overflow-x: auto;
+    }
+    .code-box span.hi { color: var(--emerald); }
+    footer {
+      margin-top: 24px;
+      font-size: 11px;
+      color: var(--text-sec);
+      text-align: center;
+      font-family: ui-monospace, monospace;
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div class="badge">
+      <div class="dot"></div>
+      GATEWAY ONLINE &bull; PENNYLANE 0.45.1
+    </div>
+    <h1>Adaptive Self-Healing Quantum ML Gateway</h1>
+    <p class="desc">
+      High-frequency telemetry server and autonomous closed-loop MAPE-K orchestration engine for Variational Quantum Classifiers.
+    </p>
+
+    <div class="grid">
+      <a href="https://adaptive-self-healing-framework-for.vercel.app/" class="btn primary">
+        <span>Launch Web Research Platform</span>
+        <span>&rarr;</span>
+      </a>
+      <a href="/docs" class="btn">
+        <span>Interactive API Documentation</span>
+        <span style="color:var(--text-sec);">&nearr;</span>
+      </a>
+      <a href="/api/health" class="btn">
+        <span>System Diagnostics (/health)</span>
+        <span style="color:var(--text-sec);">&nearr;</span>
+      </a>
+      <a href="/api/experiment/status" class="btn">
+        <span>Live Experiment Status</span>
+        <span style="color:var(--text-sec);">&nearr;</span>
+      </a>
+      <a href="/api/benchmarks/summary" class="btn">
+        <span>Stage 8 Empirical Benchmarks</span>
+        <span style="color:var(--text-sec);">&nearr;</span>
+      </a>
+    </div>
+
+    <div class="code-box">
+      <span class="hi"># Real-time WebSocket Telemetry:</span><br>
+      wss://qml-backend-nczx.onrender.com/ws/telemetry<br><br>
+      <span class="hi"># Check Status via curl:</span><br>
+      curl https://qml-backend-nczx.onrender.com/api/experiment/status
+    </div>
+  </div>
+  <footer>
+    Autonomous Self-Healing VQC Platform &bull; Open Source Under MIT License
+  </footer>
+</body>
+</html>"""
+        return HTMLResponse(content=html_content)
+
     return {
         "service": "Adaptive Self-Healing Quantum ML Gateway",
         "status": "online",
@@ -648,10 +829,22 @@ def get_benchmarks_summary():
         try:
             with open(per_class_path, "r", encoding="utf-8") as f:
                 d = json.load(f)
-                out["per_class"] = d.get("per_class_recovery_rates", {})
+                out["per_class"] = d.get("classification_report", d.get("per_class_recovery_rates", {}))
         except Exception:
             pass
-    return out
+
+    def _sanitize_nan(val: Any) -> Any:
+        if isinstance(val, float):
+            if np.isnan(val) or np.isinf(val):
+                return None
+            return val
+        elif isinstance(val, dict):
+            return {k: _sanitize_nan(v) for k, v in val.items()}
+        elif isinstance(val, list):
+            return [_sanitize_nan(v) for v in val]
+        return val
+
+    return _sanitize_nan(out)
 
 
 # ----------------------------------------------------------------------

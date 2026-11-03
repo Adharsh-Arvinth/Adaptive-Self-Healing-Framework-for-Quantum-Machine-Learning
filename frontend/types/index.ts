@@ -119,69 +119,52 @@ export interface BenchmarkSummaryData {
     condition_negatives?: number;
     fpr_upper_bound_clopper_pearson?: number;
     fdr_upper_bound_clopper_pearson?: number;
+    production?: {
+      temperature?: number;
+      threshold?: number;
+      sample_size?: number;
+      multiclass_brier?: number;
+      binary_brier?: number;
+      ece?: number;
+      tpr?: number;
+      fpr?: number;
+      precision?: number;
+      abstention_rate?: number;
+      [key: string]: any;
+    };
+    calibrated?: {
+      temperature?: number;
+      threshold?: number;
+      sample_size?: number;
+      multiclass_brier?: number;
+      binary_brier?: number;
+      ece?: number;
+      tpr?: number;
+      fpr?: number;
+      precision?: number;
+      abstention_rate?: number;
+      [key: string]: any;
+    };
+    [key: string]: any;
   };
   policy_regret?: {
-    thompson_sampling?: {
-      mean_reward?: number;
-      std_reward?: number;
-      mean_regret?: number;
-      recovery_rate?: number;
-      rollback_rate?: number;
-    };
-    greedy?: {
-      mean_reward?: number;
-      std_reward?: number;
-      mean_regret?: number;
-      recovery_rate?: number;
-      rollback_rate?: number;
-    };
-    fixed_heuristic?: {
-      mean_reward?: number;
-      std_reward?: number;
-      mean_regret?: number;
-      recovery_rate?: number;
-      rollback_rate?: number;
-    };
-    random_selection?: {
-      mean_reward?: number;
-      std_reward?: number;
-      mean_regret?: number;
-      recovery_rate?: number;
-      rollback_rate?: number;
-    };
+    thompson_sampling?: any;
+    greedy?: any;
+    heuristic?: any;
+    fixed_heuristic?: any;
+    random?: any;
+    random_selection?: any;
+    [key: string]: any;
   };
   ablation?: {
-    full_framework?: {
-      recovery_rate?: number;
-      rollback_rate?: number;
-      mean_eval_cost?: number;
-    };
-    no_safety_filter?: {
-      recovery_rate?: number;
-      rollback_rate?: number;
-      mean_eval_cost?: number;
-    };
-    no_digital_twin?: {
-      recovery_rate?: number;
-      rollback_rate?: number;
-      mean_eval_cost?: number;
-    };
-    no_episodic_memory?: {
-      recovery_rate?: number;
-      rollback_rate?: number;
-      mean_eval_cost?: number;
-    };
-    no_confidence_gate?: {
-      recovery_rate?: number;
-      rollback_rate?: number;
-      mean_eval_cost?: number;
-    };
+    full_framework?: any;
+    no_safety_filter?: any;
+    no_digital_twin?: any;
+    no_episodic_memory?: any;
+    [key: string]: any;
   };
-  per_class?: Record<string, {
-    recovery_rate?: number;
-    precision?: string | number;
-    recall?: number;
-  }>;
+  per_class?: Record<string, any>;
+  [key: string]: any;
 }
 
 export interface ToastMessage {
