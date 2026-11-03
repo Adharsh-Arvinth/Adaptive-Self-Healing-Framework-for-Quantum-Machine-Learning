@@ -252,6 +252,9 @@ Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning/
 
 > 💡 **New to Python, Next.js, or VS Code on Windows?**  
 > Check out the complete, beginner-friendly walkthrough in [docs/BEGINNER_GUIDE.md](docs/BEGINNER_GUIDE.md).
+>
+> 🌐 **Deploy Online as a Live Web App:**  
+> Want to host this application online on the cloud? See our full [docs/DEPLOYMENT_GUIDE.md](docs/DEPLOYMENT_GUIDE.md) for 1-click deployments on **Render + Vercel**, **Railway**, or **Docker Compose** (`docker compose up -d`).
 
 ### Day 1: Initial Setup
 

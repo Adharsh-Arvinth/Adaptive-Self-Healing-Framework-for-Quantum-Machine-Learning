@@ -1,0 +1,39 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.pytest_cache/
+*.db
+*.sqlite3
+
+# Node
+node_modules/
+.next/
+
+# IDE
+.vscode/
+.idea/
+*.swp
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment
+.env
+.env.local
+.env.*.local
+
+# Documents (not needed for deployment)
+*.pptx
+*.docx
+*.pdf
+
+# Agents config
+.agents/
+
+# Git
+.git/
+.gitignore

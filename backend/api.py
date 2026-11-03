@@ -24,7 +24,11 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field
 
 # Ensure root directory is on PYTHONPATH
-sys.path.insert(0, os.path.abspath(os.path.join(os.path.dirname(__file__), "..")))
+PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
+sys.path.insert(0, PROJECT_ROOT)
+
+# Ensure data directory exists for SQLite and bandit storage
+os.makedirs(os.path.join(PROJECT_ROOT, "data"), exist_ok=True)
 
 from backend.qml_model import CircuitConfig, FailureType, VQCModel, load_dataset
 from backend.repair_library import CandidateRepair, RepairArm
@@ -109,8 +113,8 @@ class GlobalStateManager:
         self.pipeline = SelfHealingPipeline(
             model=self.model,
             experiment_id=f"exp_{req.dataset}_{int(time.time())}",
-            memory_db_path="data/api_failure_memory.db",
-            bandit_storage_path="data/api_bandit_posteriors.json",
+            memory_db_path=os.path.join(PROJECT_ROOT, "data", "api_failure_memory.db"),
+            bandit_storage_path=os.path.join(PROJECT_ROOT, "data", "api_bandit_posteriors.json"),
             confidence_threshold=0.60,
             validation_window=3,
             seed=req.seed,
@@ -593,10 +597,10 @@ def get_memory_episodes():
 @app.get("/api/benchmarks/summary")
 def get_benchmarks_summary():
     """Return verified frozen Stage 8 empirical evaluation summary data."""
-    calib_path = "benchmark_results/calibration_n300_results.json"
-    policy_path = "benchmark_results/policy_regret_benchmark.json"
-    ablation_path = "benchmark_results/ablation_study_results.json"
-    per_class_path = "benchmark_results/per_class_performance.json"
+    calib_path = os.path.join(PROJECT_ROOT, "benchmark_results", "calibration_n300_results.json")
+    policy_path = os.path.join(PROJECT_ROOT, "benchmark_results", "policy_regret_benchmark.json")
+    ablation_path = os.path.join(PROJECT_ROOT, "benchmark_results", "ablation_study_results.json")
+    per_class_path = os.path.join(PROJECT_ROOT, "benchmark_results", "per_class_performance.json")
     
     out: Dict[str, Any] = {}
     if os.path.exists(calib_path):

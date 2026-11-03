@@ -30,7 +30,11 @@ import {
 } from "@/types";
 
 const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
-const WS_URL = process.env.NEXT_PUBLIC_WS_URL || "ws://127.0.0.1:8000/ws/telemetry";
+const WS_URL =
+  process.env.NEXT_PUBLIC_WS_URL ||
+  (API_BASE.startsWith("https://")
+    ? API_BASE.replace(/^https:\/\//, "wss://") + "/ws/telemetry"
+    : API_BASE.replace(/^http:\/\//, "ws://") + "/ws/telemetry");
 
 export default function DashboardPage() {
   // Navigation & Theme
