@@ -18,33 +18,33 @@ export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
         const getIcon = () => {
           switch (toast.type) {
             case "success":
-              return <CheckCircle2 className="w-4 h-4 text-emerald-500 shrink-0" />;
+              return <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />;
             case "warning":
-              return <AlertTriangle className="w-4 h-4 text-amber-500 shrink-0" />;
+              return <AlertTriangle className="w-4 h-4 text-[var(--status-warning)] shrink-0" />;
             case "error":
-              return <AlertCircle className="w-4 h-4 text-rose-500 shrink-0" />;
+              return <AlertCircle className="w-4 h-4 text-[var(--status-danger)] shrink-0" />;
             default:
-              return <Info className="w-4 h-4 text-blue-500 shrink-0" />;
+              return <Info className="w-4 h-4 text-[var(--status-info)] shrink-0" />;
           }
         };
 
         const getBorderColor = () => {
           switch (toast.type) {
             case "success":
-              return "border-emerald-500/20";
+              return "border-[var(--status-success)]/20";
             case "warning":
-              return "border-amber-500/30";
+              return "border-[var(--status-warning)]/30";
             case "error":
-              return "border-rose-500/30";
+              return "border-[var(--status-danger)]/30";
             default:
-              return "border-blue-500/20";
+              return "border-[var(--status-info)]/20";
           }
         };
 
         return (
           <div
             key={toast.id}
-            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl backdrop-blur-2xl bg-[var(--bg-surface)]/90 dark:bg-[#181a24]/90 border ${getBorderColor()} shadow-2xl animate-slide-down transition-all`}
+            className={`pointer-events-auto flex items-start gap-3 p-4 rounded-2xl backdrop-blur-2xl bg-[var(--bg-surface)]/90 dark:bg-[var(--bg-surface)]/95 border ${getBorderColor()} shadow-2xl animate-slide-down transition-all`}
           >
             <div className="mt-0.5">{getIcon()}</div>
             <div className="flex-1 min-w-0">

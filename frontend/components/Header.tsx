@@ -55,23 +55,23 @@ export const Header: React.FC<HeaderProps> = ({
   const getStateBadgeStyle = () => {
     switch (pipelineState) {
       case "HEALTHY_TRAINING":
-        return "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 border-emerald-500/20";
+        return "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/20";
       case "ANOMALY_DETECTED":
       case "DIAGNOSING":
-        return "bg-amber-500/10 text-amber-600 dark:text-amber-400 border-amber-500/20";
+        return "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-[var(--status-warning)]/20";
       case "CONFIDENCE_GATE_HOLD":
-        return "bg-purple-500/10 text-purple-600 dark:text-purple-400 border-purple-500/20";
+        return "bg-[var(--status-ansatz-subtle)] text-[var(--status-ansatz)] border-[var(--status-ansatz)]/20";
       case "REPAIR_SELECTION":
       case "DIGITAL_TWIN_SIMULATING":
       case "DEPLOYING":
       case "VALIDATING_REPAIR":
-        return "bg-blue-500/10 text-blue-600 dark:text-blue-400 border-blue-500/20";
+        return "bg-[var(--accent-subtle)] text-[var(--accent)] border-[var(--accent)]/20";
       case "COMMITTED":
-        return "bg-emerald-500/15 text-emerald-700 dark:text-emerald-300 border-emerald-500/30 font-semibold";
+        return "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold";
       case "ROLLED_BACK":
-        return "bg-rose-500/10 text-rose-600 dark:text-rose-400 border-rose-500/20";
+        return "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border-[var(--status-danger)]/20";
       default:
-        return "bg-neutral-500/10 text-[var(--content-secondary)] border-[var(--border-subtle)]";
+        return "bg-[var(--bg-subtle)] text-[var(--content-secondary)] border-[var(--border-subtle)]";
     }
   };
 
@@ -85,13 +85,13 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[var(--bg-surface)]/85 dark:bg-[#0c0e14]/85 border-b border-[var(--border-subtle)] transition-all">
+    <header className="sticky top-0 z-40 backdrop-blur-2xl bg-[var(--bg-surface)]/85 dark:bg-[var(--bg-surface)]/85 border-b border-[var(--border-subtle)] transition-all">
       <div className="max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-3">
         {/* Tier 1: Brand, Status Indicators, and Primary Action Controls */}
         <div className="flex flex-col md:flex-row md:items-center justify-between gap-3">
           {/* Brand Identity */}
           <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-blue-600 via-indigo-600 to-purple-600 flex items-center justify-center shadow-md shadow-indigo-500/20 shrink-0">
+            <div className="w-9 h-9 rounded-2xl bg-gradient-to-tr from-[#8B4C2F] via-[#A65E3E] to-[#6E432A] flex items-center justify-center shadow-md shadow-[#A65E3E]/20 shrink-0">
               <span className="font-mono font-bold text-white text-xs tracking-tight">QML</span>
             </div>
             <div>
@@ -115,9 +115,9 @@ export const Header: React.FC<HeaderProps> = ({
             <div className="flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs font-mono">
               <span className="relative flex h-2 w-2">
                 {isConnected && (
-                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-[var(--status-success)] opacity-75"></span>
                 )}
-                <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? "bg-emerald-500" : "bg-rose-500"}`}></span>
+                <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? "bg-[var(--status-success)]" : "bg-[var(--status-danger)]"}`}></span>
               </span>
               <span className="text-[var(--content-secondary)] text-[11px] font-medium">
                 {isConnected ? "Live Stream" : "Disconnected"}
@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
               {isRunning ? (
                 <button
                   onClick={onPause}
-                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-amber-500/10 text-amber-600 dark:text-amber-400 hover:bg-amber-500/20 transition-all active:scale-95"
+                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--status-warning-subtle)] text-[var(--status-warning)] hover:opacity-90 transition-all active:scale-95"
                 >
                   <Pause className="w-3.5 h-3.5" />
                   <span>Pause</span>
@@ -157,7 +157,7 @@ export const Header: React.FC<HeaderProps> = ({
               ) : stepCount > 0 ? (
                 <button
                   onClick={onResume}
-                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-all active:scale-95"
+                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-sm transition-all active:scale-95"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Resume</span>
@@ -165,7 +165,7 @@ export const Header: React.FC<HeaderProps> = ({
               ) : (
                 <button
                   onClick={onStart}
-                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-blue-600 hover:bg-blue-500 text-white shadow-sm transition-all active:scale-95"
+                  className="apple-btn flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-medium bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shadow-sm transition-all active:scale-95"
                 >
                   <Play className="w-3.5 h-3.5 fill-current" />
                   <span>Start</span>
@@ -184,7 +184,7 @@ export const Header: React.FC<HeaderProps> = ({
 
               <button
                 onClick={onResetPrompt}
-                className="apple-btn p-1.5 rounded-lg text-[var(--content-tertiary)] hover:text-rose-500 hover:bg-rose-500/10 transition-all active:scale-95"
+                className="apple-btn p-1.5 rounded-lg text-[var(--content-tertiary)] hover:text-[var(--status-danger)] hover:bg-[var(--status-danger-subtle)] transition-all active:scale-95"
                 title="Reset experiment and parameters"
               >
                 <RotateCcw className="w-3.5 h-3.5" />

@@ -53,7 +53,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
       <div>
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 flex items-center justify-center text-amber-500 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[var(--status-warning-subtle)] flex items-center justify-center text-[var(--status-warning)] shrink-0">
               <ShieldAlert className="w-4 h-4" />
             </div>
             <div>
@@ -69,8 +69,8 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
           <div
             className={`px-3 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 shrink-0 ${
               gateCleared
-                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold"
-                : "bg-amber-500/10 text-amber-400 border-amber-500/30"
+                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold"
+                : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-[var(--status-warning)]/30"
             }`}
           >
             {gateCleared ? (
@@ -91,7 +91,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
             activeAnomalies.map((anom) => (
               <span
                 key={anom}
-                className="px-2.5 py-0.5 rounded-full bg-rose-500/15 text-rose-400 border border-rose-500/30 text-[11px] font-mono flex items-center gap-1"
+                className="px-2.5 py-0.5 rounded-full bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-[var(--status-danger)]/30 text-[11px] font-mono flex items-center gap-1"
               >
                 <Activity className="w-3 h-3" />
                 FAULT: {CATEGORY_LABELS[anom]?.name || anom}
@@ -99,7 +99,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
             ))
           ) : (
             <span className="text-xs text-[var(--content-secondary)] flex items-center gap-1.5 font-mono">
-              <Sparkles className="w-3.5 h-3.5 text-emerald-400" /> Nominal state — zero active anomalies
+              <Sparkles className="w-3.5 h-3.5 text-[var(--status-success)]" /> Nominal state — zero active anomalies
             </span>
           )}
         </div>
@@ -108,7 +108,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
         <div className="mb-4 p-3.5 rounded-xl glass-panel-subtle border border-[var(--border-subtle)]">
           <div className="flex justify-between items-center text-xs font-mono mb-2">
             <span className="text-[var(--content-secondary)]">Primary Cause Confidence</span>
-            <span className={`font-semibold ${confidence >= 0.6 ? "text-emerald-400" : "text-[var(--content-primary)]"}`}>
+            <span className={`font-semibold ${confidence >= 0.6 ? "text-[var(--status-success)]" : "text-[var(--content-primary)]"}`}>
               {(confidence * 100).toFixed(1)}%
             </span>
           </div>
@@ -117,13 +117,13 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
           <div className="relative w-full h-2 rounded-full bg-[var(--bg-subtle)] overflow-hidden">
             <div
               className={`h-full transition-all duration-300 rounded-full ${
-                confidence >= 0.6 ? "bg-emerald-500" : "bg-amber-500"
+                confidence >= 0.6 ? "bg-[var(--status-success)]" : "bg-[var(--status-warning)]"
               }`}
               style={{ width: `${Math.min(100, confidence * 100)}%` }}
             />
             {/* Notch at tau = 0.60 */}
             <div
-              className="absolute top-0 bottom-0 w-0.5 bg-rose-500 z-10"
+              className="absolute top-0 bottom-0 w-0.5 bg-[var(--accent)] z-10"
               style={{ left: "60%" }}
               title="Production Gate Threshold tau = 0.60"
             />
@@ -131,7 +131,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
 
           <div className="flex justify-between text-[10px] font-mono text-[var(--content-tertiary)] mt-1.5">
             <span>0.00</span>
-            <span className="text-rose-400 font-medium">Production Gate τ = 0.60</span>
+            <span className="text-[var(--accent)] font-medium">Production Gate τ = 0.60</span>
             <span>1.00</span>
           </div>
         </div>
@@ -146,7 +146,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
               <div
                 key={key}
                 className={`p-2 rounded-lg flex items-center justify-between text-xs transition-colors ${
-                  isHighest ? "bg-amber-500/10 border border-amber-500/30" : "hover:bg-[var(--bg-subtle)]"
+                  isHighest ? "bg-[var(--status-warning-subtle)] border border-[var(--status-warning)]/30" : "hover:bg-[var(--bg-subtle)]"
                 }`}
               >
                 <div className="flex-1 pr-3">
@@ -157,7 +157,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
                   <div className="w-full bg-[var(--bg-subtle)] h-1 rounded-full overflow-hidden mt-1">
                     <div
                       className={`h-full transition-all duration-300 ${
-                        isHighest ? "bg-amber-400" : "bg-[var(--content-tertiary)]/40"
+                        isHighest ? "bg-[var(--status-warning)]" : "bg-[var(--content-tertiary)]/40"
                       }`}
                       style={{ width: `${Math.min(100, prob * 100)}%` }}
                     />

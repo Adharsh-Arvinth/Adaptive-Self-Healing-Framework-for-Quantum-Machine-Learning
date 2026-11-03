@@ -34,9 +34,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: Sliders,
     category: "Classical",
     colorScheme: {
-      bg: "bg-blue-500/10 dark:bg-blue-500/15",
-      text: "text-blue-600 dark:text-blue-400",
-      border: "border-blue-500/20",
+      bg: "bg-[var(--status-info-subtle)]",
+      text: "text-[var(--status-info)]",
+      border: "border-[var(--status-info)]/20",
     },
     subInfo: (opt) => `Current: ${opt.toUpperCase()}`,
   },
@@ -47,9 +47,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: Layers,
     category: "Ansatz",
     colorScheme: {
-      bg: "bg-indigo-500/10 dark:bg-indigo-500/15",
-      text: "text-indigo-600 dark:text-indigo-400",
-      border: "border-indigo-500/20",
+      bg: "bg-[var(--status-ansatz-subtle)]",
+      text: "text-[var(--status-ansatz)]",
+      border: "border-[var(--status-ansatz)]/20",
     },
     subInfo: (_, __, depth) => `Layers: L = ${depth}`,
   },
@@ -60,9 +60,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: GitBranch,
     category: "Embedding",
     colorScheme: {
-      bg: "bg-purple-500/10 dark:bg-purple-500/15",
-      text: "text-purple-600 dark:text-purple-400",
-      border: "border-purple-500/20",
+      bg: "bg-[var(--accent-subtle)]",
+      text: "text-[var(--accent)]",
+      border: "border-[var(--accent)]/20",
     },
     subInfo: (_, feat) => `Map: ${feat.toUpperCase()}`,
   },
@@ -73,9 +73,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: Zap,
     category: "Rate",
     colorScheme: {
-      bg: "bg-amber-500/10 dark:bg-amber-500/15",
-      text: "text-amber-600 dark:text-amber-400",
-      border: "border-amber-500/20",
+      bg: "bg-[var(--status-warning-subtle)]",
+      text: "text-[var(--status-warning)]",
+      border: "border-[var(--status-warning)]/20",
     },
     subInfo: () => "Scale: 0.5x or 1.5x",
   },
@@ -86,9 +86,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: Cpu,
     category: "Mitigation",
     colorScheme: {
-      bg: "bg-cyan-500/10 dark:bg-cyan-500/15",
-      text: "text-cyan-600 dark:text-cyan-400",
-      border: "border-cyan-500/20",
+      bg: "bg-[var(--status-purity-subtle)]",
+      text: "text-[var(--status-purity)]",
+      border: "border-[var(--status-purity)]/20",
     },
     subInfo: () => "Inverse Contraction",
   },
@@ -99,9 +99,9 @@ const LOCKED_ARMS: ArmSpec[] = [
     icon: RefreshCw,
     category: "Restart",
     colorScheme: {
-      bg: "bg-rose-500/10 dark:bg-rose-500/15",
-      text: "text-rose-600 dark:text-rose-400",
-      border: "border-rose-500/20",
+      bg: "bg-[var(--status-danger-subtle)]",
+      text: "text-[var(--status-danger)]",
+      border: "border-[var(--status-danger)]/20",
     },
     subInfo: () => "Perturbation (σ=0.05)",
   },
@@ -132,7 +132,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
       {/* Cockpit Symmetrical Header */}
       <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
             <Wrench className="w-4 h-4" />
           </div>
           <div>
@@ -146,7 +146,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
         </div>
 
         <div className="flex items-center gap-1.5 px-3 py-1 rounded-full glass-panel-subtle text-xs font-mono text-[var(--content-secondary)] self-start sm:self-auto">
-          <Shield className="w-3.5 h-3.5 text-emerald-500" />
+          <Shield className="w-3.5 h-3.5 text-[var(--status-success)]" />
           <span>Safety Filter Active (W_osc=4)</span>
         </div>
       </div>
@@ -180,15 +180,15 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
 
                   {/* Status Pill */}
                   {isSelected ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-purple-500/20 text-purple-400 border border-purple-500/30 shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono font-semibold bg-[var(--status-ansatz-subtle)] text-[var(--status-ansatz)] border border-[var(--status-ansatz)]/30 shrink-0">
                       ACTIVE
                     </span>
                   ) : isMinDepth ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-amber-500/15 text-amber-500 border border-amber-500/30 shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border border-[var(--status-warning)]/30 shrink-0">
                       MIN L=2
                     </span>
                   ) : isEligible ? (
-                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-emerald-500/15 text-emerald-500 border border-emerald-500/30 shrink-0">
+                    <span className="px-1.5 py-0.5 rounded-md text-[9px] font-mono bg-emerald-500/15 text-[var(--status-success)] border border-emerald-500/30 shrink-0">
                       ELIGIBLE
                     </span>
                   ) : (
@@ -224,10 +224,10 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                     disabled={isDeploying || isSelected || isMinDepth}
                     className={`apple-btn px-2.5 py-1 rounded-lg text-[10px] font-medium flex items-center gap-1 transition-all shadow-sm ${
                       isSelected
-                        ? "bg-purple-500/20 text-purple-300 cursor-default"
+                        ? "bg-[var(--status-ansatz-subtle)] text-[var(--status-ansatz)] cursor-default"
                         : isMinDepth
                         ? "opacity-40 cursor-not-allowed bg-[var(--bg-subtle)] text-[var(--content-tertiary)] border border-[var(--border-subtle)]"
-                        : "bg-blue-600 hover:bg-blue-500 text-white active:scale-95"
+                        : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white active:scale-95"
                     }`}
                     title={
                       isMinDepth

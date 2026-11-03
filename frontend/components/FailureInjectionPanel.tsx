@@ -14,42 +14,42 @@ const FAILURE_OPTIONS = [
     label: "LR Misconfig (50x)",
     desc: "Explodes learning rate causing oscillatory divergence",
     icon: Zap,
-    color: "text-amber-400 hover:border-amber-500/40",
+    color: "text-[var(--status-warning)] hover:border-[var(--status-warning)]/40",
   },
   {
     type: "barren_plateau",
     label: "Barren Plateau",
     desc: "Exponential gradient attenuation surrogate (< 1e-6)",
     icon: Compass,
-    color: "text-purple-400 hover:border-purple-500/40",
+    color: "text-[var(--status-ansatz)] hover:border-[var(--status-ansatz)]/40",
   },
   {
     type: "optimizer_instability",
     label: "Optimizer Instability",
     desc: "Inverts and corrupts classical momentum buffers",
     icon: Sliders,
-    color: "text-blue-400 hover:border-blue-500/40",
+    color: "text-[var(--status-info)] hover:border-[var(--status-info)]/40",
   },
   {
     type: "training_divergence",
     label: "Training Divergence",
     desc: "Injects non-finite parameter tensor triggering divergence",
     icon: Flame,
-    color: "text-rose-400 hover:border-rose-500/40",
+    color: "text-[var(--status-danger)] hover:border-[var(--status-danger)]/40",
   },
   {
     type: "persistent_plateau",
     label: "Persistent Plateau",
     desc: "Pins parameter trajectory to zero-curvature saddle",
     icon: ShieldX,
-    color: "text-indigo-400 hover:border-indigo-500/40",
+    color: "text-[var(--accent)] hover:border-[var(--accent)]/40",
   },
   {
     type: "noise_degradation",
     label: "Noise Degradation",
     desc: "Radial contraction decoherence & readout noise channel",
     icon: Radio,
-    color: "text-cyan-400 hover:border-cyan-500/40",
+    color: "text-[var(--status-purity)] hover:border-[var(--status-purity)]/40",
   },
 ];
 
@@ -75,7 +75,7 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
       <div>
         <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-rose-500/10 dark:bg-rose-500/20 flex items-center justify-center text-rose-500 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[var(--status-danger-subtle)] flex items-center justify-center text-[var(--status-danger)] shrink-0">
               <AlertCircle className="w-4 h-4" />
             </div>
             <div>
@@ -104,7 +104,7 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
                 onClick={() => setSeverity(s)}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-medium transition-all ${
                   severity === s
-                    ? "bg-rose-500/20 text-rose-400 border border-rose-500/40 shadow-sm"
+                    ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-[var(--status-danger)]/40 shadow-sm"
                     : "glass-panel-subtle text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                 }`}
               >
@@ -124,12 +124,12 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
                 key={f.type}
                 onClick={() => handleInject(f.type)}
                 className={`apple-btn p-3.5 rounded-xl border text-left flex flex-col justify-between h-[115px] transition-all duration-150 glass-panel-subtle hover:border-[var(--border-highlight)] ${
-                  isTarget ? "ring-2 ring-rose-500 scale-[0.98] border-rose-500" : ""
+                  isTarget ? "ring-2 ring-[var(--status-danger)] scale-[0.98] border-[var(--status-danger)]" : ""
                 }`}
               >
                 <div>
                   <div className="flex items-center gap-1.5 mb-1.5">
-                    <Icon className="w-3.5 h-3.5 text-rose-400 shrink-0" />
+                    <Icon className="w-3.5 h-3.5 text-[var(--status-danger)] shrink-0" />
                     <span className="text-xs font-semibold text-[var(--content-primary)] leading-tight truncate">
                       {f.label}
                     </span>
@@ -139,10 +139,10 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
                   </p>
                 </div>
                 <div className="pt-2 border-t border-[var(--border-subtle)] text-[10px] font-mono font-medium text-[var(--content-secondary)] flex items-center justify-between">
-                  <span className={isTarget ? "text-rose-400 font-semibold" : ""}>
+                  <span className={isTarget ? "text-[var(--status-danger)] font-semibold" : ""}>
                     {isTarget ? "Injected!" : "Inject"}
                   </span>
-                  {isTarget && <Check className="w-3 h-3 text-rose-400" />}
+                  {isTarget && <Check className="w-3 h-3 text-[var(--status-danger)]" />}
                 </div>
               </button>
             );

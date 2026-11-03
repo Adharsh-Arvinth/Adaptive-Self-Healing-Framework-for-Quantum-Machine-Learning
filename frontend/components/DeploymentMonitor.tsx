@@ -65,7 +65,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
       <div>
         <div className="flex items-center justify-between mb-4 pb-3 border-b border-[var(--border-subtle)]">
           <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-emerald-500/10 dark:bg-emerald-500/20 flex items-center justify-center text-emerald-500 shrink-0">
+            <div className="w-8 h-8 rounded-xl bg-[var(--status-success-subtle)] flex items-center justify-center text-[var(--status-success)] shrink-0">
               <ShieldCheck className="w-4 h-4" />
             </div>
             <div>
@@ -81,27 +81,27 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           <div
             className={`px-3 py-1 rounded-full text-xs font-mono border flex items-center gap-1.5 shrink-0 ${
               isCommitted
-                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30 font-semibold"
+                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold"
                 : isRolledBack
-                ? "bg-rose-500/15 text-rose-400 border-rose-500/40 font-semibold"
+                ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border-[var(--status-danger)]/30 font-semibold"
                 : isValidating
-                ? "bg-blue-500/15 text-blue-400 border-blue-500/30 font-semibold"
+                ? "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-[var(--status-warning)]/30 font-semibold"
                 : "bg-neutral-500/10 text-[var(--content-secondary)] border-[var(--border-subtle)]"
             }`}
           >
             {isCommitted ? (
               <>
-                <CheckCircle2 className="w-3.5 h-3.5 text-emerald-400" />
+                <CheckCircle2 className="w-3.5 h-3.5 text-[var(--status-success)]" />
                 <span>COMMITTED</span>
               </>
             ) : isRolledBack ? (
               <>
-                <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                <RotateCcw className="w-3.5 h-3.5 text-[var(--status-danger)]" />
                 <span>ROLLED BACK</span>
               </>
             ) : isValidating ? (
               <>
-                <span className="w-2 h-2 rounded-full bg-blue-400 animate-pulse" />
+                <span className="w-2 h-2 rounded-full bg-[var(--status-warning)] animate-pulse" />
                 <span>VALIDATING (W=3)</span>
               </>
             ) : (
@@ -119,7 +119,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             <span
               className={`flex items-center gap-1 ${
                 isValidating || isCommitted || isRolledBack
-                  ? "text-purple-400 font-semibold"
+                  ? "text-[var(--status-ansatz)] font-semibold"
                   : ""
               }`}
             >
@@ -129,7 +129,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             <span
               className={`flex items-center gap-1 ${
                 isValidating || isCommitted || isRolledBack
-                  ? "text-blue-400 font-semibold"
+                  ? "text-[var(--status-info)] font-semibold"
                   : ""
               }`}
             >
@@ -138,7 +138,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             <ArrowRight className="w-2.5 h-2.5 opacity-40" />
             <span
               className={`flex items-center gap-1 ${
-                isValidating ? "text-amber-400 font-semibold animate-pulse" : ""
+                isValidating ? "text-[var(--status-warning)] font-semibold animate-pulse" : ""
               }`}
             >
               Validate W=3
@@ -147,9 +147,9 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             <span
               className={`flex items-center gap-1 ${
                 isCommitted
-                  ? "text-emerald-400 font-semibold"
+                  ? "text-[var(--status-success)] font-semibold"
                   : isRolledBack
-                  ? "text-rose-400 font-semibold"
+                  ? "text-[var(--status-danger)] font-semibold"
                   : ""
               }`}
             >
@@ -178,7 +178,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
               <span
                 className={`text-xs font-semibold block mt-0.5 ${
                   deployment?.loss_post && deployment?.loss_pre && deployment.loss_post < deployment.loss_pre
-                    ? "text-emerald-400"
+                    ? "text-[var(--status-success)]"
                     : "text-[var(--content-primary)]"
                 }`}
               >
@@ -190,9 +190,9 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
               <span
                 className={`text-xs font-semibold block mt-0.5 ${
                   deltaLoss !== null && deltaLoss < 0
-                    ? "text-emerald-400"
+                    ? "text-[var(--status-success)]"
                     : deltaLoss !== null && deltaLoss > 0
-                    ? "text-rose-400"
+                    ? "text-[var(--status-danger)]"
                     : "text-[var(--content-secondary)]"
                 }`}
               >
@@ -206,45 +206,45 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
         <div className="grid grid-cols-2 gap-2.5 mb-3">
           <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
             <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
-              <Clock className="w-3.5 h-3.5 text-blue-400" />
+              <Clock className="w-3.5 h-3.5 text-[var(--status-info)]" />
               <span>Validation Window</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-[var(--content-tertiary)]">W_val = 3</span>
-              <span className="text-emerald-400 font-semibold">Protected</span>
+              <span className="text-[var(--status-success)] font-semibold">Protected</span>
             </div>
           </div>
 
           <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
             <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
-              <Scale className="w-3.5 h-3.5 text-amber-400" />
+              <Scale className="w-3.5 h-3.5 text-[var(--status-warning)]" />
               <span>Max Regression</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-[var(--content-tertiary)]">Ceiling: +15.0%</span>
-              <span className="text-amber-400 font-semibold">Active Guard</span>
+              <span className="text-[var(--status-warning)] font-semibold">Active Guard</span>
             </div>
           </div>
 
           <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
             <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
-              <Gauge className="w-3.5 h-3.5 text-purple-400" />
+              <Gauge className="w-3.5 h-3.5 text-[var(--status-ansatz)]" />
               <span>Accuracy Floor</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-[var(--content-tertiary)]">Floor: ≥ 40.0%</span>
-              <span className="text-purple-400 font-semibold">Enforced</span>
+              <span className="text-[var(--status-ansatz)] font-semibold">Enforced</span>
             </div>
           </div>
 
           <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
             <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
-              <Layers className="w-3.5 h-3.5 text-cyan-400" />
+              <Layers className="w-3.5 h-3.5 text-[var(--status-purity)]" />
               <span>Rollback Latency</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
               <span className="text-[var(--content-tertiary)]">In-Memory Clone</span>
-              <span className="text-cyan-400 font-semibold">&lt; 1.2 ms</span>
+              <span className="text-[var(--status-purity)] font-semibold">&lt; 1.2 ms</span>
             </div>
           </div>
         </div>
@@ -252,19 +252,19 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
         {/* Interactive Validation Controls if Active */}
         {isValidating && (onCommit || onRollback) && (
           <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 mb-3 space-y-2">
-            <div className="flex items-center justify-between text-xs font-medium text-blue-400">
+            <div className="flex items-center justify-between text-xs font-medium text-[var(--status-info)]">
               <span className="flex items-center gap-1.5">
                 <ShieldAlert className="w-3.5 h-3.5" />
                 Active Validation Controls
               </span>
-              <span className="text-[10px] font-mono text-blue-400/80">Window W_val=3</span>
+              <span className="text-[10px] font-mono text-[var(--status-info)]/80">Window W_val=3</span>
             </div>
             <div className="flex items-center gap-2">
               {onCommit && (
                 <button
                   onClick={() => handleAction("commit")}
                   disabled={isActing}
-                  className="apple-btn flex-1 py-1.5 rounded-lg text-xs font-medium bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-1"
+                  className="apple-btn flex-1 py-1.5 rounded-lg text-xs font-medium bg-[var(--status-success)] hover:opacity-90 text-white flex items-center justify-center gap-1"
                 >
                   <CheckCircle2 className="w-3.5 h-3.5" />
                   <span>Force Commit</span>
@@ -274,7 +274,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
                 <button
                   onClick={() => handleAction("rollback")}
                   disabled={isActing}
-                  className="apple-btn flex-1 py-1.5 rounded-lg text-xs font-medium bg-rose-600 hover:bg-rose-500 text-white flex items-center justify-center gap-1"
+                  className="apple-btn flex-1 py-1.5 rounded-lg text-xs font-medium bg-[var(--status-danger)] hover:opacity-90 text-white flex items-center justify-center gap-1"
                 >
                   <RotateCcw className="w-3.5 h-3.5" />
                   <span>Force Rollback</span>
@@ -286,11 +286,11 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
 
         {/* Rollback Notice if Triggered */}
         {isRolledBack && deployment?.rollback_reason && (
-          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-rose-400 text-xs font-mono flex items-start gap-2 mb-3">
-            <AlertOctagon className="w-4 h-4 text-rose-400 shrink-0 mt-0.5" />
+          <div className="p-3 rounded-xl bg-rose-500/10 border border-rose-500/30 text-[var(--status-danger)] text-xs font-mono flex items-start gap-2 mb-3">
+            <AlertOctagon className="w-4 h-4 text-[var(--status-danger)] shrink-0 mt-0.5" />
             <div>
               <div className="flex items-center gap-1.5">
-                <RotateCcw className="w-3.5 h-3.5 text-rose-400" />
+                <RotateCcw className="w-3.5 h-3.5 text-[var(--status-danger)]" />
                 <span className="font-semibold">Automatic Rollback Executed</span>
               </div>
               <span className="text-[11px] leading-tight block mt-1 text-rose-300">
@@ -302,8 +302,8 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
 
         {/* Commit Notice if Committed */}
         {isCommitted && (
-          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-mono flex items-center gap-2 mb-3">
-            <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />
+          <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-[var(--status-success)] text-xs font-mono flex items-center gap-2 mb-3">
+            <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />
             <span className="leading-tight">
               Repair verified over validation window and permanently committed to model parameters.
             </span>

@@ -131,7 +131,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       {/* Symmetrical Header */}
       <div className="w-full flex items-center justify-between mb-3 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-purple-500/10 dark:bg-purple-500/20 flex items-center justify-center text-purple-400 shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[var(--status-ansatz-subtle)] flex items-center justify-center text-[var(--status-ansatz)] shrink-0">
             <Atom className="w-4 h-4" />
           </div>
           <div className="text-left">
@@ -156,14 +156,14 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             <span
               className={
                 purityPhysical >= 0.95
-                  ? "text-emerald-400 font-semibold"
+                  ? "text-[var(--status-success)] font-semibold"
                   : "text-amber-400 font-semibold"
               }
             >
               {purityPhysical.toFixed(4)}
             </span>
             {hasMitigated && (
-              <span className="text-emerald-400 text-[10px] ml-1">
+              <span className="text-[var(--status-success)] text-[10px] ml-1">
                 (mit: {purityMitigated.toFixed(4)})
               </span>
             )}
@@ -249,7 +249,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             x={zPolePos.x}
             y={zPolePos.y - 4}
             textAnchor="middle"
-            className="text-[10px] fill-purple-400 font-mono font-medium"
+            className="text-[10px] fill-[var(--status-ansatz)] font-mono font-medium"
           >
             |0⟩ (+Z)
           </text>
@@ -289,7 +289,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
                 y1={origin.y}
                 x2={mitigatedPos.x}
                 y2={mitigatedPos.y}
-                stroke="#10b981"
+                stroke="var(--status-success)"
                 strokeWidth="2.0"
                 strokeDasharray="3 2"
                 strokeLinecap="round"
@@ -298,7 +298,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
                 cx={mitigatedPos.x}
                 cy={mitigatedPos.y}
                 r={4}
-                fill="#34d399"
+                fill="var(--status-success)"
                 stroke="#ffffff"
                 strokeWidth="1.2"
               />
@@ -311,7 +311,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             y1={origin.y}
             x2={statePos.x}
             y2={statePos.y}
-            stroke="#a855f7"
+            stroke="var(--status-ansatz)"
             strokeWidth="2.8"
             strokeLinecap="round"
             className="transition-all duration-300"
@@ -322,7 +322,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             cx={statePos.x}
             cy={statePos.y}
             r={5}
-            fill="#c084fc"
+            fill="var(--status-ansatz)"
             stroke="#ffffff"
             strokeWidth="1.5"
             className="transition-all duration-300"
@@ -342,21 +342,21 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
           <span className="text-[10px] text-[var(--content-secondary)]">⟨X⟩</span>
           <span className="text-[var(--content-primary)] font-semibold">{x.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-emerald-400">mit: {xMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-success)]">mit: {xMitigated!.toFixed(3)}</span>
           )}
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[10px] text-[var(--content-secondary)]">⟨Y⟩</span>
           <span className="text-[var(--content-primary)] font-semibold">{y.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-emerald-400">mit: {yMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-success)]">mit: {yMitigated!.toFixed(3)}</span>
           )}
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[10px] text-[var(--content-secondary)]">⟨Z⟩</span>
-          <span className="text-purple-400 font-semibold">{z.toFixed(3)}</span>
+          <span className="text-[var(--status-ansatz)] font-semibold">{z.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-emerald-400">mit: {zMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-success)]">mit: {zMitigated!.toFixed(3)}</span>
           )}
         </div>
       </div>
@@ -364,7 +364,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       {/* Purity Formula Note */}
       <div className="w-full mt-2 pt-1 text-[9px] font-mono text-[var(--content-secondary)] flex items-center justify-between border-t border-[var(--border-subtle)]/50">
         <span className="flex items-center gap-1">
-          <Info className="w-2.5 h-2.5 text-purple-400" />
+          <Info className="w-2.5 h-2.5 text-[var(--status-ansatz)]" />
           <span>γ = (1 + ||r||²)/2</span>
         </span>
         <span>||r|| = {rPhysical.toFixed(4)}</span>

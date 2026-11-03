@@ -72,7 +72,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
       {/* Symmetrical Header */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-4 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-blue-500/10 dark:bg-blue-500/20 flex items-center justify-center text-blue-500 shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
             <BarChart2 className="w-4 h-4" />
           </div>
           <div>
@@ -232,7 +232,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
                     y1={padding.top}
                     x2={x}
                     y2={height - padding.bottom}
-                    stroke="#10B981"
+                    stroke="var(--status-success)"
                     strokeWidth="1.5"
                     opacity="0.7"
                   />
@@ -250,7 +250,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
               <path
                 d={trainLossPath}
                 fill="none"
-                stroke="#3B82F6"
+                stroke="var(--accent)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -259,7 +259,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
               <path
                 d={valLossPath}
                 fill="none"
-                stroke="#8B5CF6"
+                stroke="var(--status-warning)"
                 strokeWidth="1.8"
                 strokeDasharray="4 3"
                 strokeLinecap="round"
@@ -275,7 +275,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
               <path
                 d={trainAccPath}
                 fill="none"
-                stroke="#10B981"
+                stroke="var(--status-success)"
                 strokeWidth="2"
                 strokeLinecap="round"
                 strokeLinejoin="round"
@@ -284,7 +284,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
               <path
                 d={valAccPath}
                 fill="none"
-                stroke="#06B6D4"
+                stroke="var(--status-purity)"
                 strokeWidth="1.8"
                 strokeDasharray="4 3"
                 strokeLinecap="round"
@@ -310,7 +310,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
                 cx={getX(history[hoveredIdx].step)}
                 cy={mode === "accuracy" ? getYAcc(history[hoveredIdx].val_accuracy) : getYLoss(history[hoveredIdx].loss)}
                 r="4.5"
-                fill="#3B82F6"
+                fill="var(--accent)"
                 stroke="#FFFFFF"
                 strokeWidth="2"
               />
@@ -342,14 +342,14 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
           {(mode === "loss" || mode === "dual") && (
             <>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-blue-500 rounded-full" />
+                <span className="w-2.5 h-1 bg-[var(--accent)] rounded-full" />
                 <span className="text-content-secondary">Train Loss:</span>
                 <span className="text-content-primary font-semibold">{activePoint.loss.toFixed(4)}</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-purple-500 rounded-full border-dashed" />
+                <span className="w-2.5 h-1 bg-[var(--status-warning)] rounded-full border-dashed" />
                 <span className="text-content-secondary">Val Loss:</span>
-                <span className="text-purple-600 dark:text-purple-400 font-semibold">{activePoint.val_loss.toFixed(4)}</span>
+                <span className="text-[var(--status-warning)] font-semibold">{activePoint.val_loss.toFixed(4)}</span>
               </div>
             </>
           )}
@@ -357,14 +357,14 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
           {(mode === "accuracy" || mode === "dual") && (
             <>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-emerald-500 rounded-full" />
+                <span className="w-2.5 h-1 bg-[var(--status-success)] rounded-full" />
                 <span className="text-content-secondary">Train Acc:</span>
-                <span className="text-emerald-600 dark:text-emerald-400 font-semibold">{(activePoint.accuracy * 100).toFixed(1)}%</span>
+                <span className="text-[var(--status-success)] font-semibold">{(activePoint.accuracy * 100).toFixed(1)}%</span>
               </div>
               <div className="flex items-center gap-1.5">
-                <span className="w-2.5 h-1 bg-cyan-500 rounded-full border-dashed" />
+                <span className="w-2.5 h-1 bg-[var(--status-purity)] rounded-full border-dashed" />
                 <span className="text-content-secondary">Val Acc:</span>
-                <span className="text-cyan-600 dark:text-cyan-400 font-semibold">{(activePoint.val_accuracy * 100).toFixed(1)}%</span>
+                <span className="text-[var(--status-purity)] font-semibold">{(activePoint.val_accuracy * 100).toFixed(1)}%</span>
               </div>
             </>
           )}

@@ -42,75 +42,90 @@ export const MetricsRow: React.FC<MetricsRowProps> = ({
       sublabel: "BCE on mini-batch",
       value: loss.toFixed(4),
       icon: TrendingDown,
-      color: "text-blue-500",
+      color: "text-[var(--accent)]",
       badge: loss < 0.60 ? "Converging" : "Active",
-      badgeColor: loss < 0.60 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-blue-500/10 text-blue-600 dark:text-blue-400",
+      badgeColor:
+        loss < 0.60
+          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
+          : "bg-[var(--accent-subtle)] text-[var(--accent)]",
     },
     {
       label: "Validation Accuracy",
       sublabel: `Train: ${(accuracy * 100).toFixed(0)}% • Holdout`,
       value: `${(valAccuracy * 100).toFixed(1)}%`,
       icon: Target,
-      color: "text-emerald-500",
+      color: "text-[var(--status-success)]",
       badge: valAccuracy >= 0.70 ? "High" : valAccuracy >= 0.55 ? "Moderate" : "Low",
       badgeColor:
         valAccuracy >= 0.70
-          ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400"
-          : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
+          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
       label: "Validation Loss",
       sublabel: "Generalization",
       value: valLoss.toFixed(4),
       icon: TrendingUp,
-      color: "text-indigo-500",
+      color: "text-[var(--status-warning)]",
       badge: Math.abs(valLoss - loss) < 0.15 ? "Generalizing" : "Gap Observed",
-      badgeColor: Math.abs(valLoss - loss) < 0.15 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      badgeColor:
+        Math.abs(valLoss - loss) < 0.15
+          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
+          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
       label: "Gradient Norm",
       sublabel: "Parameter-shift ||g||",
       value: gradientNorm.toFixed(4),
       icon: Gauge,
-      color: "text-purple-500",
+      color: "text-[var(--status-info)]",
       badge: gradientNorm > 1e-4 ? "Active" : "Vanishing",
-      badgeColor: gradientNorm > 1e-4 ? "bg-purple-500/10 text-purple-600 dark:text-purple-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+      badgeColor:
+        gradientNorm > 1e-4
+          ? "bg-[var(--status-info-subtle)] text-[var(--status-info)]"
+          : "bg-[var(--status-danger-subtle)] text-[var(--status-danger)]",
     },
     {
       label: "Parameter Velocity",
       sublabel: "||θ_t - θ_{t-1}||",
       value: parameterVelocity.toFixed(4),
       icon: Activity,
-      color: "text-cyan-500",
+      color: "text-[var(--status-purity)]",
       badge: parameterVelocity < 1e-4 ? "Saddle Trap" : "Dynamic",
-      badgeColor: parameterVelocity >= 1e-4 ? "bg-cyan-500/10 text-cyan-600 dark:text-cyan-400" : "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      badgeColor:
+        parameterVelocity >= 1e-4
+          ? "bg-[var(--status-purity-subtle)] text-[var(--status-purity)]"
+          : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
       label: "Learning Rate",
       sublabel: "Step size η",
       value: learningRate.toFixed(4),
       icon: Zap,
-      color: "text-amber-500",
+      color: "text-[var(--status-warning)]",
       badge: `${learningRate.toFixed(3)}`,
-      badgeColor: "bg-amber-500/10 text-amber-600 dark:text-amber-400",
+      badgeColor: "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]",
     },
     {
       label: "Circuit Depth",
       sublabel: "Ansatz layers (L)",
       value: `${circuitDepth} Layers`,
       icon: Layers,
-      color: "text-neutral-500",
+      color: "text-[var(--content-secondary)]",
       badge: `D = ${circuitDepth}`,
-      badgeColor: "bg-neutral-500/10 text-content-secondary",
+      badgeColor: "glass-panel-subtle text-[var(--content-secondary)]",
     },
     {
       label: "State Purity",
       sublabel: "γ = (1 + ||r||²)/2",
       value: purity.toFixed(4),
       icon: Atom,
-      color: "text-violet-500",
+      color: "text-[var(--status-ansatz)]",
       badge: purity >= 0.90 ? "Pure State" : "Mixed State",
-      badgeColor: purity >= 0.90 ? "bg-emerald-500/10 text-emerald-600 dark:text-emerald-400" : "bg-rose-500/10 text-rose-600 dark:text-rose-400",
+      badgeColor:
+        purity >= 0.90
+          ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
+          : "bg-[var(--status-danger-subtle)] text-[var(--status-danger)]",
     },
   ];
 
