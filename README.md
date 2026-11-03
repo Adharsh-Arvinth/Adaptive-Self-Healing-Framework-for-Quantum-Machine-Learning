@@ -36,7 +36,7 @@ Developed as a Capstone Research Project at **Vellore Institute of Technology (V
 10. [Empirical Scope & Research Limitations](#empirical-scope--research-limitations)
 11. [Troubleshooting & Windows Tips](#troubleshooting--windows-tips)
 12. [Manuscript & Scientific Dossier](#manuscript--scientific-dossier)
-13. [Citation & License](#citation--license)
+13. [License](#license)
 
 ---
 
@@ -536,21 +536,6 @@ All research documentation, peer-reviewed reference validations, and manuscript 
 
 ---
 
-## Citation & License
+## License
 
-If you use this framework, dataset, or benchmark methodology in your research, please cite:
-
-```bibtex
-@misc{arvinth2026adaptiveselfhealing,
-  author       = {Adharsh Arvinth and Collaborators},
-  title        = {Adaptive Self-Healing Framework for Quantum Machine Learning: Closed-Loop Telemetry, Bayesian Root-Cause Diagnosis, and Contextual Bandit Recovery},
-  year         = {2026},
-  publisher    = {GitHub},
-  howpublished = {\url{https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning}},
-  note         = {Capstone Research Project, Vellore Institute of Technology (VIT), Registration: 22MID0324}
-}
-```
-
-### Institutional Disclosure & License
-This project was developed as a Capstone Research Project at **Vellore Institute of Technology (VIT)**.  
 Released under the [MIT License](LICENSE).
