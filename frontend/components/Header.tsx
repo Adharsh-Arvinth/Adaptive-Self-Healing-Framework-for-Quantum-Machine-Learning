@@ -45,9 +45,11 @@ export const Header: React.FC<HeaderProps> = ({
 
   const navLinks = [
     { label: "Home", href: "#hero" },
+    { label: "Challenge", href: "#the-challenge" },
     { label: "Framework", href: "#the-framework" },
-    { label: "Technology", href: "#technology" },
-    { label: "Research", href: "#research" },
+    { label: "Repair Arms", href: "#repair-mechanisms" },
+    { label: "Evidence", href: "#research" },
+    { label: "Limitations", href: "#limitations" },
   ];
 
   return (

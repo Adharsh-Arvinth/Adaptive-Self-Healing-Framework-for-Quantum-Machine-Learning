@@ -11,26 +11,26 @@ const GithubIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" })
 
 export const Footer: React.FC = () => {
   return (
-    <footer className="border-t border-[var(--border-subtle)] bg-[var(--bg-primary)] py-16 px-4 sm:px-6 lg:px-12 font-sans">
+    <footer className="border-t border-white/10 section-cinematic py-16 px-4 sm:px-6 lg:px-12 font-sans">
       <div className="max-w-7xl mx-auto space-y-12">
         <div className="grid grid-cols-1 md:grid-cols-12 gap-8 items-start">
           {/* Brand Identity & Mission */}
           <div className="md:col-span-5 space-y-4">
             <div className="flex items-center gap-2.5">
-              <div className="w-8 h-8 rounded-xl bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-xs shadow-sm">
+              <div className="w-8 h-8 rounded-xl bg-blue-600 flex items-center justify-center text-white font-mono font-bold text-xs shadow-md">
                 QML
               </div>
-              <span className="text-base font-bold font-display tracking-tight text-[var(--content-primary)] uppercase">
+              <span className="text-base font-bold font-display tracking-tight text-white uppercase">
                 Adaptive Self-Healing VQC
               </span>
             </div>
 
-            <p className="text-xs text-[var(--content-secondary)] leading-relaxed max-w-sm">
+            <p className="text-xs text-slate-400 leading-relaxed max-w-sm">
               An autonomous closed-loop runtime self-healing platform for Variational Quantum Classifiers.
               Empirical anomaly detection, Bayesian posterior diagnosis, Contextual Thompson Sampling, digital twin lookahead, and transactional rollback recovery.
             </p>
 
-            <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--content-tertiary)]">
+            <div className="flex items-center gap-2 text-[11px] font-mono text-slate-500">
               <span>PENNYLANE 0.45.1</span>
               <span>•</span>
               <span>NEXT.JS 14</span>
@@ -41,27 +41,27 @@ export const Footer: React.FC = () => {
 
           {/* Quick Links Column */}
           <div className="md:col-span-3 space-y-3 font-sans text-xs">
-            <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
-              ARCHITECTURE & SPECIFICATIONS
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest block font-mono">
+              ARCHITECTURE &amp; SPECIFICATIONS
             </span>
-            <ul className="space-y-2 text-[var(--content-secondary)]">
+            <ul className="space-y-2 text-slate-400">
               <li>
-                <a href="#the-framework" className="hover:text-[var(--content-primary)] transition-colors flex items-center gap-1.5">
+                <a href="#the-framework" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span>Self-Healing Lifecycle</span>
                 </a>
               </li>
               <li>
-                <a href="#technology" className="hover:text-[var(--content-primary)] transition-colors flex items-center gap-1.5">
+                <a href="#contextual-intelligence" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span>Contextual Thompson Sampling</span>
                 </a>
               </li>
               <li>
-                <a href="#the-problem" className="hover:text-[var(--content-primary)] transition-colors flex items-center gap-1.5">
+                <a href="#the-problem" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span>6 Quantum Failure Modes</span>
                 </a>
               </li>
               <li>
-                <a href="#research" className="hover:text-[var(--content-primary)] transition-colors flex items-center gap-1.5">
+                <a href="#research" className="hover:text-white transition-colors flex items-center gap-1.5">
                   <span>Stage 8 Empirical Proof</span>
                 </a>
               </li>
@@ -70,7 +70,7 @@ export const Footer: React.FC = () => {
 
           {/* External Links & Repository */}
           <div className="md:col-span-4 space-y-3 font-sans text-xs">
-            <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
+            <span className="text-[10px] text-slate-500 uppercase tracking-widest block font-mono">
               OPEN SOURCE REPOSITORY
             </span>
             <div className="space-y-2.5">
@@ -78,38 +78,38 @@ export const Footer: React.FC = () => {
                 href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
                 target="_blank"
                 rel="noreferrer"
-                className="p-3 rounded-xl glass-panel-subtle border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] transition-all flex items-center justify-between text-[var(--content-primary)] group"
+                className="p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 transition-all flex items-center justify-between text-white group"
               >
                 <div className="flex items-center gap-2">
-                  <GithubIcon className="w-4 h-4 text-[var(--content-tertiary)] group-hover:text-[var(--content-primary)]" />
+                  <GithubIcon className="w-4 h-4 text-slate-400 group-hover:text-white" />
                   <span className="font-semibold text-xs truncate max-w-[200px]">GitHub Repository</span>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-[var(--content-tertiary)] group-hover:text-[var(--content-primary)]" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white" />
               </a>
 
               <a
                 href="https://qml-backend-nczx.onrender.com/docs"
                 target="_blank"
                 rel="noreferrer"
-                className="p-3 rounded-xl glass-panel-subtle border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] transition-all flex items-center justify-between text-[var(--content-primary)] group"
+                className="p-3 rounded-xl border border-white/10 bg-white/[0.03] hover:bg-white/[0.08] hover:border-white/20 transition-all flex items-center justify-between text-white group"
               >
                 <div className="flex items-center gap-2">
-                  <FileText className="w-4 h-4 text-[var(--content-tertiary)] group-hover:text-[var(--content-primary)]" />
+                  <FileText className="w-4 h-4 text-slate-400 group-hover:text-white" />
                   <span className="font-semibold text-xs">FastAPI Interactive Docs</span>
                 </div>
-                <ExternalLink className="w-3.5 h-3.5 text-[var(--content-tertiary)] group-hover:text-[var(--content-primary)]" />
+                <ExternalLink className="w-3.5 h-3.5 text-slate-500 group-hover:text-white" />
               </a>
             </div>
           </div>
         </div>
 
         {/* Legal & Attribution Sub-Footer */}
-        <div className="pt-8 border-t border-[var(--border-subtle)] flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-[11px] text-[var(--content-tertiary)]">
+        <div className="pt-8 border-t border-white/10 flex flex-col sm:flex-row sm:items-center justify-between gap-4 font-mono text-[11px] text-slate-500">
           <div>
             <span>© 2026 Autonomous Quantum Machine Learning Research Platform. Released under the MIT License.</span>
           </div>
           <div className="flex items-center gap-3">
-            <span className="flex items-center gap-1 text-[var(--status-success)]">
+            <span className="flex items-center gap-1 text-emerald-400">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Production Validated</span>
             </span>

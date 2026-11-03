@@ -174,7 +174,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
             <p className="text-xs text-[var(--content-secondary)] leading-relaxed">
               Before any candidate parameter mutation is executed, an in-memory deepcopy checkpoint captures exact
               weights, optimizer momentum, and random number generator states. If validation detects performance regression,
-              the state restores in zero time with zero data loss.
+              the state deterministically restores parameter tensor θ_pre and flushes corrupted optimizer buffers.
             </p>
           </div>
         ) : (
@@ -298,7 +298,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
       {/* Symmetrical Panel Footer */}
       <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--content-tertiary)] font-mono">
         <span>Fail-Safe Checkpoint Snapshot: In-Memory Deepcopy</span>
-        <span>Zero Data Loss Recovery</span>
+        <span>Deterministic Parameter Restoration</span>
       </div>
     </div>
   );

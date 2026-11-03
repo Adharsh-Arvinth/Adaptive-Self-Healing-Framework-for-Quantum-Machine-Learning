@@ -172,7 +172,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
                 <button
                   onClick={handleRunSimulation}
                   disabled={isSimulating}
-                  className="apple-btn px-2.5 py-1 rounded text-[10px] font-medium bg-indigo-600 hover:bg-indigo-500 text-white shrink-0 flex items-center gap-1"
+                  className="apple-btn px-2.5 py-1 rounded text-[10px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shrink-0 flex items-center gap-1 shadow-sm"
                 >
                   <Play className="w-2.5 h-2.5" />
                   <span>{isSimulating ? "Sim..." : "Run"}</span>

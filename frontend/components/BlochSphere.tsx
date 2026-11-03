@@ -22,21 +22,17 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   yMitigated,
   zMitigated,
 }) => {
-  // Physical Bloch vector radius r = sqrt(x^2 + y^2 + z^2)
+  // Physical Bloch vector radius r_phys = sqrt(x^2 + y^2 + z^2)
   const rPhysical = Math.sqrt(x * x + y * y + z * z);
-  // Pure state has r = 1; mixed state has r < 1; maximally mixed has r = 0
-  // Quantum purity gamma = Tr(rho^2) = (1 + r^2) / 2 in [0.5, 1.0]
+  // Physical quantum purity gamma = Tr(rho^2) = (1 + r^2) / 2 in [0.5, 1.0]
+  // Note: Only the physical state represents a valid density matrix with trace-square purity
   const purityPhysical = Math.min(1.0, Math.max(0.5, (1 + rPhysical * rPhysical) / 2));
 
-  // Mitigated vector radius & purity if available
+  // Corrected expectation values (analytical inverse-noise correction)
+  // Per scientific specification: Corrected expectation values are estimators of observables,
+  // NOT a synthesized physical density matrix. No physical purity is assigned to them.
   const hasMitigated =
     xMitigated !== undefined && yMitigated !== undefined && zMitigated !== undefined;
-  const rMitigated = hasMitigated
-    ? Math.sqrt(xMitigated * xMitigated + yMitigated * yMitigated + zMitigated * zMitigated)
-    : 0;
-  const purityMitigated = hasMitigated
-    ? Math.min(1.0, Math.max(0.5, (1 + rMitigated * rMitigated) / 2))
-    : 0;
 
   // Interactive Orbit Camera Angles (in degrees)
   const [azimuth, setAzimuth] = useState(38);
@@ -104,7 +100,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
   const sinAzim = Math.sin(radAzim);
 
   const project = (px: number, py: number, pz: number) => {
-    // 3D rotation around Z (azimuth) then X (elevation)
     const xRot = px * cosAzim - py * sinAzim;
     const yRot = px * sinAzim + py * cosAzim;
     const zRot = pz;
@@ -128,31 +123,31 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
 
   return (
     <div className="glass-panel p-5 flex flex-col justify-between items-center text-center select-none h-full font-sans">
-      {/* Symmetrical Header */}
+      {/* Header */}
       <div className="w-full flex items-center justify-between mb-3 pb-3 border-b border-[var(--border-subtle)]">
         <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[var(--status-ansatz-subtle)] flex items-center justify-center text-[var(--status-ansatz)] shrink-0">
+          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
             <Atom className="w-4 h-4" />
           </div>
           <div className="text-left">
             <h3 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
-              Qubit {qubitIndex} State Vector
+              Qubit {qubitIndex} State Coordinates
             </h3>
             <p className="text-[11px] text-[var(--content-tertiary)]">
-              Interactive 3D Bloch sphere & state purity
+              Physical state vector &amp; corrected expectation estimators
             </p>
           </div>
         </div>
-        <div className="flex items-center gap-1.5">
+        <div className="flex items-center gap-2">
           <button
             onClick={resetView}
             title="Reset 3D camera rotation"
-            className="p-1 rounded-md glass-panel-subtle text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+            className="p-1 rounded-md bg-[var(--bg-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
           >
             <RotateCcw className="w-3 h-3" />
           </button>
-          <div className="px-2 py-0.5 rounded-full glass-panel-subtle text-[11px] font-mono flex items-center gap-1">
-            <span className="text-[var(--content-secondary)]">Purity γ:</span>
+          <div className="px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[11px] font-mono flex items-center gap-1.5">
+            <span className="text-[var(--content-secondary)]">Physical γ:</span>
             <span
               className={
                 purityPhysical >= 0.95
@@ -162,11 +157,6 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             >
               {purityPhysical.toFixed(4)}
             </span>
-            {hasMitigated && (
-              <span className="text-[var(--status-success)] text-[10px] ml-1">
-                (mit: {purityMitigated.toFixed(4)})
-              </span>
-            )}
           </div>
         </div>
       </div>
@@ -187,7 +177,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             cx={cx}
             cy={cy}
             r={radius}
-            fill="rgba(168, 85, 247, 0.04)"
+            fill="rgba(37, 99, 235, 0.03)"
             stroke="var(--border-subtle)"
             strokeWidth="1.2"
           />
@@ -220,7 +210,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             y1={project(0, 0, -1).y}
             x2={project(0, 0, 1).x}
             y2={project(0, 0, 1).y}
-            stroke="var(--border-strong)"
+            stroke="var(--border-highlight)"
             strokeWidth="1.2"
           />
 
@@ -249,7 +239,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             x={zPolePos.x}
             y={zPolePos.y - 4}
             textAnchor="middle"
-            className="text-[10px] fill-[var(--status-ansatz)] font-mono font-medium"
+            className="text-[10px] fill-[var(--content-primary)] font-mono font-bold"
           >
             |0⟩ (+Z)
           </text>
@@ -281,7 +271,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
           {/* Center Origin Dot */}
           <circle cx={origin.x} cy={origin.y} r={2} fill="var(--content-secondary)" />
 
-          {/* Error-Mitigated Vector (if active) */}
+          {/* Analytical Corrected Expectation Vector (Dashed, Cyan/Teal) */}
           {mitigatedPos && (
             <>
               <line
@@ -289,40 +279,40 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
                 y1={origin.y}
                 x2={mitigatedPos.x}
                 y2={mitigatedPos.y}
-                stroke="var(--status-success)"
-                strokeWidth="2.0"
+                stroke="var(--status-purity)"
+                strokeWidth="1.8"
                 strokeDasharray="3 2"
                 strokeLinecap="round"
               />
               <circle
                 cx={mitigatedPos.x}
                 cy={mitigatedPos.y}
-                r={4}
-                fill="var(--status-success)"
+                r={3.5}
+                fill="var(--status-purity)"
                 stroke="#ffffff"
-                strokeWidth="1.2"
+                strokeWidth="1"
               />
             </>
           )}
 
-          {/* Physical Quantum State Vector Arrow (From origin to (x, y, z)) */}
+          {/* Physical Quantum State Vector Arrow (Solid, Royal Sapphire) */}
           <line
             x1={origin.x}
             y1={origin.y}
             x2={statePos.x}
             y2={statePos.y}
-            stroke="var(--status-ansatz)"
-            strokeWidth="2.8"
+            stroke="var(--accent)"
+            strokeWidth="2.5"
             strokeLinecap="round"
             className="transition-all duration-300"
           />
 
-          {/* Tip of State Vector Indicator */}
+          {/* Tip of Physical State Vector Indicator */}
           <circle
             cx={statePos.x}
             cy={statePos.y}
-            r={5}
-            fill="var(--status-ansatz)"
+            r={4.5}
+            fill="var(--accent)"
             stroke="#ffffff"
             strokeWidth="1.5"
             className="transition-all duration-300"
@@ -336,27 +326,41 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         </div>
       </div>
 
+      {/* Vector Legend: Distinguish Physical from Corrected Expectation */}
+      <div className="w-full flex items-center justify-center gap-4 py-1 text-[10px] font-mono border-t border-[var(--border-subtle)] text-[var(--content-secondary)]">
+        <div className="flex items-center gap-1.5">
+          <span className="w-2.5 h-0.5 bg-[var(--accent)] rounded-full" />
+          <span className="text-[var(--content-primary)]">Physical State r⃗</span>
+        </div>
+        {hasMitigated && (
+          <div className="flex items-center gap-1.5">
+            <span className="w-2.5 h-0.5 border-t border-dashed border-[var(--status-purity)]" />
+            <span className="text-[var(--status-purity)]">Corrected Estimator</span>
+          </div>
+        )}
+      </div>
+
       {/* Expectation Values & Mitigated Readouts */}
-      <div className="w-full grid grid-cols-3 gap-2 pt-2.5 border-t border-[var(--border-subtle)] font-mono text-xs">
+      <div className="w-full grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)] font-mono text-xs">
         <div className="flex flex-col items-center">
           <span className="text-[10px] text-[var(--content-secondary)]">⟨X⟩</span>
           <span className="text-[var(--content-primary)] font-semibold">{x.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-success)]">mit: {xMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-purity)]">est: {xMitigated!.toFixed(3)}</span>
           )}
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[10px] text-[var(--content-secondary)]">⟨Y⟩</span>
           <span className="text-[var(--content-primary)] font-semibold">{y.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-success)]">mit: {yMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-purity)]">est: {yMitigated!.toFixed(3)}</span>
           )}
         </div>
         <div className="flex flex-col items-center">
           <span className="text-[10px] text-[var(--content-secondary)]">⟨Z⟩</span>
-          <span className="text-[var(--status-ansatz)] font-semibold">{z.toFixed(3)}</span>
+          <span className="text-[var(--accent)] font-semibold">{z.toFixed(3)}</span>
           {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-success)]">mit: {zMitigated!.toFixed(3)}</span>
+            <span className="text-[9px] text-[var(--status-purity)]">est: {zMitigated!.toFixed(3)}</span>
           )}
         </div>
       </div>
@@ -364,10 +368,10 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       {/* Purity Formula Note */}
       <div className="w-full mt-2 pt-1 text-[9px] font-mono text-[var(--content-secondary)] flex items-center justify-between border-t border-[var(--border-subtle)]/50">
         <span className="flex items-center gap-1">
-          <Info className="w-2.5 h-2.5 text-[var(--status-ansatz)]" />
-          <span>γ = (1 + ||r||²)/2</span>
+          <Info className="w-2.5 h-2.5 text-[var(--accent)]" />
+          <span>Physical γ = (1 + ||r||²)/2</span>
         </span>
-        <span>||r|| = {rPhysical.toFixed(4)}</span>
+        <span>||r_phys|| = {rPhysical.toFixed(4)}</span>
       </div>
     </div>
   );

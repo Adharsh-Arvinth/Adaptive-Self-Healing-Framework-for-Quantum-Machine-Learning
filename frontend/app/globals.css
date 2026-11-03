@@ -3,22 +3,22 @@
 @tailwind utilities;
 
 /* --------------------------------------------------------------------------
-   Stage 11.3 Design System — Modern Scientific Minimalism
+   Stage 11 Master Milestone Design System
    Typography: SF Pro Display / SF Pro Text / Helvetica Neue Stack
-   Palette: Warm Neutral / Light Grey, Crisp White Surfaces, Deep Charcoal
+   Color Rhythm: Apple Cinematic Obsidian, Architectural Alabaster, Warm Copper Accent, Quantum Sapphire & Cyan
    -------------------------------------------------------------------------- */
 
 :root {
-  /* Warm neutral / sophisticated light grey background */
-  --bg-primary: #F8F9FA;
+  /* Architectural Light Mode (Default) - Apple Off-White & Alabaster */
+  --bg-primary: #FBFBFD;
   --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
-  --bg-subtle: #F1F3F5;
-  --bg-hover: #E9ECEF;
+  --bg-subtle: #F3F4F6;
+  --bg-hover: #EAECEF;
 
   /* Subtle neutral hairline borders */
-  --border-subtle: #E5E7EB;
-  --border-highlight: #D1D5DB;
+  --border-subtle: #E2E4E9;
+  --border-highlight: #C8CCD4;
 
   /* Deep charcoal typography with restrained secondary grey */
   --text-primary: #111827;
@@ -29,92 +29,103 @@
   --content-secondary: #4B5563;
   --content-tertiary: #9CA3AF;
 
-  /* Primary Accent: Restrained scientific blue / indigo */
+  /* Primary Accent: Electric Royal Sapphire / Cobalt */
   --accent: #2563EB;
   --accent-primary: #2563EB;
   --accent-hover: #1D4ED8;
   --accent-subtle: rgba(37, 99, 235, 0.08);
 
-  /* Secondary Accent: Muted copper bronze */
+  /* Secondary Accent: Restrained Warm Metallic Copper */
   --accent-copper: #C25E38;
+  --accent-copper-hover: #A84E2C;
   --accent-copper-subtle: rgba(194, 94, 56, 0.08);
 
+  /* Quantum Cyan Accent */
+  --accent-cyan: #0284C7;
+  --accent-cyan-subtle: rgba(2, 132, 199, 0.08);
+
   /* Semantic status colors: Understated green, warm amber, muted red */
-  --status-success: #15803D;
-  --status-success-subtle: rgba(21, 128, 61, 0.08);
+  --status-success: #16A34A;
+  --status-success-subtle: rgba(22, 163, 74, 0.08);
 
-  --status-warning: #B45309;
-  --status-warning-subtle: rgba(180, 83, 9, 0.08);
+  --status-warning: #D97706;
+  --status-warning-subtle: rgba(217, 119, 6, 0.08);
 
-  --status-danger: #B91C1C;
-  --status-danger-subtle: rgba(185, 28, 28, 0.08);
+  --status-danger: #DC2626;
+  --status-danger-subtle: rgba(220, 38, 38, 0.08);
 
-  --status-info: #1D4ED8;
-  --status-info-subtle: rgba(29, 78, 216, 0.08);
+  --status-info: #2563EB;
+  --status-info-subtle: rgba(37, 99, 235, 0.08);
 
-  --status-ansatz: #6B21A8;
-  --status-ansatz-subtle: rgba(107, 33, 168, 0.08);
+  --status-ansatz: #7C3AED;
+  --status-ansatz-subtle: rgba(124, 58, 237, 0.08);
 
-  --status-purity: #0F766E;
-  --status-purity-subtle: rgba(15, 118, 110, 0.08);
+  --status-purity: #0D9488;
+  --status-purity-subtle: rgba(13, 148, 136, 0.08);
 
   --panel-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.04), 0 1px 2px -1px rgba(0, 0, 0, 0.04);
   --card-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05), 0 2px 4px -2px rgba(0, 0, 0, 0.05);
+  --card-shadow-lg: 0 10px 25px -3px rgba(0, 0, 0, 0.06), 0 4px 6px -2px rgba(0, 0, 0, 0.03);
 }
 
 /* --------------------------------------------------------------------------
-   Consistent Dark Mode — Titanium Slate & Organic Carbon
+   Titanium Obsidian Dark Mode - Precision Instrument Palette
    -------------------------------------------------------------------------- */
 .dark {
-  --bg-primary: #0F1115;
-  --bg-surface: #16181D;
-  --bg-surface-elevated: #1D2026;
-  --bg-subtle: #23262E;
-  --bg-hover: #2B2F38;
+  --bg-primary: #08090C;
+  --bg-surface: #101218;
+  --bg-surface-elevated: #161922;
+  --bg-subtle: #1C202B;
+  --bg-hover: #242937;
 
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-highlight: rgba(255, 255, 255, 0.16);
 
-  --text-primary: #F3F4F6;
-  --text-secondary: #9CA3AF;
-  --text-tertiary: #6B7280;
+  --text-primary: #F8FAFC;
+  --text-secondary: #94A3B8;
+  --text-tertiary: #64748B;
 
-  --content-primary: #F3F4F6;
-  --content-secondary: #9CA3AF;
-  --content-tertiary: #6B7280;
+  --content-primary: #F8FAFC;
+  --content-secondary: #94A3B8;
+  --content-tertiary: #64748B;
 
   --accent: #3B82F6;
   --accent-primary: #3B82F6;
   --accent-hover: #60A5FA;
-  --accent-subtle: rgba(59, 130, 246, 0.14);
+  --accent-subtle: rgba(59, 130, 246, 0.12);
 
   --accent-copper: #E07A5F;
-  --accent-copper-subtle: rgba(224, 122, 95, 0.15);
+  --accent-copper-hover: #F28E73;
+  --accent-copper-subtle: rgba(224, 122, 95, 0.14);
+
+  --accent-cyan: #38BDF8;
+  --accent-cyan-subtle: rgba(56, 189, 248, 0.14);
 
   --status-success: #22C55E;
-  --status-success-subtle: rgba(34, 197, 94, 0.14);
+  --status-success-subtle: rgba(34, 197, 94, 0.12);
 
   --status-warning: #F59E0B;
-  --status-warning-subtle: rgba(245, 158, 11, 0.14);
+  --status-warning-subtle: rgba(245, 158, 11, 0.12);
 
   --status-danger: #EF4444;
-  --status-danger-subtle: rgba(239, 68, 68, 0.14);
+  --status-danger-subtle: rgba(239, 68, 68, 0.12);
 
   --status-info: #38BDF8;
-  --status-info-subtle: rgba(56, 189, 248, 0.14);
+  --status-info-subtle: rgba(56, 189, 248, 0.12);
 
-  --status-ansatz: #C084FC;
-  --status-ansatz-subtle: rgba(192, 132, 252, 0.14);
+  --status-ansatz: #A78BFA;
+  --status-ansatz-subtle: rgba(167, 139, 250, 0.12);
 
   --status-purity: #2DD4BF;
-  --status-purity-subtle: rgba(45, 212, 191, 0.14);
+  --status-purity-subtle: rgba(45, 212, 191, 0.12);
 
-  --panel-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.35);
-  --card-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.45);
+  --panel-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.45);
+  --card-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.55);
+  --card-shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
 }
 
 /* --------------------------------------------------------------------------
-   Mandatory Global Typography — SF Pro / Helvetica Neue
+   Mandatory Global Typography - SF Pro / Helvetica Neue
    -------------------------------------------------------------------------- */
 body {
   background-color: var(--bg-primary);
@@ -122,15 +133,15 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "SF Pro Display", "Helvetica Neue", Helvetica, Arial, sans-serif;
   letter-spacing: -0.011em;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11";
-  transition: background-color 0.2s ease, color 0.2s ease;
+  transition: background-color 0.25s cubic-bezier(0.16, 1, 0.3, 1), color 0.25s cubic-bezier(0.16, 1, 0.3, 1);
   min-height: 100vh;
   overflow-x: hidden;
 }
 
 h1, h2, h3, h4, h5, h6, .font-display {
   font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", "Helvetica Neue", Helvetica, Arial, sans-serif;
-  letter-spacing: -0.022em;
-  font-weight: 600;
+  letter-spacing: -0.024em;
+  font-weight: 700;
 }
 
 code, pre, .font-mono {
@@ -139,14 +150,70 @@ code, pre, .font-mono {
 }
 
 /* --------------------------------------------------------------------------
-   Clean Minimalist Panels
+   Editorial Visual Rhythm Section Classes (Alternating Visual Rhythm)
+   -------------------------------------------------------------------------- */
+
+/* Cinematic Section (Deep Obsidian, Luminous Highlights) */
+.section-cinematic {
+  background-color: #08090C !important;
+  color: #F8FAFC !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.section-cinematic h1, .section-cinematic h2, .section-cinematic h3 {
+  color: #FFFFFF !important;
+}
+.section-cinematic p {
+  color: #94A3B8 !important;
+}
+
+/* Architectural Section (Clean Pristine Alabaster, Crisp Typography) */
+.section-architectural {
+  background-color: #FBFBFD !important;
+  color: #111827 !important;
+  border-color: #E2E4E9 !important;
+}
+.section-architectural h1, .section-architectural h2, .section-architectural h3 {
+  color: #111827 !important;
+}
+.section-architectural p {
+  color: #4B5563 !important;
+}
+
+/* Mineral Slate Section (High Contrast Technical Depth) */
+.section-slate {
+  background-color: #0E1017 !important;
+  color: #F1F5F9 !important;
+  border-color: rgba(255, 255, 255, 0.08) !important;
+}
+.section-slate h1, .section-slate h2, .section-slate h3 {
+  color: #FFFFFF !important;
+}
+.section-slate p {
+  color: #94A3B8 !important;
+}
+
+/* Luminous Section (Refined Warm Alabaster) */
+.section-luminous {
+  background-color: #F4F5F8 !important;
+  color: #111827 !important;
+  border-color: #E2E4E9 !important;
+}
+.section-luminous h1, .section-luminous h2, .section-luminous h3 {
+  color: #111827 !important;
+}
+.section-luminous p {
+  color: #4B5563 !important;
+}
+
+/* --------------------------------------------------------------------------
+   Precision Cards & Panels
    -------------------------------------------------------------------------- */
 .glass-panel {
   background: var(--bg-surface);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.75rem;
+  border-radius: 0.875rem;
   box-shadow: var(--panel-shadow);
-  transition: border-color 0.15s ease, box-shadow 0.15s ease;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .glass-panel:hover {
@@ -156,7 +223,7 @@ code, pre, .font-mono {
 .glass-panel-subtle {
   background: var(--bg-subtle);
   border: 1px solid var(--border-subtle);
-  border-radius: 0.5rem;
+  border-radius: 0.625rem;
 }
 
 .apple-card {
@@ -167,8 +234,23 @@ code, pre, .font-mono {
   @apply glass-panel-subtle;
 }
 
+/* Top hairline highlight for metallic cards */
+.specular-border {
+  position: relative;
+}
+.specular-border::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 1px;
+  background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  pointer-events: none;
+}
+
 /* --------------------------------------------------------------------------
-   Tactile Interactive Controls
+   Tactile Interactive Controls (Apple / Motorsport grade)
    -------------------------------------------------------------------------- */
 .apple-btn {
   transition: all 0.15s cubic-bezier(0.16, 1, 0.3, 1);
@@ -180,9 +262,10 @@ code, pre, .font-mono {
   transform: scale(0.98);
 }
 
+/* Scrollbar polish */
 ::-webkit-scrollbar {
-  width: 5px;
-  height: 5px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
   background: transparent;

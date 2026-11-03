@@ -7,137 +7,137 @@ export const ResearchEvidenceSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"policies" | "calibration" | "ablation" | "diagnostics">("policies");
 
   return (
-    <section id="research" className="py-20 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto space-y-12">
+    <section id="research" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-slate-200 section-architectural">
+      <div className="max-w-7xl mx-auto space-y-16">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
-          <div className="flex items-center gap-2 font-sans text-xs font-semibold text-[var(--accent)]">
-            <span>Empirical Benchmark Evidence</span>
+          <div className="inline-flex items-center gap-2 font-mono text-xs font-semibold text-blue-600 uppercase tracking-wider">
+            <span>[10 // EMPIRICAL BENCHMARK EVIDENCE]</span>
           </div>
-          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
+          <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-slate-900 tracking-tight">
             Stage 8 Empirical Benchmark Campaign.
           </h2>
-          <p className="text-sm sm:text-base text-[var(--content-secondary)] leading-relaxed font-sans">
-            Rigorous evaluation across 2,700 total quantum model executions from frozen commit <code className="font-mono text-xs text-[var(--content-primary)]">7d37201</code>. Every result is documented with exact statistical uncertainty, formal hypothesis tests, and transparent disclosure of theoretical and empirical limitations.
+          <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-sans">
+            Rigorous evaluation across 2,700 total quantum model executions from frozen commit <code className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-900 font-bold">7d37201</code>. Every result is documented with exact statistical uncertainty, formal hypothesis tests, and transparent disclosure of theoretical and empirical limitations.
           </p>
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2 overflow-x-auto font-mono text-xs">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto font-mono text-xs">
           <button
             onClick={() => setActiveTab("policies")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
+            className={`px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "policies"
-                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
-                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-blue-600 text-white font-semibold shadow-sm"
+                : "border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
             Policy Regret (10 Seeds, N=1,200)
           </button>
           <button
             onClick={() => setActiveTab("calibration")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
+            className={`px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "calibration"
-                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
-                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-blue-600 text-white font-semibold shadow-sm"
+                : "border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
-            Calibration & Coverage (N=300)
+            Calibration &amp; Coverage (N=300)
           </button>
           <button
             onClick={() => setActiveTab("ablation")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
+            className={`px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "ablation"
-                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
-                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-blue-600 text-white font-semibold shadow-sm"
+                : "border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
             Component Ablation (N=1,200)
           </button>
           <button
             onClick={() => setActiveTab("diagnostics")}
-            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
+            className={`px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "diagnostics"
-                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
-                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-blue-600 text-white font-semibold shadow-sm"
+                : "border border-slate-200 bg-white text-slate-600 hover:text-slate-900 hover:border-slate-300"
             }`}
           >
-            Diagnostic Recall & Limitations
+            Per-Class Diagnostic Matrix (N=300)
           </button>
         </div>
 
         {/* TAB 1: MULTI-POLICY REGRET COMPARISON */}
         {activeTab === "policies" && (
-          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
+          <div className="p-7 sm:p-9 rounded-2xl border border-slate-200 bg-white shadow-lg space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200 font-mono text-xs">
               <div className="flex items-center gap-2">
-                <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
-                <span className="font-semibold text-[var(--content-primary)]">PAIRED POLICY REGRET BENCHMARK (10 SEEDS, 120 EPISODES/SEED, TOTAL N=1,200)</span>
+                <BarChart3 className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold text-slate-900">PAIRED POLICY BENCHMARK (10 SEEDS, 30 EPISODES/SEED, 1,200 EXECUTIONS)</span>
               </div>
-              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
-                FROZEN BASELINE: 7d37201
+              <span className="text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-semibold">
+                FROZEN EVIDENCE: 7d37201
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full font-mono text-xs text-left">
                 <thead>
-                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
-                    <th className="py-3 px-4">Policy Arm</th>
-                    <th className="py-3 px-4">Empirical Reward (r̄)</th>
-                    <th className="py-3 px-4">Rollback Rate</th>
-                    <th className="py-3 px-4">Success Rate</th>
-                    <th className="py-3 px-4">Mean Regret (R_T)</th>
-                    <th className="py-3 px-4">Statistical Significance vs TS</th>
+                  <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/80">
+                    <th className="py-3 px-4 font-semibold">Policy Arm</th>
+                    <th className="py-3 px-4 font-semibold">Mean Reward (r̄)</th>
+                    <th className="py-3 px-4 font-semibold">Ref-Reward Gap (Regret)</th>
+                    <th className="py-3 px-4 font-semibold">Recovery Rate</th>
+                    <th className="py-3 px-4 font-semibold">Rollback Rate</th>
+                    <th className="py-3 px-4 font-semibold">Statistical Test vs TS</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
-                  <tr className="bg-[var(--accent)]/5 font-semibold">
-                    <td className="py-3.5 px-4 text-[var(--accent)] flex items-center gap-2">
-                      <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  <tr className="bg-blue-50/40 font-semibold">
+                    <td className="py-3.5 px-4 text-blue-700 flex items-center gap-2">
+                      <span className="w-2 h-2 rounded-full bg-blue-600" />
                       Contextual Thompson Sampling
                     </td>
-                    <td className="py-3.5 px-4 font-bold text-[var(--content-primary)]">-4.94 &plusmn; 0.28</td>
-                    <td className="py-3.5 px-4 text-emerald-600 dark:text-emerald-400 font-bold">10.7 &plusmn; 2.8% (Lowest)</td>
-                    <td className="py-3.5 px-4">23.3%</td>
-                    <td className="py-3.5 px-4">12.69 &plusmn; 0.19</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)] font-normal">Reference Policy (Lowest reward variance)</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">-4.94 &plusmn; 0.28</td>
+                    <td className="py-3.5 px-4 font-semibold">12.69 &plusmn; 0.19</td>
+                    <td className="py-3.5 px-4 font-bold">23.3 &plusmn; 2.8%</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-bold">10.7 &plusmn; 2.8% (Lowest)</td>
+                    <td className="py-3.5 px-4 text-slate-500 font-normal">Reference Policy (Lowest variance)</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-medium">Greedy Exploitation</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-900">Greedy Exploitation</td>
                     <td className="py-3.5 px-4">-4.75 &plusmn; 0.76</td>
-                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">17.3 &plusmn; 4.3%</td>
-                    <td className="py-3.5 px-4">25.3%</td>
                     <td className="py-3.5 px-4">12.65 &plusmn; 0.51</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.3282 (Not statistically significant)</td>
+                    <td className="py-3.5 px-4">25.3 &plusmn; 4.3%</td>
+                    <td className="py-3.5 px-4 text-amber-700">17.3 &plusmn; 4.3%</td>
+                    <td className="py-3.5 px-4 text-slate-500">p = 0.3282 (Not statistically significant)</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-medium">Fixed Heuristic</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-900">Fixed Heuristic</td>
                     <td className="py-3.5 px-4">-5.45 &plusmn; 0.78</td>
-                    <td className="py-3.5 px-4 text-rose-600 dark:text-rose-400 font-semibold">23.0 &plusmn; 3.7% (2.1x surge)</td>
-                    <td className="py-3.5 px-4">12.3%</td>
                     <td className="py-3.5 px-4">12.38 &plusmn; 0.74</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.0559 (Borderline non-significant at α=0.05)</td>
+                    <td className="py-3.5 px-4">12.3 &plusmn; 4.4%</td>
+                    <td className="py-3.5 px-4 text-rose-700 font-semibold">23.0 &plusmn; 3.7% (2.1× surge)</td>
+                    <td className="py-3.5 px-4 text-slate-500">p = 0.0559 (Borderline non-significant)</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-medium">Uniform Random</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-900">Uniform Random</td>
                     <td className="py-3.5 px-4">-5.01 &plusmn; 0.64</td>
-                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">16.3 &plusmn; 3.7%</td>
-                    <td className="py-3.5 px-4">23.3%</td>
                     <td className="py-3.5 px-4">12.76 &plusmn; 0.46</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.6746 (Not statistically significant)</td>
+                    <td className="py-3.5 px-4">23.3 &plusmn; 3.7%</td>
+                    <td className="py-3.5 px-4 text-amber-700">16.3 &plusmn; 3.7%</td>
+                    <td className="py-3.5 px-4 text-slate-500">p = 0.6746 (Not statistically significant)</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
-              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
-                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>MANDATORY STATISTICAL DISCLOSURE</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-sans text-slate-600 leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-900 font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+                <span>MANDATORY STATISTICAL DISCLOSURE &amp; REGRET INTERPRETATION</span>
               </div>
               <p>
-                Contextual Thompson Sampling reward superiority is <strong>not statistically significant</strong> against the comparison policies across 10 paired random seeds (TS vs Heuristic: <code className="font-mono text-[var(--content-primary)]">p = 0.0559</code>; TS vs Greedy: <code className="font-mono text-[var(--content-primary)]">p = 0.3282</code>; TS vs Random: <code className="font-mono text-[var(--content-primary)]">p = 0.6746</code>). The primary empirical advantages of Thompson Sampling are lower observed rollback rates (10.7% vs 23.0% for heuristic) and substantially lower seed-to-seed reward variance (std = 0.28 vs 0.78).
+                Contextual Thompson Sampling reward superiority is <strong>not statistically significant</strong> against the comparison policies across 10 paired seeds (TS vs Heuristic: <code className="font-mono text-slate-900">p = 0.0559</code>; TS vs Greedy: <code className="font-mono text-slate-900">p = 0.3282</code>; TS vs Random: <code className="font-mono text-slate-900">p = 0.6746</code>). The demonstrable advantages of Thompson Sampling are a 53.5% reduction in observed rollbacks (10.7% vs 23.0% for heuristic) and substantially lower seed-to-seed reward variance (std = 0.28 vs 0.78). The reported regret metric is a benchmark-defined reference-reward gap, not counterfactual regret against a proven optimal policy.
               </p>
             </div>
           </div>
@@ -145,82 +145,82 @@ export const ResearchEvidenceSection: React.FC = () => {
 
         {/* TAB 2: CALIBRATION & COVERAGE DISCLOSURE */}
         {activeTab === "calibration" && (
-          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
+          <div className="p-7 sm:p-9 rounded-2xl border border-slate-200 bg-white shadow-lg space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200 font-mono text-xs">
               <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4 text-[var(--accent)]" />
-                <span className="font-semibold text-[var(--content-primary)]">DISJOINT PARTITION CALIBRATION PROTOCOL (N=300 EPISODES, 150 TRAIN / 150 TEST)</span>
+                <Scale className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold text-slate-900">BAYESIAN TEMPERATURE CALIBRATION &amp; SELECTIVE PREDICTION (N=300 EPISODES)</span>
               </div>
-              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
-                TEMPERATURE SCALING & SELECTIVE PREDICTION
+              <span className="text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-semibold">
+                150 TRAIN / 150 TEST HELD-OUT
               </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full font-mono text-xs text-left">
                 <thead>
-                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
-                    <th className="py-3 px-4">Evaluation Metric</th>
-                    <th className="py-3 px-4">Production Gate (τ=0.60, T=0.50)</th>
-                    <th className="py-3 px-4">Calibrated Gate (τ*=0.840, T*=1.699)</th>
-                    <th className="py-3 px-4">Observed Difference</th>
-                    <th className="py-3 px-4">Scientific Implication</th>
+                  <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/80">
+                    <th className="py-3 px-4 font-semibold">Evaluation Metric</th>
+                    <th className="py-3 px-4 font-semibold">Production Threshold (τ=0.60, T=0.50)</th>
+                    <th className="py-3 px-4 font-semibold">Calibrated Analysis (τ*=0.84, T*=1.70)</th>
+                    <th className="py-3 px-4 font-semibold">Observed Delta</th>
+                    <th className="py-3 px-4 font-semibold">Scientific Implication</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
+                <tbody className="divide-y divide-slate-100 text-slate-800">
                   <tr>
-                    <td className="py-3 px-4 font-semibold">Multi-Class Brier Score</td>
-                    <td className="py-3 px-4 text-amber-600 dark:text-amber-400">0.8645</td>
-                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0.5768</td>
-                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-33.3% Error</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">Sharper probabilistic probability assignments</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">Multi-Class Brier Score</td>
+                    <td className="py-3 px-4 text-amber-700">0.8645</td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">0.5768</td>
+                    <td className="py-3 px-4 text-emerald-700 font-semibold">-33.3% Error</td>
+                    <td className="py-3 px-4 text-slate-500">Sharper probabilistic assignments</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4 font-semibold">Expected Calibration Error (ECE)</td>
-                    <td className="py-3 px-4 text-amber-600 dark:text-amber-400">0.4295</td>
-                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0.1939</td>
-                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-54.9% ECE</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">Alleviates overconfident misclassifications</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">Expected Calibration Error (ECE)</td>
+                    <td className="py-3 px-4 text-amber-700">0.4295</td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">0.1939</td>
+                    <td className="py-3 px-4 text-emerald-700 font-semibold">-54.9% ECE</td>
+                    <td className="py-3 px-4 text-slate-500">Alleviates overconfident misclassifications</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4 font-semibold">False Positive Rate (FPR)</td>
-                    <td className="py-3 px-4 text-rose-600 dark:text-rose-400 font-semibold">95.83%</td>
-                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0% observed (≤ 4.99% CI)</td>
-                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-95.8% Points</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">Exact 95% Clopper-Pearson bound based on 0/72 cases</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">False Positive Rate (FPR)</td>
+                    <td className="py-3 px-4 text-rose-700 font-semibold">95.83%</td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">0% observed (≤ 4.99% CI)</td>
+                    <td className="py-3 px-4 text-emerald-700 font-semibold">-95.8% Points</td>
+                    <td className="py-3 px-4 text-slate-500">Exact 95% Clopper-Pearson bound based on 0/72 cases</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4 font-semibold">Gate Precision</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">Gate Precision</td>
                     <td className="py-3 px-4">52.08%</td>
-                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">100% observed</td>
-                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">+47.9% Points</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">Admitted diagnoses are completely accurate</td>
+                    <td className="py-3 px-4 font-bold text-emerald-700">100% observed (FDR ≤ 13.72%)</td>
+                    <td className="py-3 px-4 text-emerald-700 font-semibold">+47.9% Points</td>
+                    <td className="py-3 px-4 text-slate-500">0/25 false discoveries among admitted predictions</td>
                   </tr>
-                  <tr className="bg-amber-500/5">
-                    <td className="py-3 px-4 font-semibold text-amber-700 dark:text-amber-400">Gate Coverage (Selective Rate)</td>
-                    <td className="py-3 px-4">96.0% (144 / 150)</td>
-                    <td className="py-3 px-4 font-bold text-[var(--accent)]">16.67% (25 / 150)</td>
-                    <td className="py-3 px-4 text-amber-700 dark:text-amber-400 font-semibold">-79.3% Coverage</td>
-                    <td className="py-3 px-4 text-amber-700 dark:text-amber-400">Coverage collapse: 83.33% abstention rate</td>
+                  <tr className="bg-amber-50/50">
+                    <td className="py-3 px-4 font-semibold text-amber-900">Coverage (Selective Admission)</td>
+                    <td className="py-3 px-4 font-semibold">96.00% (144 / 150)</td>
+                    <td className="py-3 px-4 font-bold text-amber-700">16.67% (25 / 150)</td>
+                    <td className="py-3 px-4 text-amber-700 font-semibold">-79.3% Coverage</td>
+                    <td className="py-3 px-4 text-amber-800">Coverage collapse: 83.33% abstention rate</td>
                   </tr>
                   <tr>
-                    <td className="py-3 px-4 font-semibold">True Positive Rate (Recall)</td>
+                    <td className="py-3 px-4 font-semibold text-slate-900">True Positive Rate (Recall)</td>
                     <td className="py-3 px-4">96.15%</td>
-                    <td className="py-3 px-4 font-bold">32.05%</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">-64.1% Points</td>
-                    <td className="py-3 px-4 text-[var(--content-secondary)]">Sacrifices recall to avoid harmful repair deployments</td>
+                    <td className="py-3 px-4 font-bold text-slate-900">32.05%</td>
+                    <td className="py-3 px-4 text-slate-500">-64.1% Points</td>
+                    <td className="py-3 px-4 text-slate-500">Sacrifices recall to avoid false positive admissions</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
-              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
-                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>COVERAGE TRADE-OFF & FINITE-SAMPLE UNCERTAINTY DISCLOSURE</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-sans text-slate-600 leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-900 font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+                <span>COVERAGE TRADE-OFF &amp; FINITE-SAMPLE UNCERTAINTY DISCLOSURE</span>
               </div>
               <p>
-                Eliminating false positive repairs under the calibrated gate (0% observed FPR) requires abstaining on 83.33% of episodes (coverage collapses from 96.0% down to 16.67%). Furthermore, because zero false alarms were observed across 72 negative samples, the exact 95% Clopper-Pearson upper confidence bound is <strong>4.99%</strong>, rather than absolute mathematical zero.
+                Eliminating false positive repairs under the calibrated threshold (0% observed FPR) requires abstaining on 83.33% of episodes (coverage collapses from 96.0% down to 16.67%). Because zero false alarms occurred across 72 negative test samples, the exact one-sided 95% Clopper-Pearson upper confidence bound is <strong>4.99%</strong>, rather than absolute mathematical zero. The calibrated threshold 0.84 is an analysis result; the production runtime remains frozen at τ = 0.60 to maintain coverage.
               </p>
             </div>
           </div>
@@ -228,13 +228,13 @@ export const ResearchEvidenceSection: React.FC = () => {
 
         {/* TAB 3: COMPONENT ABLATION STUDY */}
         {activeTab === "ablation" && (
-          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
+          <div className="p-7 sm:p-9 rounded-2xl border border-slate-200 bg-white shadow-lg space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200 font-mono text-xs">
               <div className="flex items-center gap-2">
-                <Layers className="w-4 h-4 text-[var(--accent)]" />
-                <span className="font-semibold text-[var(--content-primary)]">COMPONENT ISOLATION & ABLATION STUDY (N=1,200 EXECUTIONS)</span>
+                <Layers className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold text-slate-900">COMPONENT ISOLATION &amp; ABLATION BENCHMARK (1,200 EXECUTIONS)</span>
               </div>
-              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
+              <span className="text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-semibold">
                 IDENTIFIES ESSENTIAL VS REDUNDANT PILLARS
               </span>
             </div>
@@ -242,121 +242,149 @@ export const ResearchEvidenceSection: React.FC = () => {
             <div className="overflow-x-auto">
               <table className="w-full font-mono text-xs text-left">
                 <thead>
-                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
-                    <th className="py-3 px-4">Architecture Configuration</th>
-                    <th className="py-3 px-4">Success Rate</th>
-                    <th className="py-3 px-4">Rollback Rate</th>
-                    <th className="py-3 px-4">Circuit Eval Cost</th>
-                    <th className="py-3 px-4">Empirical Finding</th>
+                  <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/80">
+                    <th className="py-3 px-4 font-semibold">Configuration</th>
+                    <th className="py-3 px-4 font-semibold">Success Rate</th>
+                    <th className="py-3 px-4 font-semibold">Rollback Rate</th>
+                    <th className="py-3 px-4 font-semibold">Latency</th>
+                    <th className="py-3 px-4 font-semibold">Circuit Evaluations</th>
+                    <th className="py-3 px-4 font-semibold">Empirical Finding</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
-                  <tr className="bg-emerald-500/5 font-semibold">
-                    <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400">Full Framework</td>
-                    <td className="py-3.5 px-4 font-bold">23.0%</td>
-                    <td className="py-3.5 px-4 text-emerald-600 dark:text-emerald-400 font-bold">9.3%</td>
-                    <td className="py-3.5 px-4">7.45 evals</td>
-                    <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400">Optimal recovery and rollback balance</td>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  <tr className="bg-emerald-50/40 font-semibold">
+                    <td className="py-3.5 px-4 text-emerald-800">Full Framework</td>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">23.0 &plusmn; 4.8%</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-bold">9.3 &plusmn; 3.4%</td>
+                    <td className="py-3.5 px-4">3.57 &plusmn; 0.08 s</td>
+                    <td className="py-3.5 px-4">191 &plusmn; 4.1</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-medium">Optimal stability &amp; low rollback rate</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-medium">Without Digital Twin (H=0)</td>
-                    <td className="py-3.5 px-4">23.7%</td>
-                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400 font-semibold">10.3%</td>
-                    <td className="py-3.5 px-4 font-semibold text-emerald-600 dark:text-emerald-400">7.31 evals (-3.8x overhead)</td>
-                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">3.8x overhead without statistically significant rollback benefit</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-900">No Digital Twin</td>
+                    <td className="py-3.5 px-4">23.7 &plusmn; 4.8%</td>
+                    <td className="py-3.5 px-4 text-amber-700 font-semibold">10.3 &plusmn; 5.5%</td>
+                    <td className="py-3.5 px-4">3.58 &plusmn; 0.07 s</td>
+                    <td className="py-3.5 px-4 font-bold text-blue-600">50 &plusmn; 0 (-3.8× overhead)</td>
+                    <td className="py-3.5 px-4 text-amber-700">Twin incurs 3.8× overhead without significant rollback reduction</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4 font-medium">Without Episodic Memory</td>
-                    <td className="py-3.5 px-4">22.3%</td>
-                    <td className="py-3.5 px-4">10.0%</td>
-                    <td className="py-3.5 px-4">7.45 evals</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">Minimal divergence impact on low-dimensional synthetic tasks</td>
+                    <td className="py-3.5 px-4 font-medium text-slate-900">No Memory</td>
+                    <td className="py-3.5 px-4">22.3 &plusmn; 2.2%</td>
+                    <td className="py-3.5 px-4">10.0 &plusmn; 2.7%</td>
+                    <td className="py-3.5 px-4">3.56 &plusmn; 0.04 s</td>
+                    <td className="py-3.5 px-4">185 &plusmn; 3.3</td>
+                    <td className="py-3.5 px-4 text-slate-500">Minimal divergence impact on low-dimensional synthetic tasks</td>
                   </tr>
-                  <tr className="bg-rose-500/5">
-                    <td className="py-3.5 px-4 font-semibold text-rose-700 dark:text-rose-400">Without Safety Filter (Non-holonomic bounds)</td>
-                    <td className="py-3.5 px-4 text-rose-700 dark:text-rose-400 font-bold">52.3%</td>
-                    <td className="py-3.5 px-4 text-rose-600 dark:text-rose-400 font-bold">34.0% (3.7x surge)</td>
-                    <td className="py-3.5 px-4">3.01 evals</td>
-                    <td className="py-3.5 px-4 text-rose-700 dark:text-rose-400 font-semibold">Catastrophic instability: deploys destructive parameter jumps</td>
+                  <tr className="bg-rose-50/40">
+                    <td className="py-3.5 px-4 font-semibold text-rose-800">No Safety Filter</td>
+                    <td className="py-3.5 px-4 text-rose-800 font-bold">52.3 &plusmn; 17.2%</td>
+                    <td className="py-3.5 px-4 text-rose-700 font-bold">34.0 &plusmn; 18.0% (3.7× surge)</td>
+                    <td className="py-3.5 px-4">3.41 &plusmn; 0.17 s</td>
+                    <td className="py-3.5 px-4">215 &plusmn; 18.3</td>
+                    <td className="py-3.5 px-4 text-rose-700 font-semibold">Catastrophic instability: deploys destructive parameter jumps</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
-              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
-                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-sans text-slate-600 leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-900 font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
                 <span>ARCHITECTURAL INSIGHT: SAFETY FILTER VS DIGITAL TWIN</span>
               </div>
               <p>
-                The ablation proves that the <strong>Safety Filter is the indispensable stability pillar</strong> of the framework; removing it causes rollbacks to surge from 9.3% to 34.0% (+265%). In contrast, the <strong>Digital Twin lookahead incurs a 3.8&times; circuit evaluation overhead</strong> while delivering no statistically significant reduction in rollback rate (9.3% vs 10.3%, overlapping 95% CIs), representing an important trade-off for resource-constrained QPU applications.
+                Removing the safety filter increased short-window success (52.3% vs 23.0%) but substantially increased rollbacks (34.0% vs 9.3%, +265%). In contrast, the digital twin introduces approximately <strong>3.8× circuit-evaluation overhead</strong> (191 vs 50 evaluations), while the observed twin rollback difference (9.3% vs 10.3%) was not statistically significant. The digital twin is not experimentally proven indispensable for low-depth models.
               </p>
             </div>
           </div>
         )}
 
-        {/* TAB 4: DIAGNOSTIC SENSITIVITY & LIMITATIONS */}
+        {/* TAB 4: PER-CLASS DIAGNOSTIC MATRIX */}
         {activeTab === "diagnostics" && (
-          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
+          <div className="p-7 sm:p-9 rounded-2xl border border-slate-200 bg-white shadow-lg space-y-6">
+            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-slate-200 font-mono text-xs">
               <div className="flex items-center gap-2">
-                <AlertOctagon className="w-4 h-4 text-rose-600 dark:text-rose-400" />
-                <span className="font-semibold text-[var(--content-primary)]">PER-FAILURE DIAGNOSTIC RECALL MATRIX & VALIDITY LIMITATIONS (N=300)</span>
+                <AlertOctagon className="w-4 h-4 text-blue-600" />
+                <span className="font-semibold text-slate-900">PER-FAILURE DIAGNOSTIC PERFORMANCE MATRIX (N=300, 50 EPISODES PER CATEGORY)</span>
               </div>
-              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
-                HONEST SCIENTIFIC DISCLOSURE
+              <span className="text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-semibold">
+                FROZEN STAGE 8 RECORD
               </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
-              <div className="p-5 rounded-xl border border-rose-500/30 bg-rose-500/5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-rose-700 dark:text-rose-400">Optimizer Instability (OPT)</span>
-                  <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-700 dark:text-rose-400 font-bold text-[10px]">RECALL: 0% (0 / 50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  <strong>Total Diagnostic Gap:</strong> Zero cases of injected optimizer instability were correctly diagnosed. High-frequency stochastic parameter fluctuations closely mimic healthy exploratory descent steps within standard sliding window sizes (W=5), causing the classifier to abstain or conflate with noise degradation.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-amber-700 dark:text-amber-400">Persistent Plateau (PP)</span>
-                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-[10px]">RECALL: 6.0% (3 / 50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  <strong>Severe Diagnostic Gap:</strong> Only 3 of 50 persistent plateau episodes were detected. In 27 cases, vanishing gradient norms and slow displacement velocities were misdiagnosed as learning rate misconfigurations, resulting in ineffective learning rate scaling rather than feature map modifications.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[var(--content-primary)]">Barren Plateau (BP)</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">RECALL: 64.0% (32 / 50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  Precision was 100.0% (0 false positives). Successfully relieved by reducing circuit depth (L &rarr; L-1), restoring non-vanishing gradient variance without ansatz over-parameterization.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] space-y-2">
-                <div className="flex items-center justify-between">
-                  <span className="font-bold text-[var(--content-primary)]">Training Divergence (DIV)</span>
-                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">RECALL: 64.0% (32 / 50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  Precision was 100.0%. Triggered by gradient norm spikes (&gt; 5.0) and loss explosion. Recovered via near-identity warm restart and learning rate backoff.
-                </p>
-              </div>
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs text-left">
+                <thead>
+                  <tr className="border-b border-slate-200 text-slate-500 bg-slate-50/80">
+                    <th className="py-3 px-4 font-semibold">Failure Category</th>
+                    <th className="py-3 px-4 font-semibold">Precision</th>
+                    <th className="py-3 px-4 font-semibold">Recall</th>
+                    <th className="py-3 px-4 font-semibold">F1 Score</th>
+                    <th className="py-3 px-4 font-semibold">Recovery Rate</th>
+                    <th className="py-3 px-4 font-semibold">Diagnostic Behavior &amp; Confusion</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-slate-100 text-slate-800">
+                  <tr>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">Barren Plateau (BP)</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-bold">100%</td>
+                    <td className="py-3.5 px-4">64% (32/50)</td>
+                    <td className="py-3.5 px-4 font-semibold">0.780</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-700">84%</td>
+                    <td className="py-3.5 px-4 text-slate-500">Zero false alarms; successfully recovered by layer truncation</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">Training Divergence (DIV)</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-bold">100%</td>
+                    <td className="py-3.5 px-4">64% (32/50)</td>
+                    <td className="py-3.5 px-4 font-semibold">0.780</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-700">54%</td>
+                    <td className="py-3.5 px-4 text-slate-500">High gradient spike detection; recovered via rollback &amp; restart</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">Noise Degradation (DEC)</td>
+                    <td className="py-3.5 px-4 text-amber-700 font-semibold">35%</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-700">72% (36/50)</td>
+                    <td className="py-3.5 px-4 font-semibold">0.471</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-700">76%</td>
+                    <td className="py-3.5 px-4 text-slate-500">Radial contraction detection; high recall, modest precision</td>
+                  </tr>
+                  <tr className="bg-amber-50/40">
+                    <td className="py-3.5 px-4 font-bold text-amber-900">Persistent Plateau (PP)</td>
+                    <td className="py-3.5 px-4 text-emerald-700 font-bold">100%</td>
+                    <td className="py-3.5 px-4 text-rose-700 font-bold">6% (3/50)</td>
+                    <td className="py-3.5 px-4 font-semibold text-rose-700">0.113</td>
+                    <td className="py-3.5 px-4 font-bold text-emerald-700">88%</td>
+                    <td className="py-3.5 px-4 text-amber-800">Severe Diagnostic Gap: frequently confused with LR misconfiguration</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-bold text-slate-900">LR Misconfiguration (LRM)</td>
+                    <td className="py-3.5 px-4 text-amber-700 font-semibold">20.6%</td>
+                    <td className="py-3.5 px-4 text-amber-700">14% (7/50)</td>
+                    <td className="py-3.5 px-4 font-semibold">0.167</td>
+                    <td className="py-3.5 px-4">54%</td>
+                    <td className="py-3.5 px-4 text-slate-500">Slow descent steps mimic small learning rates; low recall</td>
+                  </tr>
+                  <tr className="bg-rose-50/40">
+                    <td className="py-3.5 px-4 font-bold text-rose-900">Optimizer Instability (OPT)</td>
+                    <td className="py-3.5 px-4 text-slate-500 italic">Undefined (0/0)</td>
+                    <td className="py-3.5 px-4 text-rose-700 font-bold">0% (0/50)</td>
+                    <td className="py-3.5 px-4 text-slate-500 italic">Undefined (0/0)</td>
+                    <td className="py-3.5 px-4">58%</td>
+                    <td className="py-3.5 px-4 text-rose-800">Total Diagnostic Gap: frequently confused with noise degradation</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
-              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
-                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>HARDWARE BOUNDARY DISCLAIMER</span>
+            <div className="p-4 rounded-xl bg-slate-50 border border-slate-200 text-xs font-sans text-slate-600 leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-slate-900 font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-blue-600" />
+                <span>EXPLICIT DIAGNOSTIC GAP DISCLOSURE</span>
               </div>
               <p>
-                All benchmarks were executed on classical CPU hardware using PennyLane's analytical <code>default.qubit</code> statevector simulator. Noise mitigation is implemented strictly as simulation-side analytical inverse-noise correction under a custom radial-contraction model, not physical multi-scale zero-noise extrapolation (ZNE) on physical superconducting or trapped-ion QPUs.
+                For Optimizer Instability, precision and F1 are <strong>Undefined</strong> because there were no positive predictions (0/0). High-frequency stochastic parameter fluctuations were frequently confused with noise degradation. Similarly, Persistent Plateau achieved 100% precision on the 3 cases admitted, but had a severe 6% recall gap because vanishing gradient norms and slow displacement velocities were misdiagnosed as learning rate misconfigurations.
               </p>
             </div>
           </div>

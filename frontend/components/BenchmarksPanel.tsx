@@ -294,6 +294,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <th className="p-3">Success Rate</th>
                         <th className="p-3">Rollback Rate</th>
                         <th className="p-3">Execution Latency</th>
+                        <th className="p-3">Circuit Evaluations</th>
                         <th className="p-3">Empirical Finding</th>
                       </tr>
                     </thead>
@@ -302,28 +303,32 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <td className="p-3 text-emerald-700 dark:text-emerald-400">Full MAPE-K Framework</td>
                         <td className="p-3 font-bold">23.0 &plusmn; 4.8%</td>
                         <td className="p-3 text-emerald-600 dark:text-emerald-400 font-bold">9.3 &plusmn; 3.4%</td>
-                        <td className="p-3">7.45 &plusmn; 0.58s</td>
+                        <td className="p-3">3.57 &plusmn; 0.08s</td>
+                        <td className="p-3">191 &plusmn; 4.1</td>
                         <td className="p-3 text-emerald-700 dark:text-emerald-400">Optimal stability &amp; low rollback</td>
                       </tr>
                       <tr>
                         <td className="p-3 font-medium">w/o Digital Twin Proxy (H=3)</td>
                         <td className="p-3">23.7 &plusmn; 4.8%</td>
                         <td className="p-3 text-amber-600 dark:text-amber-400">10.3 &plusmn; 5.5%</td>
-                        <td className="p-3">7.31 &plusmn; 0.48s</td>
-                        <td className="p-3 text-amber-600 dark:text-amber-400">3.8x overhead with no significant rollback benefit</td>
+                        <td className="p-3">3.58 &plusmn; 0.07s</td>
+                        <td className="p-3 font-bold text-blue-600 dark:text-blue-400">50 &plusmn; 0 (-3.8x overhead)</td>
+                        <td className="p-3 text-amber-600 dark:text-amber-400">3.8x overhead with no statistically significant rollback benefit</td>
                       </tr>
                       <tr>
                         <td className="p-3 font-medium">w/o Episodic Failure Memory</td>
                         <td className="p-3">22.3 &plusmn; 2.2%</td>
                         <td className="p-3">10.0 &plusmn; 2.7%</td>
-                        <td className="p-3">7.45 &plusmn; 0.34s</td>
+                        <td className="p-3">3.56 &plusmn; 0.04s</td>
+                        <td className="p-3">185 &plusmn; 3.3</td>
                         <td className="p-3 text-[var(--content-secondary)]">Minimal impact on low-dimensional synthetic tasks</td>
                       </tr>
                       <tr className="bg-rose-500/5">
                         <td className="p-3 text-rose-700 dark:text-rose-400 font-semibold">w/o Safety Filter (Critical Invariant)</td>
                         <td className="p-3 text-rose-700 dark:text-rose-400">52.3 &plusmn; 17.2%</td>
                         <td className="p-3 text-rose-600 dark:text-rose-400 font-bold">34.0 &plusmn; 18.0% (3.7x surge)</td>
-                        <td className="p-3">3.01 &plusmn; 1.46s</td>
+                        <td className="p-3">3.41 &plusmn; 0.17s</td>
+                        <td className="p-3">215 &plusmn; 18.3</td>
                         <td className="p-3 text-rose-700 dark:text-rose-400 font-semibold">Catastrophic failure: deploys destructive mutations</td>
                       </tr>
                     </tbody>
@@ -381,7 +386,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                       </tr>
                       <tr className="bg-rose-500/5">
                         <td className="p-3 font-semibold text-rose-700 dark:text-rose-400">Optimizer Instability (Total Gap)</td>
-                        <td className="p-3 text-rose-600 dark:text-rose-400 font-bold">0.0%</td>
+                        <td className="p-3 text-[var(--content-tertiary)] italic">Undefined (0/0)</td>
                         <td className="p-3 text-rose-600 dark:text-rose-400 font-bold">0.0% (0/50)</td>
                         <td className="p-3">42.0%</td>
                         <td className="p-3 text-[var(--accent)]">Change Optimizer (Reset momentum)</td>
