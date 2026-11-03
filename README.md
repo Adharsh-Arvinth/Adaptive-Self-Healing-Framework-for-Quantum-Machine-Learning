@@ -10,7 +10,7 @@
 
 An autonomous, closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). The framework unifies continuous quantum telemetry extraction, multi-heuristic anomaly detection, Bayesian confidence-gated root-cause diagnosis, contextual bandit repair selection via **Contextual Thompson Sampling**, digital-twin predictive sandbox validation, and transactional atomic commit/rollback mechanisms.
 
-Developed as a Capstone Research Project at **Vellore Institute of Technology (VIT)** — Student ID: `22MID0324`.
+Developed as an Autonomous Closed-Loop Runtime Platform for Variational Quantum Classifiers.
 
 > 🌐 **Live Web Application:** [https://adaptive-self-healing-framework-for.vercel.app/](https://adaptive-self-healing-framework-for.vercel.app/)  
 > ⚡ **Cloud Telemetry API:** [https://qml-backend-nczx.onrender.com/health](https://qml-backend-nczx.onrender.com/health)

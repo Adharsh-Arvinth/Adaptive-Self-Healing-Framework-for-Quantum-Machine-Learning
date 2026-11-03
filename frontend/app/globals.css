@@ -1,164 +1,158 @@
-@import url('https://fonts.cdnfonts.com/css/sf-pro-display');
+@import url('https://fonts.googleapis.com/css2?family=JetBrains+Mono:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Plus+Jakarta+Sans:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Syne:wght@600;700;800&display=swap');
 
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
 
 /* --------------------------------------------------------------------------
-   Modern Minimalist Nature-Inspired Neutral Color System
-   - Calm, muted, earth-inspired palette removing visual clutter
-   - Soft layers & subtle warm tones instead of stark, cold whites or navy blues
+   Stage 10 — High-Performance Brand & Editorial Laboratory Design System
+   Inspired by Carlos Sainz (55 Hub) & Charles Leclerc Editorial Platforms
    -------------------------------------------------------------------------- */
 :root {
-  /* Soft warm alabaster / washed linen background */
-  --bg-primary: #F8F6F2;
-  --bg-surface: #FCFBF9;
+  /* Warm Alabaster Studio Canvas */
+  --bg-primary: #F7F5F0;
+  --bg-surface: #FFFFFF;
   --bg-surface-elevated: #FFFFFF;
-  --bg-subtle: #EFECE6;
+  --bg-subtle: #EDE9E1;
 
-  /* Delicate warm stone boundaries */
-  --border-subtle: rgba(70, 60, 50, 0.08);
-  --border-highlight: rgba(166, 94, 62, 0.30);
+  /* Architectural Hairlines */
+  --border-subtle: rgba(40, 35, 30, 0.08);
+  --border-highlight: rgba(30, 25, 20, 0.25);
 
-  /* Deep warm espresso & mineral stone typography */
-  --text-primary: #262320;
-  --text-secondary: #68625D;
-  --text-tertiary: #98918A;
+  /* Editorial High-Contrast Typography */
+  --text-primary: #121316;
+  --text-secondary: #5A564F;
+  --text-tertiary: #8E8A81;
 
-  --content-primary: #262320;
-  --content-secondary: #68625D;
-  --content-tertiary: #98918A;
+  --content-primary: #121316;
+  --content-secondary: #5A564F;
+  --content-tertiary: #8E8A81;
 
-  /* Nature-Inspired Accents: Warm Terracotta / Clay */
-  --accent: #A65E3E;
-  --accent-primary: #A65E3E;
-  --accent-hover: #8F4E31;
-  --accent-subtle: rgba(166, 94, 62, 0.10);
+  /* Technical Precision Accents */
+  --accent: #2563EB;
+  --accent-primary: #2563EB;
+  --accent-hover: #1D4ED8;
+  --accent-subtle: rgba(37, 99, 235, 0.08);
 
-  /* Botanical Sage / Foliage Green (Success & Convergence) */
-  --status-success: #4A7C59;
-  --status-success-subtle: rgba(74, 124, 89, 0.12);
+  /* Performance Telemetry Statuses */
+  --status-success: #15803D;
+  --status-success-subtle: rgba(21, 128, 61, 0.10);
 
-  /* Warm Ochre / Raw Honey (Warning, Anomaly & Gates) */
-  --status-warning: #B57A2B;
-  --status-warning-subtle: rgba(181, 122, 43, 0.12);
+  --status-warning: #B45309;
+  --status-warning-subtle: rgba(180, 83, 9, 0.10);
 
-  /* Muted Clay / Rose-Rust (Faults & Rollback) */
-  --status-danger: #B34E46;
-  --status-danger-subtle: rgba(179, 78, 70, 0.12);
+  --status-danger: #BE123C;
+  --status-danger-subtle: rgba(190, 18, 60, 0.10);
 
-  /* River Slate / Mineral Stone (Telemetry & Metadata) */
-  --status-info: #546E7A;
-  --status-info-subtle: rgba(84, 110, 122, 0.12);
+  --status-info: #4338CA;
+  --status-info-subtle: rgba(67, 56, 202, 0.10);
 
-  /* Dusty Fig / Heather (Quantum Geometry & Ansatz) */
-  --status-ansatz: #7D6385;
-  --status-ansatz-subtle: rgba(125, 99, 133, 0.12);
+  --status-ansatz: #6B21A8;
+  --status-ansatz-subtle: rgba(107, 33, 168, 0.10);
 
-  /* Mineral Lichen / Seafoam Clay (Decoherence & Purity) */
-  --status-purity: #4E7D7A;
-  --status-purity-subtle: rgba(78, 125, 122, 0.12);
+  --status-purity: #0E7490;
+  --status-purity-subtle: rgba(14, 116, 144, 0.10);
 
-  --panel-shadow: 0 4px 20px -2px rgba(40, 30, 20, 0.04), 0 1px 2px 0 rgba(40, 30, 20, 0.02);
-  --card-shadow: 0 10px 30px -4px rgba(40, 30, 20, 0.06);
+  --panel-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.04), 0 1px 2px 0 rgba(0, 0, 0, 0.02);
+  --card-shadow: 0 10px 30px -4px rgba(0, 0, 0, 0.06);
 }
 
 /* --------------------------------------------------------------------------
-   Dark Mode - Warm Basalt & Roasted Obsidian Stone
-   Soothing, deep warm earth layers replacing cold pitch-black or navy blue
+   Dark Mode — Cinematic Obsidian & Motorsport Carbon Laboratory
    -------------------------------------------------------------------------- */
 .dark {
-  /* Warm deep basalt stone canvas */
-  --bg-primary: #151413;
-  --bg-surface: #1E1C1A;
-  --bg-surface-elevated: #262421;
-  --bg-subtle: rgba(245, 235, 220, 0.05);
+  /* Deep Obsidian Carbon Canvas */
+  --bg-primary: #090A0C;
+  --bg-surface: #111317;
+  --bg-surface-elevated: #181B20;
+  --bg-subtle: rgba(255, 255, 255, 0.04);
 
-  /* Warm hairline borders */
-  --border-subtle: rgba(245, 235, 220, 0.08);
-  --border-highlight: rgba(201, 125, 93, 0.30);
+  /* Razor Hairline Borders */
+  --border-subtle: rgba(255, 255, 255, 0.08);
+  --border-highlight: rgba(255, 255, 255, 0.22);
 
-  /* Warm parchment & soft lichen stone typography */
-  --text-primary: #F3EFE6;
-  --text-secondary: #B0A89C;
-  --text-tertiary: #756E65;
+  /* High-Key Ivory Typography */
+  --text-primary: #F4F1EA;
+  --text-secondary: #9E998F;
+  --text-tertiary: #67635A;
 
-  --content-primary: #F3EFE6;
-  --content-secondary: #B0A89C;
-  --content-tertiary: #756E65;
+  --content-primary: #F4F1EA;
+  --content-secondary: #9E998F;
+  --content-tertiary: #67635A;
 
-  /* Nature-Inspired Accents: Warm Apricot Clay / Terracotta Glow */
-  --accent: #C97D5D;
-  --accent-primary: #C97D5D;
-  --accent-hover: #D88D6D;
-  --accent-subtle: rgba(201, 125, 93, 0.15);
+  /* Technical Luminescence */
+  --accent: #3B82F6;
+  --accent-primary: #3B82F6;
+  --accent-hover: #60A5FA;
+  --accent-subtle: rgba(59, 130, 246, 0.14);
 
-  /* Soft Botanical Sage / Dusty Eucalyptus */
-  --status-success: #6BA87E;
-  --status-success-subtle: rgba(107, 168, 126, 0.15);
+  /* Performance Telemetry Statuses */
+  --status-success: #10B981;
+  --status-success-subtle: rgba(16, 185, 129, 0.14);
 
-  /* Warm Raw Honey / Amber Sand */
-  --status-warning: #D49B50;
-  --status-warning-subtle: rgba(212, 155, 80, 0.15);
+  --status-warning: #F59E0B;
+  --status-warning-subtle: rgba(245, 158, 11, 0.14);
 
-  /* Soft Rose-Rust / Muted Terracotta */
-  --status-danger: #D47067;
-  --status-danger-subtle: rgba(212, 112, 103, 0.15);
+  --status-danger: #F43F5E;
+  --status-danger-subtle: rgba(244, 63, 94, 0.14);
 
-  /* Soft River Slate Mist */
-  --status-info: #7E9AA8;
-  --status-info-subtle: rgba(126, 154, 168, 0.15);
+  --status-info: #6366F1;
+  --status-info-subtle: rgba(99, 102, 241, 0.14);
 
-  /* Soft Twilight Heather */
-  --status-ansatz: #A68BB0;
-  --status-ansatz-subtle: rgba(166, 139, 176, 0.15);
+  --status-ansatz: #A855F7;
+  --status-ansatz-subtle: rgba(168, 85, 247, 0.14);
 
-  /* Soft Seafoam Lichen */
-  --status-purity: #76A6A3;
-  --status-purity-subtle: rgba(118, 166, 163, 0.15);
+  --status-purity: #06B6D4;
+  --status-purity-subtle: rgba(6, 182, 212, 0.14);
 
-  --panel-shadow: 0 8px 32px 0 rgba(10, 9, 8, 0.50);
-  --card-shadow: 0 16px 48px -8px rgba(10, 9, 8, 0.65);
+  --panel-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.65);
+  --card-shadow: 0 20px 50px -10px rgba(0, 0, 0, 0.80);
 }
 
 /* --------------------------------------------------------------------------
-   Strict SF Pro / Helvetica Neue Global Typography Stack
+   Global Reset & Typography Rules
    -------------------------------------------------------------------------- */
-*, *::before, *::after, html, body, button, input, select, textarea, code, pre, kbd, samp {
-  font-family: "SF Pro Display", "SF Pro Text", "SF Pro", -apple-system, BlinkMacSystemFont, "Helvetica Neue", Helvetica, Arial, sans-serif !important;
-  -webkit-font-smoothing: antialiased;
-  -moz-osx-font-smoothing: grayscale;
-}
-
 body {
   background-color: var(--bg-primary);
   color: var(--text-primary);
-  letter-spacing: -0.015em;
+  font-family: "Plus Jakarta Sans", -apple-system, BlinkMacSystemFont, "SF Pro Display", sans-serif;
+  letter-spacing: -0.012em;
   font-feature-settings: "cv02", "cv03", "cv04", "cv11", "tnum";
   font-variant-numeric: tabular-nums;
-  transition: background-color 0.3s cubic-bezier(0.16, 1, 0.3, 1), color 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+  transition: background-color 0.3s ease, color 0.3s ease;
   min-height: 100vh;
+  overflow-x: hidden;
+}
+
+h1, h2, h3, .font-display {
+  font-family: "Syne", sans-serif;
+  letter-spacing: -0.03em;
+}
+
+code, pre, .font-mono {
+  font-family: "JetBrains Mono", monospace;
+  font-feature-settings: "tnum";
 }
 
 /* --------------------------------------------------------------------------
-   Warm Frosted Glass Layers (Modern Nature-Inspired Minimalism)
+   Editorial Precision Glass & Panel Containers
    -------------------------------------------------------------------------- */
 .glass-panel {
-  background: rgba(252, 251, 249, 0.85);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
+  background: rgba(255, 255, 255, 0.90);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
   border: 1px solid var(--border-subtle);
-  border-radius: 1.125rem;
+  border-radius: 0.875rem;
   box-shadow: var(--panel-shadow);
   transition: border-color 0.2s ease, box-shadow 0.2s ease, transform 0.2s ease;
 }
 
 .dark .glass-panel {
-  background: rgba(30, 28, 26, 0.85);
-  backdrop-filter: blur(24px) saturate(140%);
-  -webkit-backdrop-filter: blur(24px) saturate(140%);
-  border: 1px solid rgba(245, 235, 220, 0.08);
-  box-shadow: 0 8px 32px 0 rgba(10, 9, 8, 0.45), inset 0 1px 0 0 rgba(245, 235, 220, 0.06);
+  background: rgba(17, 19, 23, 0.88);
+  backdrop-filter: blur(24px) saturate(170%);
+  -webkit-backdrop-filter: blur(24px) saturate(170%);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  box-shadow: 0 16px 40px -10px rgba(0, 0, 0, 0.70), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
 }
 
 .glass-panel:hover {
@@ -166,21 +160,20 @@ body {
 }
 
 .glass-panel-subtle {
-  background: rgba(70, 60, 50, 0.03);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
-  border: 1px solid rgba(70, 60, 50, 0.06);
-  border-radius: 0.75rem;
+  background: rgba(0, 0, 0, 0.03);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+  border: 1px solid rgba(0, 0, 0, 0.06);
+  border-radius: 0.625rem;
 }
 
 .dark .glass-panel-subtle {
-  background: rgba(245, 235, 220, 0.04);
-  backdrop-filter: blur(14px);
-  -webkit-backdrop-filter: blur(14px);
-  border: 1px solid rgba(245, 235, 220, 0.06);
+  background: rgba(255, 255, 255, 0.03);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.06);
 }
 
-/* Aliases */
 .apple-card {
   @apply glass-panel;
 }
@@ -190,10 +183,34 @@ body {
 }
 
 /* --------------------------------------------------------------------------
-   Tactile Button & Input Physics
+   Motorsport Technical Tick Marks & Crosshairs
+   -------------------------------------------------------------------------- */
+.tech-crosshair {
+  position: relative;
+}
+.tech-crosshair::before,
+.tech-crosshair::after {
+  content: "+";
+  position: absolute;
+  font-family: "JetBrains Mono", monospace;
+  font-size: 10px;
+  color: var(--border-highlight);
+  pointer-events: none;
+}
+.tech-crosshair::before {
+  top: -6px;
+  left: -6px;
+}
+.tech-crosshair::after {
+  bottom: -6px;
+  right: -6px;
+}
+
+/* --------------------------------------------------------------------------
+   Tactile Action Controls
    -------------------------------------------------------------------------- */
 .apple-btn {
-  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease, box-shadow 150ms ease;
+  transition: transform 120ms cubic-bezier(0.16, 1, 0.3, 1), background-color 150ms ease, opacity 150ms ease, border-color 150ms ease;
   user-select: none;
 }
 
@@ -202,14 +219,14 @@ body {
 }
 
 .apple-btn:disabled {
-  opacity: 0.45;
+  opacity: 0.40;
   cursor: not-allowed;
 }
 
 /* Subtle clean scrollbars */
 ::-webkit-scrollbar {
-  width: 6px;
-  height: 6px;
+  width: 5px;
+  height: 5px;
 }
 
 ::-webkit-scrollbar-track {

@@ -31,7 +31,7 @@ const CATEGORY_LABELS: Record<string, { name: string; tag: string; desc: string 
     desc: "Loss diverges exponentially or produces non-finite gradients",
   },
   persistent_plateau: {
-    name: "Saddle-Point Plateau",
+    name: "Persistent Plateau",
     tag: "Zero Curvature",
     desc: "Loss stalled across multiple epochs despite non-zero gradient norm",
   },

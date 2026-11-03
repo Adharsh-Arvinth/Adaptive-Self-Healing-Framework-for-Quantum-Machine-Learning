@@ -1,19 +1,14 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
-import { Header, NavTab } from "@/components/Header";
-import { MetricsRow } from "@/components/MetricsRow";
-import { LossChart } from "@/components/LossChart";
-import { BlochSphere } from "@/components/BlochSphere";
-import { DiagnosisPanel } from "@/components/DiagnosisPanel";
-import { RepairCockpit } from "@/components/RepairCockpit";
-import { DigitalTwinPanel } from "@/components/DigitalTwinPanel";
-import { DeploymentMonitor } from "@/components/DeploymentMonitor";
-import { BanditMonitor } from "@/components/BanditMonitor";
-import { FailureInjectionPanel } from "@/components/FailureInjectionPanel";
-import { MemoryAndAuditLog } from "@/components/MemoryAndAuditLog";
-import { BenchmarksPanel } from "@/components/BenchmarksPanel";
-import { SettingsPanel } from "@/components/SettingsPanel";
+import { Header } from "@/components/Header";
+import { HeroSection } from "@/components/HeroSection";
+import { ProblemSection } from "@/components/ProblemSection";
+import { FrameworkSection } from "@/components/FrameworkSection";
+import { TechnologySection } from "@/components/TechnologySection";
+import { ResearchEvidenceSection } from "@/components/ResearchEvidenceSection";
+import { DashboardView } from "@/components/DashboardView";
+import { Footer } from "@/components/Footer";
 import { ToastContainer } from "@/components/Toast";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import {
@@ -29,16 +24,23 @@ import {
   ToastMessage,
 } from "@/types";
 
-const API_BASE = process.env.NEXT_PUBLIC_API_URL || "http://127.0.0.1:8000";
+// Dynamic API resolution: In production browser environments, always target live Render backend
+const DEFAULT_PROD_API = "https://qml-backend-nczx.onrender.com";
+const API_BASE =
+  process.env.NEXT_PUBLIC_API_URL ||
+  (typeof window !== "undefined" && !["localhost", "127.0.0.1"].includes(window.location.hostname)
+    ? DEFAULT_PROD_API
+    : "http://127.0.0.1:8000");
+
 const WS_URL =
   process.env.NEXT_PUBLIC_WS_URL ||
   (API_BASE.startsWith("https://")
     ? API_BASE.replace(/^https:\/\//, "wss://") + "/ws/telemetry"
     : API_BASE.replace(/^http:\/\//, "ws://") + "/ws/telemetry");
 
-export default function DashboardPage() {
-  // Navigation & Theme
-  const [activeTab, setActiveTab] = useState<NavTab>("overview");
+export default function Page() {
+  // Primary View Mode: "landing" (Cinematic Editorial Experience) | "dashboard" (Interactive Research Lab)
+  const [activeView, setActiveView] = useState<"landing" | "dashboard">("landing");
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Notifications & Modals
@@ -59,7 +61,7 @@ export default function DashboardPage() {
   const [nQbits, setNQbits] = useState(2);
   const [dataset] = useState("moons");
 
-  // Telemetry Metrics
+  // Telemetry Metrics (Idle defaults)
   const [metrics, setMetrics] = useState({
     loss: 0.6931,
     valLoss: 0.6931,
@@ -72,7 +74,7 @@ export default function DashboardPage() {
     circuitDepth: 4,
   });
 
-  // Bloch Coordinates
+  // Bloch Coordinates & Reduced State Purity
   const [bloch, setBloch] = useState({
     x: 0.0,
     y: 0.0,
@@ -81,6 +83,7 @@ export default function DashboardPage() {
     x_mitigated: undefined as number | undefined,
     y_mitigated: undefined as number | undefined,
     z_mitigated: undefined as number | undefined,
+    purity: 1.0,
   });
 
   // Time-series history
@@ -115,7 +118,7 @@ export default function DashboardPage() {
   // Memory Episodes & Audit Events
   const [episodes, setEpisodes] = useState<Episode[]>([]);
   const [events, setEvents] = useState<EventItem[]>([
-    { state: "IDLE", message: "System initialized and awaiting training commands." },
+    { state: "IDLE", message: "Adaptive Self-Healing Runtime initialized. Telemetry link standby." },
   ]);
 
   // WebSocket reference
@@ -155,6 +158,17 @@ export default function DashboardPage() {
   const handleToggleTheme = () => {
     setIsDarkMode((prev) => !prev);
   };
+
+  // Allow ESC key to exit dashboard back to landing
+  useEffect(() => {
+    const handleKeyDown = (e: KeyboardEvent) => {
+      if (e.key === "Escape" && activeView === "dashboard") {
+        setActiveView("landing");
+      }
+    };
+    window.addEventListener("keydown", handleKeyDown);
+    return () => window.removeEventListener("keydown", handleKeyDown);
+  }, [activeView]);
 
   // Fetch initial REST data
   const fetchStatusAndPosteriors = useCallback(async () => {
@@ -208,7 +222,23 @@ export default function DashboardPage() {
               circuitDepth: latest.circuit_depth,
             });
           }
-          if (latest.bloch) setBloch(latest.bloch);
+          if (latest.bloch) {
+            const rx = latest.bloch.x ?? 0;
+            const ry = latest.bloch.y ?? 0;
+            const rz = latest.bloch.z ?? 1;
+            const rSq = rx * rx + ry * ry + rz * rz;
+            const calcPurity = Math.min(1.0, Math.max(0.5, (1 + rSq) / 2));
+            setBloch({
+              x: rx,
+              y: ry,
+              z: rz,
+              qubitIndex: latest.bloch.qubitIndex || 0,
+              x_mitigated: latest.bloch.x_mitigated,
+              y_mitigated: latest.bloch.y_mitigated,
+              z_mitigated: latest.bloch.z_mitigated,
+              purity: calcPurity,
+            });
+          }
           if (latest.diagnosis) setDiagnosis(latest.diagnosis);
           if (latest.twin_prediction) setTwinPrediction(latest.twin_prediction);
           if (latest.deployment) setDeployment(latest.deployment);
@@ -246,6 +276,13 @@ export default function DashboardPage() {
           const msg = JSON.parse(event.data);
           const { type, payload } = msg;
 
+          if (type === "connection_established") {
+            setIsConnected(true);
+            if (payload?.step_count !== undefined) setStepCount(payload.step_count);
+            if (payload?.pipeline_state) setPipelineState(payload.pipeline_state);
+            return;
+          }
+
           if (type === "step_telemetry" && payload) {
             setStepCount(payload.step);
             setPipelineState(payload.state);
@@ -264,7 +301,21 @@ export default function DashboardPage() {
             });
 
             if (payload.bloch) {
-              setBloch(payload.bloch);
+              const rx = payload.bloch.x ?? 0;
+              const ry = payload.bloch.y ?? 0;
+              const rz = payload.bloch.z ?? 1;
+              const rSq = rx * rx + ry * ry + rz * rz;
+              const calcPurity = Math.min(1.0, Math.max(0.5, (1 + rSq) / 2));
+              setBloch({
+                x: rx,
+                y: ry,
+                z: rz,
+                qubitIndex: payload.bloch.qubitIndex || 0,
+                x_mitigated: payload.bloch.x_mitigated,
+                y_mitigated: payload.bloch.y_mitigated,
+                z_mitigated: payload.bloch.z_mitigated,
+                purity: calcPurity,
+              });
             }
 
             if (payload.anomalies) {
@@ -300,7 +351,7 @@ export default function DashboardPage() {
             setHistory((prev) => [...prev, payload]);
           } else if (type === "training_started") {
             setIsRunning(true);
-            addToast("info", "Autonomous Runner Started", "Continuous closed-loop training is now active.");
+            addToast("info", "Autonomous Runner Started", "Continuous closed-loop training active.");
           } else if (type === "training_stopped") {
             setIsRunning(false);
             addToast("info", "Training Stopped", "Autonomous runner has paused execution.");
@@ -544,10 +595,8 @@ export default function DashboardPage() {
     }
   };
 
-  const latestTelemetry = history.length > 0 ? history[history.length - 1] : null;
-
   return (
-    <div className="flex flex-col min-h-screen bg-[var(--bg-primary)] text-[var(--content-primary)] transition-colors">
+    <div className="flex flex-col min-h-screen bg-[var(--bg-primary)] text-[var(--content-primary)] transition-colors selection:bg-[var(--accent)] selection:text-white">
       {/* Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
@@ -562,15 +611,13 @@ export default function DashboardPage() {
         onCancel={() => setIsResetModalOpen(false)}
       />
 
-      {/* Top Application Bar */}
+      {/* Unified Brand Header with Mode Toggle */}
       <Header
         isConnected={isConnected}
         pipelineState={pipelineState}
         stepCount={stepCount}
         maxSteps={maxSteps}
         isRunning={isRunning}
-        activeTab={activeTab}
-        onTabChange={setActiveTab}
         isDarkMode={isDarkMode}
         onToggleTheme={handleToggleTheme}
         onStart={handleStart}
@@ -578,170 +625,92 @@ export default function DashboardPage() {
         onResume={handleResume}
         onStep={handleStep}
         onResetPrompt={() => setIsResetModalOpen(true)}
+        activeView={activeView}
+        onToggleView={(view) => setActiveView(view)}
       />
 
-      {/* Main Workspace Dashboard */}
-      <main className="flex-1 max-w-[1600px] w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
-        {/* Real-time Telemetry Health-Style KPI Row (Visible on all tabs) */}
-        <MetricsRow
-          loss={metrics.loss}
-          valLoss={metrics.valLoss}
-          accuracy={metrics.accuracy}
-          valAccuracy={metrics.valAccuracy}
-          gradientNorm={metrics.gradientNorm}
-          gradientVariance={metrics.gradientVariance}
-          parameterVelocity={metrics.parameterVelocity}
-          learningRate={metrics.learningRate}
-          circuitDepth={metrics.circuitDepth}
-        />
-
-        {/* TAB 1: OVERVIEW */}
-        {activeTab === "overview" && (
-          <div className="space-y-6 animate-fade-in">
-            {/* Primary Visualization: Loss Trajectory & Interactive Quantum Bloch Sphere */}
-            <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
-              <div className="lg:col-span-2">
-                <LossChart history={history} />
-              </div>
-              <div className="lg:col-span-1">
-                <BlochSphere
-                  x={bloch.x}
-                  y={bloch.y}
-                  z={bloch.z}
-                  qubitIndex={bloch.qubitIndex || 0}
-                  xMitigated={bloch.x_mitigated}
-                  yMitigated={bloch.y_mitigated}
-                  zMitigated={bloch.z_mitigated}
-                />
-              </div>
-            </section>
-
-            {/* Dual Status Panels: Diagnosis & Transactional Deployment Monitor */}
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
-              <DeploymentMonitor
-                deployment={deployment}
-                pipelineState={pipelineState}
-                onCommit={handleCommit}
-                onRollback={handleRollback}
-              />
-            </section>
-
-            {/* Six-Arm Adaptive Repair Cockpit (Full Width Spacious Mac Tiles) */}
-            <section>
-              <RepairCockpit
-                selectedArm={selectedArm}
-                eligibleArms={eligibleArms}
-                currentOptimizer={optimizerName}
-                currentFeatureMap={featureMap}
-                currentDepth={metrics.circuitDepth}
-                onTriggerRepair={handleTriggerRepair}
-              />
-            </section>
-
-            {/* Controlled Failure Injection Sandbox */}
-            <section>
-              <FailureInjectionPanel onInject={handleInjectFailure} isRunning={isRunning} />
-            </section>
-          </div>
-        )}
-
-        {/* TAB 2: DIAGNOSIS & REPAIRS */}
-        {activeTab === "diagnosis" && (
-          <div className="space-y-6 animate-fade-in">
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
-              <DeploymentMonitor
-                deployment={deployment}
-                pipelineState={pipelineState}
-                onCommit={handleCommit}
-                onRollback={handleRollback}
-              />
-            </section>
-            <section>
-              <RepairCockpit
-                selectedArm={selectedArm}
-                eligibleArms={eligibleArms}
-                currentOptimizer={optimizerName}
-                currentFeatureMap={featureMap}
-                currentDepth={metrics.circuitDepth}
-                onTriggerRepair={handleTriggerRepair}
-              />
-            </section>
-            <section>
-              <FailureInjectionPanel onInject={handleInjectFailure} isRunning={isRunning} />
-            </section>
-          </div>
-        )}
-
-        {/* TAB 3: DIGITAL TWIN & SAFETY */}
-        {activeTab === "twin" && (
-          <div className="space-y-6 animate-fade-in">
-            <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-              <DigitalTwinPanel
-                prediction={twinPrediction}
-                evaluation={evaluation}
-                onSimulateTwin={handleSimulateTwin}
-                selectedArm={selectedArm}
-              />
-              <DeploymentMonitor
-                deployment={deployment}
-                pipelineState={pipelineState}
-                onCommit={handleCommit}
-                onRollback={handleRollback}
-              />
-            </section>
-          </div>
-        )}
-
-        {/* TAB 4: BANDIT & MEMORY */}
-        {activeTab === "bandit" && (
-          <div className="space-y-6 animate-fade-in">
-            <section>
-              <BanditMonitor
-                decision={banditDecision}
-                posteriors={banditPosteriors}
-                currentTelemetry={latestTelemetry}
-              />
-            </section>
-            <section>
-              <MemoryAndAuditLog
-                episodes={episodes}
-                events={events}
-                onClearEvents={() => setEvents([])}
-              />
-            </section>
-          </div>
-        )}
-
-        {/* TAB 5: BENCHMARKS */}
-        {activeTab === "benchmarks" && (
-          <div className="animate-fade-in">
-            <BenchmarksPanel apiBase={API_BASE} />
-          </div>
-        )}
-
-        {/* TAB 6: SETTINGS */}
-        {activeTab === "settings" && (
-          <div className="animate-fade-in">
-            <SettingsPanel
-              optimizerName={optimizerName}
-              featureMap={featureMap}
-              nLayers={nLayers}
-              nQbits={nQbits}
-              dataset={dataset}
-              learningRate={metrics.learningRate}
-              history={history}
-              apiBase={API_BASE}
+      {/* VIEW CONDITIONAL: LANDING VS DASHBOARD */}
+      {activeView === "landing" ? (
+        <main className="flex-1 w-full animate-fade-in">
+          {/* Section 1: Hero */}
+          <div id="hero">
+            <HeroSection
+              isConnected={isConnected}
+              pipelineState={pipelineState}
+              stepCount={stepCount}
+              onExploreClick={() => {
+                const el = document.getElementById("the-framework");
+                if (el) el.scrollIntoView({ behavior: "smooth" });
+              }}
+              onLaunchLabClick={() => setActiveView("dashboard")}
             />
           </div>
-        )}
-      </main>
 
-      {/* Apple-Style Sub-footer System Attribution */}
-      <footer className="border-t border-[var(--border-subtle)] py-4 px-6 text-center text-xs text-[var(--content-secondary)] font-mono">
-        Adaptive Self-Healing Quantum Machine Learning Framework • PennyLane 0.45.1 • Next.js 14 • Contextual Thompson Sampling • Closed-Loop MAPE-K
-      </footer>
+          {/* Section 2: The Problem */}
+          <div id="the-problem">
+            <ProblemSection />
+          </div>
+
+          {/* Section 3: The Framework */}
+          <div id="the-framework">
+            <FrameworkSection />
+          </div>
+
+          {/* Section 4: Technology */}
+          <div id="technology">
+            <TechnologySection />
+          </div>
+
+          {/* Section 5: Research Evidence */}
+          <div id="research">
+            <ResearchEvidenceSection />
+          </div>
+
+          {/* Editorial Footer */}
+          <Footer />
+        </main>
+      ) : (
+        <main className="flex-1 w-full animate-fade-in py-6">
+          <DashboardView
+            isConnected={isConnected}
+            pipelineState={pipelineState}
+            stepCount={stepCount}
+            maxSteps={maxSteps}
+            isRunning={isRunning}
+            onStart={handleStart}
+            onPause={handlePause}
+            onResume={handleResume}
+            onStep={handleStep}
+            onResetPrompt={() => setIsResetModalOpen(true)}
+            onInjectFailure={handleInjectFailure}
+            onTriggerRepair={handleTriggerRepair}
+            onSimulateTwin={handleSimulateTwin}
+            onCommit={handleCommit}
+            onRollback={handleRollback}
+            metrics={metrics}
+            bloch={bloch}
+            history={history}
+            activeAnomalies={activeAnomalies}
+            diagnosis={diagnosis}
+            twinPrediction={twinPrediction}
+            evaluation={evaluation}
+            deployment={deployment}
+            banditDecision={banditDecision}
+            banditPosteriors={banditPosteriors}
+            episodes={episodes}
+            events={events}
+            onClearEvents={() => setEvents([])}
+            selectedArm={selectedArm}
+            eligibleArms={eligibleArms}
+            optimizerName={optimizerName}
+            featureMap={featureMap}
+            nLayers={nLayers}
+            nQbits={nQbits}
+            dataset={dataset}
+            API_BASE={API_BASE}
+          />
+        </main>
+      )}
     </div>
   );
 }
