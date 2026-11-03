@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertTriangle, Compass, Zap, Sliders, Flame, ShieldAlert, Radio, ArrowUpRight } from "lucide-react";
+import { Compass, Zap, Sliders, Flame, ShieldAlert, Radio, AlertOctagon, Info } from "lucide-react";
 
 interface FailureMode {
   id: string;
@@ -11,8 +11,9 @@ interface FailureMode {
   math: string;
   physics: string;
   recovery: string;
+  recallRate: string;
+  recallStatus: "high" | "gap" | "total_gap";
   icon: React.ElementType;
-  accent: string;
 }
 
 const FAILURE_MODES: FailureMode[] = [
@@ -22,10 +23,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F1 // BP",
     signature: "Var[g] < 1e-5 exponentially vanishing",
     math: "\\text{Var}_{\\boldsymbol{\\theta}}[\\partial_k \\mathcal{L}] \\in \\mathcal{O}(2^{-n})",
-    physics: "In high-dimensional Haar-random Hilbert spaces, the gradient norm concentrates exponentially around zero, rendering classical gradient descent directionless.",
-    recovery: "Reduce ansatz circuit depth (L → L - 1) or collapse entanglement to restore non-vanishing gradients.",
+    physics: "Under global observables and deep Haar-random unitaries, gradient variances vanish exponentially with qubit count, leaving classical descent directionless.",
+    recovery: "Reduce ansatz circuit depth (L → L - 1) or collapse entanglement to restore non-vanishing gradient variance.",
+    recallRate: "64.0% Recall (32/50) • 100% Precision",
+    recallStatus: "high",
     icon: Compass,
-    accent: "text-[var(--status-ansatz)] border-[var(--status-ansatz)]/20 bg-[var(--status-ansatz-subtle)]",
   },
   {
     id: "lr_misconfiguration",
@@ -33,10 +35,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F2 // LRM",
     signature: "Loss oscillation / step stagnation",
     math: "\\eta > \\eta_{\\text{crit}} \\implies \\Delta \\mathcal{L}_{t} \\cdot \\Delta \\mathcal{L}_{t-1} < 0",
-    physics: "An improperly scaled learning rate causes optimization to oscillate wildly between energy valley walls or freeze in place due to under-scaled steps.",
-    recovery: "Dynamic multiplicative scaling of step size η within calibrated bounds [1e-4, 1.0].",
+    physics: "An improperly scaled learning rate causes optimization to oscillate across steep loss ravines or freeze in place due to under-scaled descent steps.",
+    recovery: "Dynamic multiplicative scaling of step size η within clamped safety envelope [1e-4, 1.0].",
+    recallRate: "14.0% Recall (7/50) • 20.6% Precision",
+    recallStatus: "gap",
     icon: Zap,
-    accent: "text-[var(--status-warning)] border-[var(--status-warning)]/20 bg-[var(--status-warning-subtle)]",
   },
   {
     id: "optimizer_instability",
@@ -44,10 +47,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F3 // OPT",
     signature: "Momentum norm surge ||v_t|| > 5.0",
     math: "\\|\\mathbf{v}_t\\| > 5.0 \\land \\mathcal{L}_t > \\mathcal{L}_{t-1}",
-    physics: "Momentum accumulators in adaptive optimizers (Adam/RMSprop) explode along ill-conditioned ravines, propelling weights away from the descent basin.",
-    recovery: "Cycle classical optimizer (Adam ↔ RMSprop ↔ SGD) and flush corrupted second-moment buffers.",
+    physics: "Adaptive momentum accumulators in Adam/RMSprop explode along ill-conditioned ravines, propelling weights away from the descent basin.",
+    recovery: "Cycle classical optimizer (Adam ↔ RMSprop ↔ SGD) and flush corrupted second-moment velocity buffers.",
+    recallRate: "0.0% Recall (0/50) • Total Diagnostic Gap",
+    recallStatus: "total_gap",
     icon: Sliders,
-    accent: "text-[var(--status-info)] border-[var(--status-info)]/20 bg-[var(--status-info-subtle)]",
   },
   {
     id: "training_divergence",
@@ -55,10 +59,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F4 // DIV",
     signature: "Non-finite loss (NaN / Inf / Exp)",
     math: "\\mathcal{L}_t \\notin \\mathbb{R}_{\\ge 0} \\lor \\|\\nabla \\mathcal{L}\\| > 50.0",
-    physics: "Numerical overflow or unstable parameter updates propel weights into regions where the parameter-shift rule evaluates non-finite matrix exponentials.",
+    physics: "Numerical overflow or parameter jumps cause divergence where matrix operations evaluate non-finite loss values.",
     recovery: "Atomic rollback from snapshot checkpoint and parameter perturbation near identity.",
+    recallRate: "64.0% Recall (32/50) • 100% Precision",
+    recallStatus: "high",
     icon: Flame,
-    accent: "text-[var(--status-danger)] border-[var(--status-danger)]/20 bg-[var(--status-danger-subtle)]",
   },
   {
     id: "persistent_plateau",
@@ -66,10 +71,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F5 // PP",
     signature: "Saddle-point velocity stagnation",
     math: "\\|\\Delta \\boldsymbol{\\theta}\\| < 10^{-4} \\land \\|\\nabla \\mathcal{L}\\| > 10^{-3}",
-    physics: "Optimization trajectories become trapped in low-curvature saddle manifolds where gradient magnitudes are non-zero but directional progress is stalled.",
+    physics: "Optimization trajectories become trapped in low-curvature saddle manifolds where gradient magnitudes are non-zero but directional descent is stalled.",
     recovery: "Perform warm restart with Gaussian parameter perturbation (σ=0.05) to escape zero-curvature traps.",
+    recallRate: "6.0% Recall (3/50) • Severe Diagnostic Gap",
+    recallStatus: "gap",
     icon: ShieldAlert,
-    accent: "text-[var(--accent)] border-[var(--accent)]/20 bg-[var(--accent-subtle)]",
   },
   {
     id: "noise_degradation",
@@ -77,10 +83,11 @@ const FAILURE_MODES: FailureMode[] = [
     code: "F6 // DEC",
     signature: "Bloch vector radial contraction",
     math: "\\|\\vec{r}\\| < 0.90 \\implies \\gamma = \\text{Tr}(\\rho^2) < 0.90",
-    physics: "Decoherence and depolarizing channels contract the quantum density matrix toward the maximally mixed state at the Bloch sphere center.",
+    physics: "Simulated depolarizing and amplitude damping channels contract the density matrix toward the maximally mixed state (γ = 0.5) at the Bloch sphere center.",
     recovery: "Simulation-side analytical inverse-noise correction under custom radial-contraction model.",
+    recallRate: "72.0% Recall (36/50) • 35.0% Precision",
+    recallStatus: "high",
     icon: Radio,
-    accent: "text-[var(--status-purity)] border-[var(--status-purity)]/20 bg-[var(--status-purity-subtle)]",
   },
 ];
 
@@ -90,59 +97,67 @@ export const ProblemSection: React.FC = () => {
   const Icon = selectedMode.icon;
 
   return (
-    <section id="the-problem" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="the-problem" className="py-20 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
-            <span>[01 // THE PROBLEM LANDSCAPE]</span>
+            <span>[04 // TAXONOMY OF DIVERGENCE]</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
-            Why Variational Quantum Circuits Fail To Train.
+          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
+            Six Canonical Quantum Failure Modes.
           </h2>
-          <p className="text-base sm:text-lg text-[var(--content-secondary)] leading-relaxed font-sans">
-            Unlike classical deep neural networks, quantum variational models navigate highly non-convex, barren Haar-random manifolds subject to unitary decoherence and finite-shot stochastic noise.
+          <p className="text-sm sm:text-base text-[var(--content-secondary)] leading-relaxed font-sans">
+            Variational quantum algorithms exhibit specific, mathematically identifiable failure signatures. The framework formalizes six canonical failure modes with continuous real-time diagnostic monitoring.
           </p>
         </div>
 
-        {/* Master-Detail Interactive Failure Explorer */}
+        {/* Interactive Mode Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-12 gap-8 items-start">
-          {/* Left Column: Failure Selector Strip */}
-          <div className="lg:col-span-5 space-y-2.5">
+          {/* Left Column: Failure Mode Selector */}
+          <div className="lg:col-span-5 grid grid-cols-1 gap-2">
             {FAILURE_MODES.map((mode) => {
-              const ItemIcon = mode.icon;
               const isSelected = mode.id === selectedId;
-
+              const ModeIcon = mode.icon;
               return (
                 <button
                   key={mode.id}
                   onClick={() => setSelectedId(mode.id)}
-                  className={`w-full text-left p-4 rounded-xl transition-all border flex items-center justify-between ${
+                  className={`p-3.5 rounded-xl text-left border transition-all flex items-center justify-between ${
                     isSelected
-                      ? "glass-panel border-[var(--accent)] shadow-md"
-                      : "bg-[var(--bg-surface)]/60 border-[var(--border-subtle)] hover:bg-[var(--bg-surface)] hover:border-[var(--border-highlight)]"
+                      ? "bg-[var(--bg-surface)] border-[var(--accent)] shadow-sm"
+                      : "bg-[var(--bg-surface)]/60 border-[var(--border-subtle)] hover:bg-[var(--bg-surface)]"
                   }`}
                 >
-                  <div className="flex items-center gap-3.5">
-                    <div className={`p-2 rounded-lg border ${mode.accent}`}>
-                      <ItemIcon className="w-4 h-4" />
+                  <div className="flex items-center gap-3">
+                    <div className="w-8 h-8 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] shrink-0">
+                      <ModeIcon className="w-4 h-4" />
                     </div>
                     <div>
                       <div className="flex items-center gap-2">
-                        <span className="font-bold text-sm text-[var(--content-primary)]">
+                        <span className="font-bold text-xs text-[var(--content-primary)]">
                           {mode.name}
                         </span>
-                        <span className="text-[10px] font-mono text-[var(--content-tertiary)]">
+                        <span className="font-mono text-[10px] text-[var(--content-tertiary)]">
                           {mode.code}
                         </span>
                       </div>
-                      <span className="text-xs text-[var(--content-secondary)] line-clamp-1 font-mono">
+                      <span className="text-[11px] font-mono text-[var(--content-secondary)] block mt-0.5 truncate max-w-[200px] sm:max-w-[260px]">
                         {mode.signature}
                       </span>
                     </div>
                   </div>
 
-                  <ArrowUpRight className={`w-4 h-4 transition-transform ${isSelected ? "text-[var(--accent)] translate-x-0.5 -translate-y-0.5" : "text-[var(--content-tertiary)]"}`} />
+                  {mode.recallStatus === "total_gap" && (
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-rose-500/10 text-rose-700 dark:text-rose-400 border border-rose-500/20">
+                      0% RECALL
+                    </span>
+                  )}
+                  {mode.recallStatus === "gap" && (
+                    <span className="px-2 py-0.5 rounded text-[9px] font-mono font-bold bg-amber-500/10 text-amber-700 dark:text-amber-400 border border-amber-500/20">
+                      GAP
+                    </span>
+                  )}
                 </button>
               );
             })}
@@ -150,53 +165,55 @@ export const ProblemSection: React.FC = () => {
 
           {/* Right Column: Detailed Diagnostic Dossier */}
           <div className="lg:col-span-7">
-            <div className="glass-panel p-8 tech-crosshair relative space-y-6">
-              <div className="flex items-center justify-between pb-6 border-b border-[var(--border-subtle)]">
+            <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
                 <div className="flex items-center gap-3">
-                  <div className={`p-2.5 rounded-xl border ${selectedMode.accent}`}>
+                  <div className="w-10 h-10 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
                     <Icon className="w-5 h-5" />
                   </div>
                   <div>
-                    <h3 className="text-2xl font-bold font-display text-[var(--content-primary)]">
+                    <span className="font-mono text-[10px] text-[var(--content-secondary)] block">
+                      {selectedMode.code} DIAGNOSTIC PROFILE
+                    </span>
+                    <h3 className="text-xl font-bold font-display text-[var(--content-primary)]">
                       {selectedMode.name}
                     </h3>
-                    <span className="text-xs font-mono text-[var(--content-secondary)]">
-                      CANONICAL TAXONOMY ID: {selectedMode.code}
-                    </span>
                   </div>
                 </div>
 
-                <div className="px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-subtle)] text-[11px] font-mono text-[var(--content-secondary)]">
-                  MONITORED CONTINUOUSLY
+                <div className="text-right font-mono text-[11px]">
+                  <span className="text-[var(--content-tertiary)] block text-[9px]">EMPIRICAL SENSITIVITY</span>
+                  <span className="font-semibold text-[var(--content-primary)]">{selectedMode.recallRate}</span>
                 </div>
               </div>
 
               {/* Mathematical Formulation */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-[var(--content-tertiary)]">
-                  MATHEMATICAL SIGNATURE & CRITERION
+              <div className="space-y-1.5">
+                <span className="font-mono text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
+                  MATHEMATICAL CRITERION
                 </span>
-                <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] font-mono text-sm text-[var(--accent)] overflow-x-auto">
+                <div className="p-3 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] font-mono text-xs text-[var(--content-primary)] overflow-x-auto">
                   <code>{selectedMode.math}</code>
                 </div>
               </div>
 
-              {/* Physics Mechanism */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-[var(--content-tertiary)]">
-                  PHYSICAL & HILBERT SPACE PHENOMENON
+              {/* Physical Phenomenon */}
+              <div className="space-y-1.5">
+                <span className="font-mono text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">
+                  PHYSICAL &amp; OPTIMIZATION PHENOMENON
                 </span>
-                <p className="text-sm text-[var(--content-secondary)] leading-relaxed">
+                <p className="text-xs sm:text-sm text-[var(--content-secondary)] leading-relaxed font-sans">
                   {selectedMode.physics}
                 </p>
               </div>
 
-              {/* Autonomous Recovery Pathway */}
-              <div className="p-4 rounded-xl border border-[var(--accent)]/30 bg-[var(--accent-subtle)] space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-[var(--accent)] font-semibold">
-                  AUTONOMOUS HEALING INTERVENTION
-                </span>
-                <p className="text-xs text-[var(--content-primary)] leading-relaxed font-sans font-medium">
+              {/* Autonomous Countermeasure */}
+              <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] space-y-1.5">
+                <div className="flex items-center gap-2 font-mono text-xs text-[var(--content-primary)] font-semibold">
+                  <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                  <span>AUTONOMOUS COUNTERMEASURE</span>
+                </div>
+                <p className="text-xs text-[var(--content-secondary)] leading-relaxed font-sans">
                   {selectedMode.recovery}
                 </p>
               </div>

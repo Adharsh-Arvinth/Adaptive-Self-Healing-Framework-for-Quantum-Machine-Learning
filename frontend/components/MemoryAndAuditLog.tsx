@@ -89,7 +89,7 @@ export const MemoryAndAuditLog: React.FC<MemoryAndAuditLogProps> = ({
                     </span>
                   </div>
                   <div className="text-[10px] text-[var(--content-secondary)] mt-0.5">
-                    Repair: <span className="text-purple-400">{ep.selected_repair?.replace(/_/g, " ")}</span> •{" "}
+                    Repair: <span className="text-[var(--accent)]">{ep.selected_repair?.replace(/_/g, " ")}</span> •{" "}
                     Loss: {ep.loss_before.toFixed(3)} → {ep.loss_after.toFixed(3)}
                   </div>
                 </div>
@@ -160,7 +160,7 @@ export const MemoryAndAuditLog: React.FC<MemoryAndAuditLogProps> = ({
               >
                 <span className="text-emerald-400 shrink-0 select-none">›</span>
                 <div className="leading-snug">
-                  <span className="text-[10px] text-purple-400 font-semibold mr-1.5">
+                  <span className="text-[10px] text-[var(--accent)] font-semibold mr-1.5">
                     [{evt.state}]
                   </span>
                   <span className="text-[var(--content-primary)] text-[11px]">{evt.message}</span>

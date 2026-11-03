@@ -73,7 +73,7 @@ const LIFECYCLE_STAGES: LifecycleStage[] = [
     number: "07",
     title: "Deploy / Rollback",
     operation: "Atomic Commit or Zero-Regression Rollback",
-    invariant: "If L_post ≤ L_pre: permanently commit repair. If average regression > 15% or NaN occurs: execute atomic rollback (< 1.2ms) restoring exact weights.",
+    invariant: "If L_post ≤ L_pre: permanently commit repair. If average regression > 15% or NaN occurs: execute atomic rollback from pre-repair checkpoint snapshot.",
     runtimeState: "COMMITTED / ROLLED_BACK",
     icon: Play,
   },
@@ -106,7 +106,7 @@ export const FrameworkSection: React.FC = () => {
             Self-Healing Lifecycle.
           </h2>
           <p className="text-base sm:text-lg text-[var(--content-secondary)] leading-relaxed font-sans">
-            An uninterrupted MAPE-K feedback loop executing parameter monitoring, Bayesian root-cause isolation, digital twin lookahead simulation, and transactional rollback recovery in under 1.2 milliseconds.
+            An uninterrupted MAPE-K feedback loop executing parameter monitoring, Bayesian root-cause isolation, digital twin lookahead simulation, and transactional state-machine rollback recovery.
           </p>
         </div>
 
@@ -182,8 +182,8 @@ export const FrameworkSection: React.FC = () => {
                 <strong className="text-[var(--content-primary)]">τ = 0.60</strong>
               </div>
               <div className="flex items-center justify-between">
-                <span>Rollback Overhead</span>
-                <strong className="text-emerald-500">&lt; 1.2 ms</strong>
+                <span>Rollback Mechanism</span>
+                <strong className="text-emerald-500">Atomic Snapshot</strong>
               </div>
             </div>
           </div>

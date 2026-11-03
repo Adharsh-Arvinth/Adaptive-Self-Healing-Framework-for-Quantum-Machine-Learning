@@ -189,6 +189,7 @@ export default function Page() {
 
       if (statusRes.ok) {
         const s = await statusRes.json();
+        setIsConnected(true);
         setIsRunning(s.is_running || false);
         setStepCount(s.step_count || 0);
         setMaxSteps(s.max_steps || 60);
@@ -198,6 +199,39 @@ export default function Page() {
           setFeatureMap(s.config.feature_map);
           setNLayers(s.config.n_layers);
           setNQbits(s.config.n_qubits);
+        }
+        if (s.latest_telemetry) {
+          const lt = s.latest_telemetry;
+          if (lt.loss !== undefined) {
+            setMetrics({
+              loss: lt.loss,
+              valLoss: lt.val_loss ?? lt.loss,
+              accuracy: lt.accuracy ?? 0.5,
+              valAccuracy: lt.val_accuracy ?? 0.5,
+              gradientNorm: lt.gradient_norm ?? 0.05,
+              gradientVariance: lt.gradient_variance ?? 0.001,
+              parameterVelocity: lt.parameter_velocity ?? 0.01,
+              learningRate: lt.learning_rate ?? 0.05,
+              circuitDepth: lt.circuit_depth ?? 2,
+            });
+          }
+          if (lt.bloch) {
+            const rx = lt.bloch.x ?? 0;
+            const ry = lt.bloch.y ?? 0;
+            const rz = lt.bloch.z ?? 1;
+            const rSq = rx * rx + ry * ry + rz * rz;
+            const calcPurity = Math.min(1.0, Math.max(0.5, (1 + rSq) / 2));
+            setBloch({
+              x: rx,
+              y: ry,
+              z: rz,
+              qubitIndex: lt.bloch.qubitIndex || 0,
+              x_mitigated: lt.bloch.x_mitigated,
+              y_mitigated: lt.bloch.y_mitigated,
+              z_mitigated: lt.bloch.z_mitigated,
+              purity: calcPurity,
+            });
+          }
         }
       }
 
@@ -416,6 +450,7 @@ export default function Page() {
     connectWebSocket();
 
     const interval = setInterval(() => {
+      fetchStatusAndPosteriors();
       fetch(`${API_BASE}/api/memory/episodes`)
         .then((r) => r.json())
         .then((m) => m.episodes && setEpisodes(m.episodes))

@@ -1,125 +1,121 @@
 "use client";
 
 import React from "react";
-import { Cpu, Layers, GitBranch, Shield, Zap, Lock, Database, Sparkles } from "lucide-react";
+import { Cpu, Layers, GitBranch, Sparkles, Shield, Lock, Wrench, Database } from "lucide-react";
 
-interface TechCard {
+interface TechItem {
   title: string;
   category: string;
   description: string;
   specs: string[];
-  icon: React.ElementType;
+  icon: React.ComponentType<{ className?: string }>;
 }
 
-const TECHNOLOGIES: TechCard[] = [
+const TECH_STACK: TechItem[] = [
   {
     title: "Variational Quantum Circuits",
-    category: "Quantum Hardware Model",
-    description: "Parameterized unitary transformations U(θ) evaluating energy expectation values on PennyLane&apos;s high-performance statevector simulator with analytical parameter-shift gradient computation.",
+    category: "Quantum Simulation Model",
+    description: "Parameterized unitary transformations U(θ) evaluating expectation values on PennyLane&apos;s analytical statevector simulator (`default.qubit`) with parameter-shift gradient computation.",
     specs: ["PennyLane 0.45.1 Engine", "Basic Entangling Layers", "Angle & IQP Feature Maps"],
     icon: Cpu,
   },
   {
-    title: "12D Context Representation",
+    title: "12D Bandit Context Vector",
     category: "State Feature Engineering",
-    description: "Real-time state vector condensing loss trajectory, gradient norm, gradient variance, parameter velocity, current learning rate, ansatz depth, and quantum Bloch purity into an orthogonal representation.",
-    specs: ["12 Continuous Metrics", "Z-Score Min-Max Normalization", "Sub-Millisecond Inference"],
+    description: "Real-time state vector condensing loss trajectory, gradient norm, gradient variance, parameter velocity, circuit depth, Bayesian diagnosis confidence, entropy, memory retrieval priors, and digital-twin projections.",
+    specs: ["12 Continuous Metrics", "Strict Bounded Range [-1, 1]", "Fast Classical Evaluation"],
     icon: Layers,
   },
   {
     title: "Contextual Thompson Sampling",
     category: "Reinforcement Learning Policy",
-    description: "Bayesian linear bandit maintaining posterior Gaussian-Inverse-Gamma distributions over repair arm coefficients. Samples actions dynamically to solve the exploration-exploitation dilemma.",
-    specs: ["Exact Posterior Conjugacy", "Empirical Reward Conditioning", "Zero Heuristic Bias"],
+    description: "Bayesian linear bandit maintaining posterior Gaussian distributions over repair arm coefficients. Samples actions dynamically to balance exploration of uncertain repairs and exploitation of known successes.",
+    specs: ["Conjugate Gaussian Updating", "Rank-1 Sherman-Morrison Inversion", "Reduced Rollback Variance"],
     icon: GitBranch,
   },
   {
     title: "Digital Twin Lookahead (H=3)",
     category: "Pre-Deployment Verification",
-    description: "Simulation-side forward projection executing H=3 virtual iterations of the candidate repair on an isolated clone. Discards candidates that fail to produce predicted loss reduction before live deployment.",
-    specs: ["H = 3 Lookahead Horizon", "Candidate Loss Delta Check", "100% Pre-Screening Viability"],
+    description: "Simulation-side forward projection executing H=3 virtual iterations of the candidate repair on an isolated clone. Discards candidates predicted to degrade loss by > 20% before live deployment.",
+    specs: ["H = 3 Lookahead Horizon", "Loss Delta Viability Filter", "Disclosed 3.8x Circuit Overhead"],
     icon: Sparkles,
   },
   {
     title: "Dynamic Safety Filter",
     category: "Invariant Guardrails",
-    description: "State-machine barrier preventing high-frequency oscillatory switching (W_osc=4) between complementary repair arms and enforcing invariant constraints such as minimum ansatz depth L ≥ 2.",
-    specs: ["W_osc = 4 Window", "Depth Floor L ≥ 2", "Zero Oscillatory Thrashing"],
+    description: "State-machine barrier preventing high-frequency oscillatory switching (W_osc=4) between complementary repair arms and enforcing invariant constraints such as minimum ansatz depth L ≥ 1 and learning rate bounds.",
+    specs: ["W_osc = 4 Anti-Oscillation Window", "Non-Holonomic Bounds", "3.7x Rollback Reduction in Ablation"],
     icon: Shield,
   },
   {
     title: "Atomic Checkpoint & Rollback",
     category: "Transactional Fault Recovery",
-    description: "Transactional state-machine capturing deep-memory snapshots prior to deployment. If post-repair loss regresses by > 15% across W_val=3 iterations, exact parameters and optimizer buffers are restored.",
-    specs: ["W_val = 3 Validation Horizon", "15% Regression Ceiling", "< 1.2ms In-Memory Rollback"],
+    description: "Transactional state-machine capturing in-memory parameter snapshots prior to repair. If post-repair loss regresses beyond the validation ceiling across W_val=3 iterations, exact parameter snapshots are restored.",
+    specs: ["W_val = 3 Validation Horizon", "Regression Rollback Guard", "In-Memory Snapshot Restoration"],
     icon: Lock,
   },
   {
-    title: "Six Canonical Repair Arms",
+    title: "Six Locked Repair Arms",
     category: "Intervention Space",
     description: "Non-destructive atomic repair primitives covering classical optimizer switching, ansatz depth adjustment, feature map transformation, learning rate scaling, analytical noise correction, and warm restarts.",
-    specs: ["6 Frozen Repair Arms", "Zero Arbitrary Mutations", "Deterministic Reversibility"],
-    icon: Zap,
+    specs: ["6 Domain Actions", "Orthogonal Repair Primitives", "Parameter State Invariants"],
+    icon: Wrench,
   },
   {
-    title: "Persistent Failure Memory",
-    category: "Episodic Knowledge Base",
-    description: "Persistent SQLite failure archive storing state context vectors, diagnosed anomaly classes, deployed repair arms, and verified empirical rewards for warm-start transfer across training runs.",
-    specs: ["SQLite ACID Persistence", "Semantic Similarity Querying", "Zero Catastrophic Forgetting"],
+    title: "Episodic Failure Memory",
+    category: "Long-Term Knowledge Retrieval",
+    description: "Persistent SQLite failure episode store recording 12-dimensional failure embeddings, diagnostic causes, applied repairs, and resulting rewards. Cosine similarity retrieves nearest-neighbor priors.",
+    specs: ["SQLite Persistent Storage", "Cosine Vector Retrieval", "Prior Reward Conditioning"],
     icon: Database,
   },
 ];
 
 export const TechnologySection: React.FC = () => {
   return (
-    <section id="technology" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="technology" className="py-20 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
-            <span>[03 // CORE RESEARCH MECHANISMS]</span>
+            <span>[03 // ARCHITECTURAL SUBSTRATE]</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
-            Engineered Precision. <br />
-            Scientific Rigor.
+          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
+            Scientific &amp; Technical Substrate.
           </h2>
-          <p className="text-base sm:text-lg text-[var(--content-secondary)] leading-relaxed font-sans">
-            Every mechanism in the architecture is designed around deterministic safety invariants and verifiable closed-loop convergence guarantees.
+          <p className="text-sm sm:text-base text-[var(--content-secondary)] leading-relaxed font-sans">
+            The self-healing runtime integrates quantum mechanics, Bayesian statistical inference, reinforcement learning, and transactional systems engineering into a cohesive autonomous control loop.
           </p>
         </div>
 
-        {/* 8 Technical Cards Grid */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-          {TECHNOLOGIES.map((tech) => {
-            const Icon = tech.icon;
-
+        {/* Tech Grid */}
+        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+          {TECH_STACK.map((item) => {
+            const Icon = item.icon;
             return (
               <div
-                key={tech.title}
-                className="glass-panel p-6 flex flex-col justify-between space-y-6 hover:border-[var(--border-highlight)] transition-all group"
+                key={item.title}
+                className="p-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm hover:border-[var(--border-highlight)] transition-all flex flex-col justify-between space-y-4"
               >
-                <div className="space-y-4">
-                  <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-                    <div className="w-9 h-9 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] group-hover:text-[var(--accent)] group-hover:border-[var(--accent)]/30 transition-all">
-                      <Icon className="w-4 h-4" />
-                    </div>
-                    <span className="text-[10px] font-mono text-[var(--content-tertiary)] uppercase tracking-wider">
-                      {tech.category}
+                <div className="space-y-3">
+                  <div className="flex items-center justify-between">
+                    <span className="font-mono text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider">
+                      {item.category}
                     </span>
+                    <Icon className="w-4 h-4 text-[var(--accent)]" />
                   </div>
 
-                  <h3 className="text-base font-bold text-[var(--content-primary)] font-sans tracking-tight">
-                    {tech.title}
+                  <h3 className="text-base font-bold text-[var(--content-primary)] tracking-tight">
+                    {item.title}
                   </h3>
 
                   <p className="text-xs text-[var(--content-secondary)] leading-relaxed font-sans">
-                    {tech.description}
+                    {item.description}
                   </p>
                 </div>
 
-                <div className="pt-4 border-t border-[var(--border-subtle)] space-y-1.5 font-mono text-[10px] text-[var(--content-tertiary)]">
-                  {tech.specs.map((spec, i) => (
-                    <div key={i} className="flex items-center gap-1.5">
+                <div className="pt-3 border-t border-[var(--border-subtle)] space-y-1.5 font-mono text-[10px] text-[var(--content-secondary)]">
+                  {item.specs.map((spec) => (
+                    <div key={spec} className="flex items-center gap-1.5">
                       <span className="w-1 h-1 rounded-full bg-[var(--accent)]" />
                       <span>{spec}</span>
                     </div>

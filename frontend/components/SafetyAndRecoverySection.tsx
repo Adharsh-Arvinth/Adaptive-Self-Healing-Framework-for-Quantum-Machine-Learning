@@ -107,7 +107,7 @@ export const SafetyAndRecoverySection: React.FC = () => {
               </li>
               <li className="flex items-center gap-2">
                 <span className="text-[var(--status-danger)]">✓</span>
-                <span>100% parameter restoration fidelity</span>
+                <span>In-memory checkpoint weight restoration</span>
               </li>
             </ul>
           </div>

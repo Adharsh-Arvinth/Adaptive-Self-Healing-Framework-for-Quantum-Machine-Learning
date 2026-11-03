@@ -89,7 +89,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
               Proxy Loss Trajectory (H = 3 steps)
             </span>
             {activePred?.arm && (
-              <span className="text-[10px] text-purple-400 font-semibold">
+              <span className="text-[10px] text-[var(--accent)] font-semibold">
                 Arm: {activePred.arm.replace(/_/g, " ")}
               </span>
             )}
@@ -127,7 +127,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
           {/* Proxy Stability */}
           <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
             <span className="text-[10px] text-[var(--content-secondary)] font-mono">Stability Score</span>
-            <span className="text-sm font-bold font-mono text-purple-400">
+            <span className="text-sm font-bold font-mono text-[var(--accent)]">
               {(stability * 100).toFixed(1)}%
             </span>
           </div>

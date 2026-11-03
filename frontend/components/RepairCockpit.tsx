@@ -165,7 +165,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
               key={arm.id}
               className={`p-3.5 rounded-xl border transition-all duration-200 flex flex-col justify-between h-[195px] ${
                 isSelected
-                  ? "bg-purple-500/10 dark:bg-purple-500/15 border-purple-500/40 shadow-sm"
+                  ? "bg-[var(--accent-subtle)] border-[var(--accent)]/40 shadow-sm"
                   : "glass-panel-subtle hover:border-[var(--border-highlight)]"
               }`}
             >

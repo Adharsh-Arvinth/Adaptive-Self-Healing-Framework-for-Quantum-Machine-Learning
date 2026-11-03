@@ -65,7 +65,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       {/* Top Banner */}
       <div className="glass-panel p-6">
         <div className="flex items-center gap-2 mb-1.5">
-          <Sliders className="w-5 h-5 text-purple-400" />
+          <Sliders className="w-5 h-5 text-[var(--accent)]" />
           <h1 className="text-base font-bold text-[var(--content-primary)]">
             System & Quantum Circuit Configuration
           </h1>
@@ -96,7 +96,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             </div>
             <div className="flex justify-between items-center p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
               <span className="text-[var(--content-secondary)]">Hilbert Space Map:</span>
-              <span className="text-purple-400 font-semibold">{featureMap} Encoding</span>
+              <span className="text-[var(--accent)] font-semibold">{featureMap} Encoding</span>
             </div>
             <div className="flex justify-between items-center p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
               <span className="text-[var(--content-secondary)]">Classical Optimizer:</span>
@@ -157,7 +157,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 <button
                   onClick={handleExportJSON}
                   disabled={history.length === 0}
-                  className="apple-btn px-3 py-1.5 rounded-lg text-xs bg-purple-600 hover:bg-purple-500 text-white flex items-center gap-1.5 font-medium disabled:opacity-40"
+                  className="apple-btn px-3 py-1.5 rounded-lg text-xs bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white flex items-center gap-1.5 font-medium disabled:opacity-40"
                 >
                   <Download className="w-3.5 h-3.5" />
                   <span>Export JSON</span>
@@ -168,7 +168,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
           {/* Research Baseline Attribution */}
           <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[11px] text-[var(--content-secondary)] font-mono space-y-1">
-            <div className="flex items-center gap-1.5 text-purple-400 font-semibold">
+            <div className="flex items-center gap-1.5 text-[var(--accent)] font-semibold">
               <ShieldCheck className="w-3.5 h-3.5" />
               <span>Scientific Baseline Verification</span>
             </div>

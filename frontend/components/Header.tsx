@@ -2,18 +2,12 @@
 
 import React, { useState } from "react";
 import {
-  Play,
-  Pause,
-  StepForward,
-  RotateCcw,
   Sun,
   Moon,
   ExternalLink,
   Menu,
   X,
-  Activity,
   Terminal,
-  ShieldCheck,
 } from "lucide-react";
 
 const GithubIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
@@ -41,69 +35,62 @@ interface HeaderProps {
 
 export const Header: React.FC<HeaderProps> = ({
   isConnected,
-  pipelineState,
-  stepCount,
-  maxSteps,
-  isRunning,
   isDarkMode,
   onToggleTheme,
-  onStart,
-  onPause,
-  onResume,
-  onStep,
-  onResetPrompt,
   activeView,
   onToggleView,
 }) => {
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
+  // Suggested primary navigation: Home | Framework | Technology | Research | Documentation | GitHub | Live Lab
   const navLinks = [
     { label: "Home", href: "#hero" },
-    { label: "The Challenge", href: "#the-challenge" },
-    { label: "Failure Modes", href: "#the-problem" },
-    { label: "The Concept", href: "#self-healing-concept" },
-    { label: "Lifecycle", href: "#the-framework" },
-    { label: "6 Repair Arms", href: "#repair-mechanisms" },
-    { label: "12D Bandit", href: "#contextual-intelligence" },
-    { label: "Digital Twin", href: "#digital-twin" },
-    { label: "Safety", href: "#safety-recovery" },
-    { label: "Evidence", href: "#research" },
-    { label: "Limitations", href: "#limitations" },
+    { label: "Framework", href: "#the-framework" },
+    { label: "Technology", href: "#technology" },
+    { label: "Research", href: "#research" },
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-2xl bg-[var(--bg-primary)]/90 border-b border-[var(--border-subtle)] transition-all">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 py-3.5 flex items-center justify-between gap-4">
-        {/* Brand Identity */}
-        <div className="flex items-center gap-3">
-          <div
-            onClick={() => onToggleView("landing")}
-            className="flex items-center gap-2.5 cursor-pointer group"
-          >
-            <div className="w-8 h-8 rounded-xl bg-gradient-to-tr from-[#8B4C2F] via-[#A65E3E] to-[#6E432A] flex items-center justify-center text-white font-mono font-bold text-xs shadow-md shadow-[#A65E3E]/20 group-hover:scale-105 transition-transform">
-              QML
-            </div>
-            <div>
-              <span className="font-display font-extrabold text-sm sm:text-base text-[var(--content-primary)] uppercase tracking-tight block">
-                Adaptive Self-Healing VQC
-              </span>
-              <span className="text-[10px] font-mono text-[var(--content-tertiary)] block">
-                Autonomous Closed-Loop Runtime
-              </span>
-            </div>
+    <header className="sticky top-0 z-50 backdrop-blur-xl bg-[var(--bg-primary)]/90 border-b border-[var(--border-subtle)] transition-colors h-14">
+      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-12 h-full flex items-center justify-between gap-4">
+        {/* Brand Lockup: Clean horizontal lockup with at most 2 intentional lines */}
+        <div
+          onClick={() => onToggleView("landing")}
+          className="flex items-center gap-2.5 cursor-pointer select-none shrink-0 group"
+          role="button"
+          tabIndex={0}
+          aria-label="Navigate to Home"
+        >
+          <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-[11px] shadow-sm group-hover:opacity-95 transition-opacity shrink-0">
+            QML
+          </div>
+          <div className="flex flex-col justify-center leading-tight">
+            <span className="font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
+              Adaptive Self-Healing VQC
+            </span>
+            <span className="text-[10px] font-mono text-[var(--content-secondary)] whitespace-nowrap">
+              Autonomous Closed-Loop Runtime
+            </span>
           </div>
         </div>
 
-        {/* Center Navigation Links (Editorial Display) */}
-        <nav className="hidden xl:flex items-center gap-4 font-mono text-xs">
+        {/* Primary Desktop Navigation: Compact, non-wrapping horizontal row */}
+        <nav className="hidden md:flex items-center gap-6 font-mono text-xs whitespace-nowrap">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              onClick={() => {
-                if (activeView === "dashboard") onToggleView("landing");
+              onClick={(e) => {
+                if (activeView === "dashboard") {
+                  e.preventDefault();
+                  onToggleView("landing");
+                  setTimeout(() => {
+                    const el = document.querySelector(link.href);
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
               }}
-              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1"
+              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 font-medium"
             >
               {link.label}
             </a>
@@ -113,105 +100,109 @@ export const Header: React.FC<HeaderProps> = ({
             href="https://qml-backend-nczx.onrender.com/docs"
             target="_blank"
             rel="noreferrer"
-            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1"
+            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
           >
             <span>Docs</span>
-            <ExternalLink className="w-3 h-3 text-[var(--content-tertiary)]" />
+            <ExternalLink className="w-3 h-3 text-[var(--content-secondary)]" />
           </a>
 
           <a
             href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
             target="_blank"
             rel="noreferrer"
-            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1"
+            className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
           >
             <GithubIcon className="w-3.5 h-3.5" />
             <span>GitHub</span>
           </a>
         </nav>
 
-        {/* Right Action Hub: Mode Toggle & Lab Switcher */}
-        <div className="flex items-center gap-2.5">
-          {/* Real-Time Telemetry Status Pill */}
-          <div className="hidden sm:flex items-center gap-2 px-3 py-1 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[11px] font-mono">
-            <span className="relative flex h-2 w-2">
-              {isConnected && (
-                <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
-              )}
-              <span className={`relative inline-flex rounded-full h-2 w-2 ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`}></span>
-            </span>
-            <span className="text-[var(--content-secondary)]">
-              {isConnected ? "WSS TELEMETRY ONLINE" : "BACKEND STANDBY"}
+        {/* Header Right Actions: Live Lab CTA & Theme Toggle */}
+        <div className="flex items-center gap-2 sm:gap-3 shrink-0">
+          {/* Status Indicator Pill */}
+          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-[10px] font-mono border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
+            <span className="text-[var(--content-secondary)] font-medium">
+              {isConnected ? "TELEMETRY LIVE" : "STANDBY"}
             </span>
           </div>
 
-          {/* Theme Switcher */}
-          <button
-            onClick={onToggleTheme}
-            className="p-2 rounded-xl border border-[var(--border-subtle)] hover:bg-[var(--bg-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-all active:scale-95"
-            aria-label="Toggle Theme"
-          >
-            {isDarkMode ? <Sun className="w-4 h-4 text-amber-400" /> : <Moon className="w-4 h-4 text-stone-600" />}
-          </button>
-
-          {/* Primary View Toggle: Landing vs Live Research Lab */}
+          {/* Live Lab View Toggle */}
           <button
             onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
-            className={`apple-btn px-4 py-2 rounded-xl text-xs font-mono font-bold flex items-center gap-2 transition-all shadow-sm ${
+            className={`px-3 py-1.5 rounded-lg text-xs font-medium flex items-center gap-1.5 transition-all shadow-sm whitespace-nowrap ${
               activeView === "dashboard"
-                ? "bg-[var(--accent)] text-white shadow-sm shadow-[var(--accent)]/20"
-                : "bg-[var(--content-primary)] text-[var(--bg-primary)] hover:opacity-90"
+                ? "bg-[var(--accent)] text-white shadow-sm hover:opacity-90"
+                : "bg-[var(--content-primary)] text-[var(--bg-primary)] hover:opacity-90 active:scale-95"
             }`}
           >
             <Terminal className="w-3.5 h-3.5" />
-            <span>{activeView === "dashboard" ? "EXIT LAB [ESC]" : "LIVE LAB ↗"}</span>
+            <span>{activeView === "dashboard" ? "Landing Page" : "Live Lab"}</span>
           </button>
 
-          {/* Mobile Hamburger Menu Toggle */}
+          {/* Compact Theme Toggle */}
+          <button
+            onClick={onToggleTheme}
+            className="p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)] transition-colors"
+            aria-label="Toggle theme"
+          >
+            {isDarkMode ? <Sun className="w-3.5 h-3.5" /> : <Moon className="w-3.5 h-3.5" />}
+          </button>
+
+          {/* Mobile Menu Toggle Button */}
           <button
             onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-            className="xl:hidden p-2 rounded-xl border border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-            aria-label="Toggle Menu"
+            className="md:hidden p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+            aria-label="Open mobile navigation"
           >
             {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
           </button>
         </div>
       </div>
 
-      {/* Mobile Drawer Menu */}
+      {/* Refined Mobile Navigation Drawer */}
       {mobileMenuOpen && (
-        <div className="xl:hidden p-4 border-t border-[var(--border-subtle)] bg-[var(--bg-surface)] font-mono text-xs space-y-2.5 animate-slide-down max-h-[80vh] overflow-y-auto">
+        <div className="md:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] backdrop-blur-2xl px-6 py-4 space-y-3 font-mono text-xs shadow-lg animate-fade-in">
           {navLinks.map((link) => (
             <a
               key={link.label}
               href={link.href}
-              onClick={() => {
+              onClick={(e) => {
                 setMobileMenuOpen(false);
-                if (activeView === "dashboard") onToggleView("landing");
+                if (activeView === "dashboard") {
+                  e.preventDefault();
+                  onToggleView("landing");
+                  setTimeout(() => {
+                    const el = document.querySelector(link.href);
+                    el?.scrollIntoView({ behavior: "smooth" });
+                  }, 100);
+                }
               }}
-              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+              className="block text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
             >
               {link.label}
             </a>
           ))}
-          <div className="pt-2 border-t border-[var(--border-subtle)] space-y-2">
-            <a
-              href="https://qml-backend-nczx.onrender.com/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-            >
-              FastAPI Interactive Docs ↗
-            </a>
-            <a
-              href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
-              target="_blank"
-              rel="noreferrer"
-              className="block py-1.5 text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-            >
-              GitHub Repository ↗
-            </a>
-          </div>
+          <a
+            href="https://qml-backend-nczx.onrender.com/docs"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
+          >
+            <span>Documentation (Swagger)</span>
+            <ExternalLink className="w-3.5 h-3.5" />
+          </a>
+          <a
+            href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
+            target="_blank"
+            rel="noreferrer"
+            onClick={() => setMobileMenuOpen(false)}
+            className="flex items-center justify-between text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 transition-colors"
+          >
+            <span>GitHub Repository</span>
+            <GithubIcon className="w-3.5 h-3.5" />
+          </a>
         </div>
       )}
     </header>

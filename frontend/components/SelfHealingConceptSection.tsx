@@ -84,7 +84,7 @@ export const SelfHealingConceptSection: React.FC = () => {
               </li>
               <li className="flex items-start gap-2.5">
                 <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />
-                <span>Atomic checkpoint snapshots ensuring 100% parameter restoration on validation failure</span>
+                <span>Atomic checkpoint snapshots ensuring exact pre-repair weight restoration on validation failure</span>
               </li>
             </ul>
           </div>

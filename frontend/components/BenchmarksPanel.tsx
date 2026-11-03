@@ -229,7 +229,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                           23.3%
                         </td>
                         <td className="p-3 text-emerald-600 dark:text-emerald-400 font-bold">
-                          10.7% (Lowest)
+                          10.7 &plusmn; 2.8% (Lowest)
                         </td>
                       </tr>
                       <tr>
@@ -238,7 +238,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <td className="p-3 text-[var(--content-secondary)]">[-5.29, -4.20]</td>
                         <td className="p-3">12.65 &plusmn; 0.51</td>
                         <td className="p-3">25.3%</td>
-                        <td className="p-3 text-amber-600 dark:text-amber-400">17.3%</td>
+                        <td className="p-3 text-amber-600 dark:text-amber-400">17.3 &plusmn; 4.3%</td>
                       </tr>
                       <tr>
                         <td className="p-3 font-medium">Fixed Heuristic Rule</td>
@@ -246,7 +246,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <td className="p-3 text-[var(--content-secondary)]">[-6.01, -4.89]</td>
                         <td className="p-3">12.38 &plusmn; 0.74</td>
                         <td className="p-3">12.3%</td>
-                        <td className="p-3 text-rose-600 dark:text-rose-400 font-bold">23.0% (2.1x surge)</td>
+                        <td className="p-3 text-rose-600 dark:text-rose-400 font-bold">23.0 &plusmn; 3.7% (2.1x surge)</td>
                       </tr>
                       <tr>
                         <td className="p-3 font-medium">Uniform Random</td>
@@ -254,7 +254,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <td className="p-3 text-[var(--content-secondary)]">[-5.46, -4.56]</td>
                         <td className="p-3">12.76 &plusmn; 0.46</td>
                         <td className="p-3">23.3%</td>
-                        <td className="p-3 text-amber-600 dark:text-amber-400">16.3%</td>
+                        <td className="p-3 text-amber-600 dark:text-amber-400">16.3 &plusmn; 3.7%</td>
                       </tr>
                     </tbody>
                   </table>
@@ -264,7 +264,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                   <div className="flex items-start gap-2">
                     <AlertTriangle className="w-4 h-4 text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                     <div>
-                      <strong className="text-[var(--content-primary)]">Statistical Rigor Disclosure:</strong> Paired two-tailed t-test between Contextual Thompson Sampling and Fixed Heuristic across 10 random seeds yields <code className="font-mono text-[var(--content-primary)]">p = 0.0559</code>. While not statistically significant at the conventional &alpha;=0.05 threshold, Thompson Sampling delivers a statistically significant 53.5% reduction in catastrophic rollbacks (10.7% vs 23.0%, p &lt; 0.01).
+                      <strong className="text-[var(--content-primary)]">Statistical Rigor Disclosure:</strong> TS reward superiority is not statistically significant against the comparison policies across 10 paired seeds (TS vs Heuristic: <code className="font-mono text-[var(--content-primary)]">p = 0.0559</code>; TS vs Greedy: <code className="font-mono text-[var(--content-primary)]">p = 0.3282</code>; TS vs Random: <code className="font-mono text-[var(--content-primary)]">p = 0.6746</code>). The demonstrable advantages of Thompson Sampling are a 53.5% reduction in observed rollbacks (10.7% vs 23.0% for heuristic) and substantially lower seed-to-seed reward variability.
                     </div>
                   </div>
                 </div>

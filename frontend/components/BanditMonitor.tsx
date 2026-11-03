@@ -147,14 +147,14 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
         {/* Header */}
         <div className="flex items-center justify-between mb-3">
           <div className="flex items-center gap-2">
-            <Network className="w-4 h-4 text-purple-400" />
+            <Network className="w-4 h-4 text-[var(--accent)]" />
             <h2 className="text-xs font-semibold text-[var(--content-primary)]">
               Contextual Thompson Sampling & Posteriors
             </h2>
           </div>
           <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--content-secondary)]">
             <span>Algorithm:</span>
-            <span className="px-2 py-0.5 rounded bg-purple-500/15 text-purple-300 border border-purple-500/30 font-semibold">
+            <span className="px-2 py-0.5 rounded bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent)]/30 font-semibold">
               Contextual Thompson Sampling
             </span>
           </div>
@@ -165,7 +165,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
           <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-xs mb-3.5">
             <div>
               <span className="text-[10px] text-[var(--content-secondary)] block">Selected Arm</span>
-              <span className="text-purple-400 font-semibold">{decision.selected_arm.replace(/_/g, " ")}</span>
+              <span className="text-[var(--accent)] font-semibold">{decision.selected_arm.replace(/_/g, " ")}</span>
             </div>
             <div>
               <span className="text-[10px] text-[var(--content-secondary)] block">Sampled Payoff r̃</span>
@@ -173,7 +173,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
             </div>
             <div>
               <span className="text-[10px] text-[var(--content-secondary)] block">Expected Reward μ</span>
-              <span className="text-cyan-400 font-semibold">{decision.expected_reward.toFixed(4)}</span>
+              <span className="text-[var(--status-info)] font-semibold">{decision.expected_reward.toFixed(4)}</span>
             </div>
             <div>
               <span className="text-[10px] text-[var(--content-secondary)] block">Eligible Pool</span>
@@ -196,7 +196,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
                     key={armName}
                     className={`p-2.5 rounded-xl border flex flex-col justify-between transition-all ${
                       isSelected
-                        ? "bg-purple-500/15 border-purple-500/40 shadow-glow"
+                        ? "bg-[var(--accent-subtle)] border-[var(--accent)]/40 shadow-sm"
                         : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
                     }`}
                   >
@@ -224,7 +224,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
             className="w-full flex items-center justify-between text-xs font-mono text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1"
           >
             <span className="flex items-center gap-1.5 font-semibold">
-              <Layers className="w-3.5 h-3.5 text-purple-400" />
+              <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
               12-Dimensional Context Vector Specification ({CONTEXT_12D_SPECS.length} features)
             </span>
             <span className="flex items-center gap-1 text-[11px]">
@@ -248,7 +248,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
                 <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
                   {CONTEXT_12D_SPECS.map((f) => (
                     <tr key={f.index} className="hover:bg-white/[0.02]">
-                      <td className="p-2 text-purple-400 font-semibold">x{f.index}</td>
+                      <td className="p-2 text-[var(--accent)] font-semibold">x{f.index}</td>
                       <td className="p-2 font-sans font-medium">{f.name}</td>
                       <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.formula}</td>
                       <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.range}</td>

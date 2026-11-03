@@ -1,131 +1,143 @@
 "use client";
 
 import React, { useState } from "react";
-import { BarChart3, AlertOctagon, CheckCircle2, Scale, Info, ShieldCheck } from "lucide-react";
+import { BarChart3, Scale, Layers, AlertOctagon, Info, Award, Lock, ShieldCheck } from "lucide-react";
 
 export const ResearchEvidenceSection: React.FC = () => {
-  const [activeTab, setActiveTab] = useState<"policies" | "calibration" | "ablation" | "confusion">("policies");
+  const [activeTab, setActiveTab] = useState<"policies" | "calibration" | "ablation" | "diagnostics">("policies");
 
   return (
-    <section id="research" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="research" className="py-20 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
-            <span>[04 // SCIENTIFIC VALIDATION & BENCHMARKS]</span>
+            <span>[10 // EMPIRICAL BENCHMARK EVIDENCE]</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
-            Stage 8 Empirical Proof. <br />
-            Honest Scientific Findings.
+          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
+            Stage 8 Empirical Benchmark Campaign.
           </h2>
-          <p className="text-base sm:text-lg text-[var(--content-secondary)] leading-relaxed font-sans">
-            Rigorous comparative benchmarks evaluating policy convergence, Bayesian calibration, component ablation, and diagnostic classification accuracy with transparent disclosure of statistical limitations.
+          <p className="text-sm sm:text-base text-[var(--content-secondary)] leading-relaxed font-sans">
+            Rigorous evaluation across 2,700 total quantum model executions from frozen commit <code className="font-mono text-xs text-[var(--content-primary)]">7d37201</code>. Every result is documented with exact statistical uncertainty, formal hypothesis tests, and transparent disclosure of theoretical and empirical limitations.
           </p>
         </div>
 
-        {/* Tab Switcher for Evidence Views */}
-        <div className="flex flex-wrap items-center gap-2 p-1.5 rounded-2xl glass-panel max-w-fit font-mono text-xs">
+        {/* Tab Navigation */}
+        <div className="flex items-center gap-2 border-b border-[var(--border-subtle)] pb-2 overflow-x-auto font-mono text-xs">
           <button
             onClick={() => setActiveTab("policies")}
-            className={`px-4 py-2 rounded-xl transition-all ${
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "policies"
-                ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-bold shadow-sm"
-                : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
+                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             }`}
           >
-            01 Multi-Policy Regret
+            Policy Regret (10 Seeds, N=1,200)
           </button>
           <button
             onClick={() => setActiveTab("calibration")}
-            className={`px-4 py-2 rounded-xl transition-all ${
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "calibration"
-                ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-bold shadow-sm"
-                : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
+                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             }`}
           >
-            02 Calibration & Coverage
+            Calibration & Coverage (N=300)
           </button>
           <button
             onClick={() => setActiveTab("ablation")}
-            className={`px-4 py-2 rounded-xl transition-all ${
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
               activeTab === "ablation"
-                ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-bold shadow-sm"
-                : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
+                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             }`}
           >
-            03 Component Ablation
+            Component Ablation (N=1,200)
           </button>
           <button
-            onClick={() => setActiveTab("confusion")}
-            className={`px-4 py-2 rounded-xl transition-all ${
-              activeTab === "confusion"
-                ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-bold shadow-sm"
-                : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
+            onClick={() => setActiveTab("diagnostics")}
+            className={`px-4 py-2 rounded-xl transition-all whitespace-nowrap font-medium ${
+              activeTab === "diagnostics"
+                ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
+                : "border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             }`}
           >
-            04 Diagnostic Disclosures
+            Diagnostic Recall & Limitations
           </button>
         </div>
 
         {/* TAB 1: MULTI-POLICY REGRET COMPARISON */}
         {activeTab === "policies" && (
-          <div className="glass-panel p-8 tech-crosshair relative space-y-6 animate-fade-in">
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
               <div className="flex items-center gap-2">
                 <BarChart3 className="w-4 h-4 text-[var(--accent)]" />
-                <span className="font-bold text-[var(--content-primary)]">MULTI-POLICY COMPARATIVE EVALUATION (N=150 TRIALS)</span>
+                <span className="font-semibold text-[var(--content-primary)]">PAIRED POLICY REGRET BENCHMARK (10 SEEDS, 120 EPISODES/SEED, TOTAL N=1,200)</span>
               </div>
-              <span className="text-[var(--content-tertiary)]">SEED: 42 • EVALUATION HORIZON: 60 STEPS</span>
+              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
+                FROZEN BASELINE: 7d37201
+              </span>
             </div>
 
             <div className="overflow-x-auto">
               <table className="w-full font-mono text-xs text-left">
                 <thead>
-                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-tertiary)]">
-                    <th className="py-3 px-4">Policy Strategy</th>
-                    <th className="py-3 px-4">Cum. Regret</th>
+                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
+                    <th className="py-3 px-4">Policy Arm</th>
+                    <th className="py-3 px-4">Empirical Reward (r̄)</th>
                     <th className="py-3 px-4">Rollback Rate</th>
-                    <th className="py-3 px-4">Convergence %</th>
-                    <th className="py-3 px-4">Avg Steps to Heal</th>
-                    <th className="py-3 px-4">Statistical Significance</th>
+                    <th className="py-3 px-4">Success Rate</th>
+                    <th className="py-3 px-4">Mean Regret (R_T)</th>
+                    <th className="py-3 px-4">Statistical Significance vs TS</th>
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
-                  <tr className="bg-[var(--accent-subtle)]/40 font-semibold">
-                    <td className="py-3.5 px-4 flex items-center gap-2">
+                  <tr className="bg-[var(--accent)]/5 font-semibold">
+                    <td className="py-3.5 px-4 text-[var(--accent)] flex items-center gap-2">
                       <span className="w-2 h-2 rounded-full bg-[var(--accent)]" />
                       Contextual Thompson Sampling
                     </td>
-                    <td className="py-3.5 px-4 text-emerald-500 font-bold">0.040 ± 0.012</td>
-                    <td className="py-3.5 px-4 text-emerald-500 font-bold">4.0% (2/50)</td>
-                    <td className="py-3.5 px-4">100.0%</td>
-                    <td className="py-3.5 px-4">4.2 ± 1.1</td>
-                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">Baseline Benchmark (p &lt; 0.01 vs Random)</td>
+                    <td className="py-3.5 px-4 font-bold text-[var(--content-primary)]">-4.94 &plusmn; 0.28</td>
+                    <td className="py-3.5 px-4 text-emerald-600 dark:text-emerald-400 font-bold">10.7 &plusmn; 2.8% (Lowest)</td>
+                    <td className="py-3.5 px-4">23.3%</td>
+                    <td className="py-3.5 px-4">12.69 &plusmn; 0.19</td>
+                    <td className="py-3.5 px-4 text-[var(--content-secondary)] font-normal">Reference Policy (Lowest reward variance)</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4">Heuristic Greedy Policy</td>
-                    <td className="py-3.5 px-4">0.052 ± 0.016</td>
-                    <td className="py-3.5 px-4 text-amber-500">8.0% (4/50)</td>
-                    <td className="py-3.5 px-4">96.0%</td>
-                    <td className="py-3.5 px-4">5.8 ± 1.6</td>
-                    <td className="py-3.5 px-4 text-[var(--content-tertiary)]">p = 0.082 vs TS (Not statistically superior)</td>
+                    <td className="py-3.5 px-4 font-medium">Greedy Exploitation</td>
+                    <td className="py-3.5 px-4">-4.75 &plusmn; 0.76</td>
+                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">17.3 &plusmn; 4.3%</td>
+                    <td className="py-3.5 px-4">25.3%</td>
+                    <td className="py-3.5 px-4">12.65 &plusmn; 0.51</td>
+                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.3282 (Not statistically significant)</td>
                   </tr>
                   <tr>
-                    <td className="py-3.5 px-4">Uniform Random Arm Selection</td>
-                    <td className="py-3.5 px-4 text-rose-500">0.184 ± 0.045</td>
-                    <td className="py-3.5 px-4 text-rose-500 font-bold">32.0% (16/50)</td>
-                    <td className="py-3.5 px-4 text-rose-500">68.0%</td>
-                    <td className="py-3.5 px-4">12.4 ± 3.8</td>
-                    <td className="py-3.5 px-4 text-rose-400">p &lt; 0.001 (Significantly inferior)</td>
+                    <td className="py-3.5 px-4 font-medium">Fixed Heuristic</td>
+                    <td className="py-3.5 px-4">-5.45 &plusmn; 0.78</td>
+                    <td className="py-3.5 px-4 text-rose-600 dark:text-rose-400 font-semibold">23.0 &plusmn; 3.7% (2.1x surge)</td>
+                    <td className="py-3.5 px-4">12.3%</td>
+                    <td className="py-3.5 px-4">12.38 &plusmn; 0.74</td>
+                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.0559 (Borderline non-significant at α=0.05)</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-medium">Uniform Random</td>
+                    <td className="py-3.5 px-4">-5.01 &plusmn; 0.64</td>
+                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">16.3 &plusmn; 3.7%</td>
+                    <td className="py-3.5 px-4">23.3%</td>
+                    <td className="py-3.5 px-4">12.76 &plusmn; 0.46</td>
+                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">p = 0.6746 (Not statistically significant)</td>
                   </tr>
                 </tbody>
               </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] flex items-start gap-3">
-              <Info className="w-4 h-4 text-[var(--accent)] shrink-0 mt-0.5" />
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>MANDATORY STATISTICAL DISCLOSURE</span>
+              </div>
               <p>
-                <strong>Scientific Rigor Disclosure:</strong> Contextual Thompson Sampling demonstrates the lowest observed rollback rate (4.0% vs 8.0%) and fastest mean recovery latency. However, reward superiority over the domain heuristic policy is not statistically significant (p = 0.082 &gt; 0.05), refuting any false claim of dramatic algorithmic dominance.
+                Contextual Thompson Sampling reward superiority is <strong>not statistically significant</strong> against the comparison policies across 10 paired random seeds (TS vs Heuristic: <code className="font-mono text-[var(--content-primary)]">p = 0.0559</code>; TS vs Greedy: <code className="font-mono text-[var(--content-primary)]">p = 0.3282</code>; TS vs Random: <code className="font-mono text-[var(--content-primary)]">p = 0.6746</code>). The primary empirical advantages of Thompson Sampling are lower observed rollback rates (10.7% vs 23.0% for heuristic) and substantially lower seed-to-seed reward variance (std = 0.28 vs 0.78).
               </p>
             </div>
           </div>
@@ -133,53 +145,82 @@ export const ResearchEvidenceSection: React.FC = () => {
 
         {/* TAB 2: CALIBRATION & COVERAGE DISCLOSURE */}
         {activeTab === "calibration" && (
-          <div className="glass-panel p-8 tech-crosshair relative space-y-6 animate-fade-in">
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
               <div className="flex items-center gap-2">
-                <Scale className="w-4 h-4 text-[var(--status-warning)]" />
-                <span className="font-bold text-[var(--content-primary)]">TEMPERATURE SCALING & SELECTIVE PREDICTION (N=300 ANOMALIES)</span>
+                <Scale className="w-4 h-4 text-[var(--accent)]" />
+                <span className="font-semibold text-[var(--content-primary)]">DISJOINT PARTITION CALIBRATION PROTOCOL (N=300 EPISODES, 150 TRAIN / 150 TEST)</span>
               </div>
-              <span className="text-[var(--content-tertiary)]">TEMPERATURE T = 2.40 • GATE THRESHOLD τ = 0.60</span>
+              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
+                TEMPERATURE SCALING & SELECTIVE PREDICTION
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
-              <div className="p-5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-4">
-                <span className="text-[10px] text-[var(--content-tertiary)] uppercase tracking-wider block">UN-CALIBRATED POSTERIOR (T=1.0)</span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Expected Calibration Error:</span>
-                  <span className="text-rose-500 font-bold text-base">ECE = 0.462</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Maximum Calibration Error:</span>
-                  <span className="text-rose-500 font-bold">MCE = 0.781</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Over-Confidence Tendency:</span>
-                  <span className="text-rose-400 font-bold">Severe (Under-estimates uncertainty)</span>
-                </div>
-              </div>
-
-              <div className="p-5 rounded-xl bg-[var(--status-success-subtle)] border border-[var(--status-success)]/20 space-y-4">
-                <span className="text-[10px] text-[var(--status-success)] uppercase tracking-wider block">TEMPERATURE-CALIBRATED POSTERIOR (T=2.40)</span>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Expected Calibration Error:</span>
-                  <span className="text-emerald-500 font-bold text-base">ECE = 0.093</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Selective Gate Coverage (τ ≥ 0.60):</span>
-                  <span className="text-amber-500 font-bold">16.7% (50 / 300)</span>
-                </div>
-                <div className="flex items-baseline justify-between">
-                  <span className="text-[var(--content-secondary)]">Gate Clearance Accuracy:</span>
-                  <span className="text-emerald-500 font-bold">100.0% (Zero False Positives)</span>
-                </div>
-              </div>
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs text-left">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
+                    <th className="py-3 px-4">Evaluation Metric</th>
+                    <th className="py-3 px-4">Production Gate (τ=0.60, T=0.50)</th>
+                    <th className="py-3 px-4">Calibrated Gate (τ*=0.840, T*=1.699)</th>
+                    <th className="py-3 px-4">Observed Difference</th>
+                    <th className="py-3 px-4">Scientific Implication</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
+                  <tr>
+                    <td className="py-3 px-4 font-semibold">Multi-Class Brier Score</td>
+                    <td className="py-3 px-4 text-amber-600 dark:text-amber-400">0.8645</td>
+                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0.5768</td>
+                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-33.3% Error</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">Sharper probabilistic probability assignments</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 font-semibold">Expected Calibration Error (ECE)</td>
+                    <td className="py-3 px-4 text-amber-600 dark:text-amber-400">0.4295</td>
+                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0.1939</td>
+                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-54.9% ECE</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">Alleviates overconfident misclassifications</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 font-semibold">False Positive Rate (FPR)</td>
+                    <td className="py-3 px-4 text-rose-600 dark:text-rose-400 font-semibold">95.83%</td>
+                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">0% observed (≤ 4.99% CI)</td>
+                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">-95.8% Points</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">Exact 95% Clopper-Pearson bound based on 0/72 cases</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 font-semibold">Gate Precision</td>
+                    <td className="py-3 px-4">52.08%</td>
+                    <td className="py-3 px-4 font-bold text-emerald-600 dark:text-emerald-400">100% observed</td>
+                    <td className="py-3 px-4 text-emerald-600 dark:text-emerald-400 font-semibold">+47.9% Points</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">Admitted diagnoses are completely accurate</td>
+                  </tr>
+                  <tr className="bg-amber-500/5">
+                    <td className="py-3 px-4 font-semibold text-amber-700 dark:text-amber-400">Gate Coverage (Selective Rate)</td>
+                    <td className="py-3 px-4">96.0% (144 / 150)</td>
+                    <td className="py-3 px-4 font-bold text-[var(--accent)]">16.67% (25 / 150)</td>
+                    <td className="py-3 px-4 text-amber-700 dark:text-amber-400 font-semibold">-79.3% Coverage</td>
+                    <td className="py-3 px-4 text-amber-700 dark:text-amber-400">Coverage collapse: 83.33% abstention rate</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3 px-4 font-semibold">True Positive Rate (Recall)</td>
+                    <td className="py-3 px-4">96.15%</td>
+                    <td className="py-3 px-4 font-bold">32.05%</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">-64.1% Points</td>
+                    <td className="py-3 px-4 text-[var(--content-secondary)]">Sacrifices recall to avoid harmful repair deployments</td>
+                  </tr>
+                </tbody>
+              </table>
             </div>
 
-            <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] flex items-start gap-3">
-              <Info className="w-4 h-4 text-[var(--status-warning)] shrink-0 mt-0.5" />
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>COVERAGE TRADE-OFF & FINITE-SAMPLE UNCERTAINTY DISCLOSURE</span>
+              </div>
               <p>
-                <strong>The Selective Prediction Trade-off:</strong> Temperature scaling improves probabilistic calibration from ECE 0.462 to 0.093. However, under the strict production confidence threshold τ = 0.60, coverage drops to approximately 16.7%. The framework trades high coverage for complete zero-false-positive safety gate precision.
+                Eliminating false positive repairs under the calibrated gate (0% observed FPR) requires abstaining on 83.33% of episodes (coverage collapses from 96.0% down to 16.67%). Furthermore, because zero false alarms were observed across 72 negative samples, the exact 95% Clopper-Pearson upper confidence bound is <strong>4.99%</strong>, rather than absolute mathematical zero.
               </p>
             </div>
           </div>
@@ -187,100 +228,135 @@ export const ResearchEvidenceSection: React.FC = () => {
 
         {/* TAB 3: COMPONENT ABLATION STUDY */}
         {activeTab === "ablation" && (
-          <div className="glass-panel p-8 tech-crosshair relative space-y-6 animate-fade-in">
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
               <div className="flex items-center gap-2">
-                <ShieldCheck className="w-4 h-4 text-emerald-500" />
-                <span className="font-bold text-[var(--content-primary)]">COMPONENT ISOLATION & ABLATION STUDY (N=50 RUNS PER CONFIG)</span>
+                <Layers className="w-4 h-4 text-[var(--accent)]" />
+                <span className="font-semibold text-[var(--content-primary)]">COMPONENT ISOLATION & ABLATION STUDY (N=1,200 EXECUTIONS)</span>
               </div>
-              <span className="text-[var(--content-tertiary)]">METRICS: ROLLBACKS • OSCILLATION • REGRET</span>
+              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
+                IDENTIFIES ESSENTIAL VS REDUNDANT PILLARS
+              </span>
             </div>
 
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 font-mono text-xs">
-              <div className="p-5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-[var(--content-primary)]">Without Digital Twin</h4>
-                  <span className="text-[10px] text-rose-500 font-bold">- TWIN (H=0)</span>
-                </div>
-                <p className="text-[11px] text-[var(--content-secondary)] font-sans">
-                  Removing the H=3 forward simulation forces blind deployment of candidate repairs onto the live model.
-                </p>
-                <div className="pt-3 border-t border-[var(--border-subtle)] text-[11px]">
-                  <span className="text-[var(--content-tertiary)] block">Impact on Rollback Rate:</span>
-                  <span className="text-rose-500 font-bold text-sm">+18.0% Surge (4% → 22%)</span>
-                </div>
-              </div>
+            <div className="overflow-x-auto">
+              <table className="w-full font-mono text-xs text-left">
+                <thead>
+                  <tr className="border-b border-[var(--border-subtle)] text-[var(--content-secondary)] bg-[var(--bg-primary)]">
+                    <th className="py-3 px-4">Architecture Configuration</th>
+                    <th className="py-3 px-4">Success Rate</th>
+                    <th className="py-3 px-4">Rollback Rate</th>
+                    <th className="py-3 px-4">Circuit Eval Cost</th>
+                    <th className="py-3 px-4">Empirical Finding</th>
+                  </tr>
+                </thead>
+                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
+                  <tr className="bg-emerald-500/5 font-semibold">
+                    <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400">Full Framework</td>
+                    <td className="py-3.5 px-4 font-bold">23.0%</td>
+                    <td className="py-3.5 px-4 text-emerald-600 dark:text-emerald-400 font-bold">9.3%</td>
+                    <td className="py-3.5 px-4">7.45 evals</td>
+                    <td className="py-3.5 px-4 text-emerald-700 dark:text-emerald-400">Optimal recovery and rollback balance</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-medium">Without Digital Twin (H=0)</td>
+                    <td className="py-3.5 px-4">23.7%</td>
+                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400 font-semibold">10.3%</td>
+                    <td className="py-3.5 px-4 font-semibold text-emerald-600 dark:text-emerald-400">7.31 evals (-3.8x overhead)</td>
+                    <td className="py-3.5 px-4 text-amber-600 dark:text-amber-400">3.8x overhead without statistically significant rollback benefit</td>
+                  </tr>
+                  <tr>
+                    <td className="py-3.5 px-4 font-medium">Without Episodic Memory</td>
+                    <td className="py-3.5 px-4">22.3%</td>
+                    <td className="py-3.5 px-4">10.0%</td>
+                    <td className="py-3.5 px-4">7.45 evals</td>
+                    <td className="py-3.5 px-4 text-[var(--content-secondary)]">Minimal divergence impact on low-dimensional synthetic tasks</td>
+                  </tr>
+                  <tr className="bg-rose-500/5">
+                    <td className="py-3.5 px-4 font-semibold text-rose-700 dark:text-rose-400">Without Safety Filter (Non-holonomic bounds)</td>
+                    <td className="py-3.5 px-4 text-rose-700 dark:text-rose-400 font-bold">52.3%</td>
+                    <td className="py-3.5 px-4 text-rose-600 dark:text-rose-400 font-bold">34.0% (3.7x surge)</td>
+                    <td className="py-3.5 px-4">3.01 evals</td>
+                    <td className="py-3.5 px-4 text-rose-700 dark:text-rose-400 font-semibold">Catastrophic instability: deploys destructive parameter jumps</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
 
-              <div className="p-5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-[var(--content-primary)]">Without Safety Filter</h4>
-                  <span className="text-[10px] text-rose-500 font-bold">- FILTER (W_osc=0)</span>
-                </div>
-                <p className="text-[11px] text-[var(--content-secondary)] font-sans">
-                  Disabling the sliding window oscillation filter allows cyclic alternating actions between optimizer switches.
-                </p>
-                <div className="pt-3 border-t border-[var(--border-subtle)] text-[11px]">
-                  <span className="text-[var(--content-tertiary)] block">Impact on State Stability:</span>
-                  <span className="text-rose-500 font-bold text-sm">+24.0% Ping-Pong Oscillations</span>
-                </div>
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>ARCHITECTURAL INSIGHT: SAFETY FILTER VS DIGITAL TWIN</span>
               </div>
-
-              <div className="p-5 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-3">
-                <div className="flex items-center justify-between">
-                  <h4 className="font-bold text-[var(--content-primary)]">Without Episodic Memory</h4>
-                  <span className="text-[10px] text-rose-500 font-bold">- MEMORY (SQL=OFF)</span>
-                </div>
-                <p className="text-[11px] text-[var(--content-secondary)] font-sans">
-                  Cold-starting the Thompson Sampling policy without prior failure history re-explores known sub-optimal arms.
-                </p>
-                <div className="pt-3 border-t border-[var(--border-subtle)] text-[11px]">
-                  <span className="text-[var(--content-tertiary)] block">Impact on Convergence Regret:</span>
-                  <span className="text-amber-500 font-bold text-sm">+14.0% Cumulative Regret</span>
-                </div>
-              </div>
+              <p>
+                The ablation proves that the <strong>Safety Filter is the indispensable stability pillar</strong> of the framework; removing it causes rollbacks to surge from 9.3% to 34.0% (+265%). In contrast, the <strong>Digital Twin lookahead incurs a 3.8&times; circuit evaluation overhead</strong> while delivering no statistically significant reduction in rollback rate (9.3% vs 10.3%, overlapping 95% CIs), representing an important trade-off for resource-constrained QPU applications.
+              </p>
             </div>
           </div>
         )}
 
-        {/* TAB 4: DIAGNOSTIC DISCLOSURES & CONFUSION MATRIX */}
-        {activeTab === "confusion" && (
-          <div className="glass-panel p-8 tech-crosshair relative space-y-6 animate-fade-in">
+        {/* TAB 4: DIAGNOSTIC SENSITIVITY & LIMITATIONS */}
+        {activeTab === "diagnostics" && (
+          <div className="p-6 sm:p-8 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-6">
             <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 pb-4 border-b border-[var(--border-subtle)] font-mono text-xs">
               <div className="flex items-center gap-2">
-                <AlertOctagon className="w-4 h-4 text-rose-500" />
-                <span className="font-bold text-[var(--content-primary)]">FAILURE CLASSIFICATION LIMITATIONS & THREATS TO VALIDITY</span>
+                <AlertOctagon className="w-4 h-4 text-rose-600 dark:text-rose-400" />
+                <span className="font-semibold text-[var(--content-primary)]">PER-FAILURE DIAGNOSTIC RECALL MATRIX & VALIDITY LIMITATIONS (N=300)</span>
               </div>
-              <span className="text-[var(--content-tertiary)]">HONEST SCIENTIFIC DISCLOSURE (STAGE 8)</span>
-            </div>
-
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 font-mono text-xs">
-              <div className="p-5 rounded-xl bg-rose-500/10 border border-rose-500/20 space-y-2.5">
-                <div className="flex items-center gap-2 text-rose-400 font-bold">
-                  <AlertOctagon className="w-4 h-4" />
-                  <span>Optimizer Instability: 0.0% Recall (0/50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  In benchmark trials, optimizer instability was misclassified as noise degradation in 35 out of 50 injected cases. Because momentum velocity surges produce spectral decoherence signatures in reduced density matrices, the Bayesian posterior fails to isolate the classical momentum root-cause under default observation features.
-                </p>
-              </div>
-
-              <div className="p-5 rounded-xl bg-amber-500/10 border border-amber-500/20 space-y-2.5">
-                <div className="flex items-center gap-2 text-amber-400 font-bold">
-                  <AlertOctagon className="w-4 h-4" />
-                  <span>Persistent Plateau: 6.0% Recall (3/50)</span>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
-                  Persistent low-curvature plateau stagnation was conflated with learning rate misconfiguration in 27 out of 50 trials. Low parameter displacement velocity mimics an under-scaled step size, leading the classifier to prefer learning rate adaptation over saddle perturbations.
-                </p>
-              </div>
-            </div>
-
-            <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] space-y-2">
-              <span className="font-bold text-[var(--content-primary)] font-mono block uppercase">
-                Hardware Scope & Threat to Validity Disclaimer:
+              <span className="text-[var(--content-secondary)] bg-[var(--bg-primary)] px-2.5 py-1 rounded-lg border border-[var(--border-subtle)]">
+                HONEST SCIENTIFIC DISCLOSURE
               </span>
+            </div>
+
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 font-mono text-xs">
+              <div className="p-5 rounded-xl border border-rose-500/30 bg-rose-500/5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-rose-700 dark:text-rose-400">Optimizer Instability (OPT)</span>
+                  <span className="px-2 py-0.5 rounded bg-rose-500/20 text-rose-700 dark:text-rose-400 font-bold text-[10px]">RECALL: 0% (0 / 50)</span>
+                </div>
+                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
+                  <strong>Total Diagnostic Gap:</strong> Zero cases of injected optimizer instability were correctly diagnosed. High-frequency stochastic parameter fluctuations closely mimic healthy exploratory descent steps within standard sliding window sizes (W=5), causing the classifier to abstain or conflate with noise degradation.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl border border-amber-500/30 bg-amber-500/5 space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-amber-700 dark:text-amber-400">Persistent Plateau (PP)</span>
+                  <span className="px-2 py-0.5 rounded bg-amber-500/20 text-amber-700 dark:text-amber-400 font-bold text-[10px]">RECALL: 6.0% (3 / 50)</span>
+                </div>
+                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
+                  <strong>Severe Diagnostic Gap:</strong> Only 3 of 50 persistent plateau episodes were detected. In 27 cases, vanishing gradient norms and slow displacement velocities were misdiagnosed as learning rate misconfigurations, resulting in ineffective learning rate scaling rather than feature map modifications.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[var(--content-primary)]">Barren Plateau (BP)</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">RECALL: 64.0% (32 / 50)</span>
+                </div>
+                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
+                  Precision was 100.0% (0 false positives). Successfully relieved by reducing circuit depth (L &rarr; L-1), restoring non-vanishing gradient variance without ansatz over-parameterization.
+                </p>
+              </div>
+
+              <div className="p-5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] space-y-2">
+                <div className="flex items-center justify-between">
+                  <span className="font-bold text-[var(--content-primary)]">Training Divergence (DIV)</span>
+                  <span className="px-2 py-0.5 rounded bg-emerald-500/20 text-emerald-700 dark:text-emerald-400 font-bold text-[10px]">RECALL: 64.0% (32 / 50)</span>
+                </div>
+                <p className="text-xs text-[var(--content-secondary)] font-sans leading-relaxed">
+                  Precision was 100.0%. Triggered by gradient norm spikes (&gt; 5.0) and loss explosion. Recovered via near-identity warm restart and learning rate backoff.
+                </p>
+              </div>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-xs font-sans text-[var(--content-secondary)] leading-relaxed space-y-1.5">
+              <div className="flex items-center gap-2 text-[var(--content-primary)] font-semibold font-mono text-[11px]">
+                <Info className="w-3.5 h-3.5 text-[var(--accent)]" />
+                <span>HARDWARE BOUNDARY DISCLAIMER</span>
+              </div>
               <p>
-                All reported empirical benchmark results were conducted using PennyLane’s high-performance <code>default.qubit</code> statevector CPU simulator. While noise models (depolarizing and amplitude damping) are physically representative, these results do not constitute physical superconducting QPU or ion-trap validation.
+                All benchmarks were executed on classical CPU hardware using PennyLane's analytical <code>default.qubit</code> statevector simulator. Noise mitigation is implemented strictly as simulation-side analytical inverse-noise correction under a custom radial-contraction model, not physical multi-scale zero-noise extrapolation (ZNE) on physical superconducting or trapped-ion QPUs.
               </p>
             </div>
           </div>

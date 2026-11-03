@@ -240,18 +240,18 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           <div className="p-2.5 rounded-lg glass-panel-subtle border border-[var(--border-subtle)]">
             <div className="flex items-center gap-1.5 text-xs text-[var(--content-primary)] font-medium mb-1">
               <Layers className="w-3.5 h-3.5 text-[var(--status-purity)]" />
-              <span>Rollback Latency</span>
+              <span>Rollback Mechanism</span>
             </div>
             <div className="flex items-center justify-between text-[11px] font-mono">
-              <span className="text-[var(--content-tertiary)]">In-Memory Clone</span>
-              <span className="text-[var(--status-purity)] font-semibold">&lt; 1.2 ms</span>
+              <span className="text-[var(--content-tertiary)]">In-Memory Snapshot</span>
+              <span className="text-[var(--status-purity)] font-semibold">Active Snapshot</span>
             </div>
           </div>
         </div>
 
         {/* Interactive Validation Controls if Active */}
         {isValidating && (onCommit || onRollback) && (
-          <div className="p-3 rounded-xl bg-blue-500/10 border border-blue-500/30 mb-3 space-y-2">
+          <div className="p-3 rounded-xl bg-[var(--status-info-subtle)] border border-[var(--status-info)]/30 mb-3 space-y-2">
             <div className="flex items-center justify-between text-xs font-medium text-[var(--status-info)]">
               <span className="flex items-center gap-1.5">
                 <ShieldAlert className="w-3.5 h-3.5" />
@@ -293,7 +293,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
                 <RotateCcw className="w-3.5 h-3.5 text-[var(--status-danger)]" />
                 <span className="font-semibold">Automatic Rollback Executed</span>
               </div>
-              <span className="text-[11px] leading-tight block mt-1 text-rose-300">
+              <span className="text-[11px] leading-tight block mt-1 text-[var(--status-danger)]">
                 {deployment.rollback_reason}
               </span>
             </div>
@@ -314,7 +314,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
       {/* Symmetrical Footer matching DiagnosisPanel */}
       <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
         <span>Fail-Safe Checkpoint Snapshot: In-Memory Clone</span>
-        <span>100% Exact Parameter & Momentum Restoration</span>
+        <span>In-Memory Deepcopy Snapshot • Zero Data Loss Restoration</span>
       </div>
     </div>
   );

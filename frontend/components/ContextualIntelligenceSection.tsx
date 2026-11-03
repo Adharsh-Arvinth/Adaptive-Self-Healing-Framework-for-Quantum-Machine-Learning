@@ -1,29 +1,114 @@
 "use client";
 
 import React, { useState } from "react";
-import { Network, Brain, Activity, Database, CheckCircle2, ChevronRight } from "lucide-react";
+import { Brain, ChevronRight, Info, Layers, Database } from "lucide-react";
 
 interface FeatureSpec {
   index: number;
   name: string;
   formula: string;
   range: string;
+  source: string;
   interpretation: string;
 }
 
 const CONTEXT_FEATURES: FeatureSpec[] = [
-  { index: 1, name: "Constant Bias", formula: "x₁ = 1.0", range: "[1.0, 1.0]", interpretation: "Affine intercept offset for Bayesian regression hyperplanes" },
-  { index: 2, name: "Normalized Loss", formula: "x₂ = tanh(L_t)", range: "[0.0, 1.0)", interpretation: "Current training binary cross-entropy loss compressed via tanh" },
-  { index: 3, name: "Log Gradient Norm", formula: "x₃ = clip((ln(‖g‖ + 1e-8) + 8)/12, -1, 1)", range: "[-1.0, 1.0]", interpretation: "Log-scale parameter-shift gradient magnitude detecting vanishing/exploding bounds" },
-  { index: 4, name: "Log Gradient Variance", formula: "x₄ = clip((ln(Var(g) + 1e-10) + 10)/14, -1, 1)", range: "[-1.0, 1.0]", interpretation: "Parameter-shift variance across ansatz parameters capturing Haar concentration" },
-  { index: 5, name: "Parameter Velocity", formula: "x₅ = tanh(10 · ‖v_t‖)", range: "[0.0, 1.0)", interpretation: "Velocity of Euclidean parameter displacement ‖θ_t - θ_{t-1}‖ across descent steps" },
-  { index: 6, name: "Relative Circuit Depth", formula: "x₆ = L / L_max", range: "[0.125, 1.0]", interpretation: "Current entangling ansatz layer count normalized to maximum depth 8" },
-  { index: 7, name: "Quantum State Purity", formula: "x₇ = 2 · (γ - 0.75)", range: "[-1.0, 1.0]", interpretation: "Single-qubit reduced density matrix purity γ = (1 + ‖r⃗‖²)/2 tracking decoherence" },
-  { index: 8, name: "Step Progression", formula: "x₈ = t / t_max", range: "[0.0, 1.0]", interpretation: "Current optimization epoch relative to total training horizon" },
-  { index: 9, name: "Failure Type Index", formula: "x₉ = (code - 3.5) / 2.5", range: "[-1.0, 1.0]", interpretation: "Normalized categorical index of diagnosed anomaly (BP, LRM, OPT, DIV, PP, DEC)" },
-  { index: 10, name: "Diagnosis Confidence", formula: "x₁₀ = 2 · (P(cause) - 0.5)", range: "[-1.0, 1.0]", interpretation: "Posterior probability output of the Bayesian classifier centered around zero" },
-  { index: 11, name: "Episodic Prior Reward", formula: "x₁₁ = tanh(r_mem)", range: "[-1.0, 1.0]", interpretation: "Reward observed in top cosine-similar historical episode retrieved from SQLite" },
-  { index: 12, name: "Log Learning Rate", formula: "x₁₂ = clip(log₁₀(η)/4 + 1, -1, 1)", range: "[-1.0, 1.0]", interpretation: "Base-10 log classical optimizer learning rate scaled across [1e-4, 1.0]" },
+  {
+    index: 1,
+    name: "Constant Bias Offset",
+    formula: "x₁ = 1.0",
+    range: "[1.0, 1.0]",
+    source: "Static Affine Offset",
+    interpretation: "Constant intercept feature ensuring Bayesian linear regression hyperplanes are not constrained through the origin."
+  },
+  {
+    index: 2,
+    name: "Normalized Training Loss",
+    formula: "x₂ = tanh(L_t)",
+    range: "[0.0, 1.0)",
+    source: "Objective Evaluation",
+    interpretation: "Current binary cross-entropy loss compressed smoothly via hyperbolic tangent, bounding large divergent loss values."
+  },
+  {
+    index: 3,
+    name: "Log Gradient Norm",
+    formula: "x₃ = clip((ln(‖g‖ + 1e-8) + 8)/12, -1, 1)",
+    range: "[-1.0, 1.0]",
+    source: "Parameter-Shift Gradients",
+    interpretation: "Logarithmic scaling of analytical gradient magnitude, detecting both vanishing (barren plateau) and exploding gradient regimes."
+  },
+  {
+    index: 4,
+    name: "Log Gradient Variance",
+    formula: "x₄ = clip((ln(Var(g) + 1e-10) + 10)/14, -1, 1)",
+    range: "[-1.0, 1.0]",
+    source: "Ansatz Variance Spectrum",
+    interpretation: "Variance of parameter-shift derivatives across circuit parameters, directly tracking Haar-measure concentration."
+  },
+  {
+    index: 5,
+    name: "Normalized Parameter Velocity",
+    formula: "x₅ = tanh(10 · ‖v_t‖)",
+    range: "[0.0, 1.0)",
+    source: "Euclidean Weight Step",
+    interpretation: "Displacement rate ‖θ_t - θ_{t-1}‖ across classical optimizer steps, distinguishing active descent from stationary stagnation."
+  },
+  {
+    index: 6,
+    name: "Relative Circuit Depth",
+    formula: "x₆ = L / L_max",
+    range: "[0.125, 1.0]",
+    source: "Ansatz Layer Count",
+    interpretation: "Current variational layer depth relative to maximum permitted depth (L_max = 8), governing expressibility vs barren risk."
+  },
+  {
+    index: 7,
+    name: "Primary Diagnosis Confidence",
+    formula: "x₇ = clip(P(F_primary | z), 0.0, 1.0)",
+    range: "[1/6, 1.0]",
+    source: "Bayesian Diagnostician",
+    interpretation: "Posterior probability of the leading diagnosed failure mode, bounded below by the uniform prior 1/6."
+  },
+  {
+    index: 8,
+    name: "Normalized Diagnosis Entropy",
+    formula: "x₈ = clip(H(p) / ln(6), 0.0, 1.0)",
+    range: "[0.0, 1.0]",
+    source: "Shannon Entropy Over Posteriors",
+    interpretation: "Normalized entropy across all 6 failure probabilities; 0 indicates deterministic certainty, 1 indicates maximal ambiguity."
+  },
+  {
+    index: 9,
+    name: "Historical Memory Prior Reward",
+    formula: "x₉ = clip(r_hist, -1.0, 1.0)",
+    range: "[-1.0, 1.0]",
+    source: "Episodic SQLite Retrieval",
+    interpretation: "Observed reward of the top cosine-similar historical episode retrieved from the failure memory database."
+  },
+  {
+    index: 10,
+    name: "Historical Top Cosine Similarity",
+    formula: "x₁₀ = clip(s_hist, -1.0, 1.0)",
+    range: "[-1.0, 1.0]",
+    source: "Cosine Nearest-Neighbor",
+    interpretation: "Cosine similarity between current 12D failure embedding and the closest stored recovery episode in persistent memory."
+  },
+  {
+    index: 11,
+    name: "Digital-Twin Predicted Loss Delta",
+    formula: "x₁₁ = ΔL_twin / (1 + |ΔL_twin|)",
+    range: "[-1.0, 1.0]",
+    source: "Digital Twin Proxy (H=3)",
+    interpretation: "Normalized predicted loss improvement from H=3 forward lookahead on a surrogate circuit; 0 if unsimulated or non-viable."
+  },
+  {
+    index: 12,
+    name: "Digital-Twin Proxy Stability",
+    formula: "x₁₂ = clip(σ_twin, 0.0, 1.0)",
+    range: "[0.0, 1.0]",
+    source: "Surrogate Variance",
+    interpretation: "Bounded stability score of the surrogate lookahead trajectory; 0.5 represents neutral prior uncertainty."
+  },
 ];
 
 export const ContextualIntelligenceSection: React.FC = () => {
@@ -31,18 +116,18 @@ export const ContextualIntelligenceSection: React.FC = () => {
   const feat = CONTEXT_FEATURES[selectedFeature - 1];
 
   return (
-    <section id="contextual-intelligence" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="contextual-intelligence" className="py-20 px-4 sm:px-6 lg:px-12 border-b border-[var(--border-subtle)] bg-[var(--bg-primary)]">
+      <div className="max-w-7xl mx-auto space-y-12">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="flex items-center gap-2 font-mono text-xs uppercase tracking-wider text-[var(--accent)]">
             <span>[07 // BANDIT DECISION ENGINE]</span>
           </div>
-          <h2 className="text-4xl sm:text-6xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
-            12-Dimensional Context Representation & Thompson Sampling.
+          <h2 className="text-3xl sm:text-5xl font-display font-extrabold uppercase text-[var(--content-primary)] tracking-tight">
+            12-Dimensional Context & Thompson Sampling.
           </h2>
-          <p className="text-base sm:text-lg text-[var(--content-secondary)] leading-relaxed font-sans">
-            Repair selection cannot rely on naive static lookup tables. The runtime synthesizes an orthogonal 12-dimensional state vector x ∈ [-1, 1]¹² to condition a Bayesian Contextual Multi-Armed Bandit using Thompson Sampling.
+          <p className="text-sm sm:text-base text-[var(--content-secondary)] leading-relaxed font-sans">
+            Repair selection is governed by Contextual Thompson Sampling over six independent Bayesian linear regression posteriors. The runtime synthesizes an exact 12-dimensional state vector <code className="font-mono text-xs text-[var(--content-primary)]">x &in; [-1, 1]¹²</code> strictly implemented in <code className="font-mono text-xs text-[var(--content-primary)]">backend/bandit.py</code>.
           </p>
         </div>
 
@@ -56,9 +141,9 @@ export const ContextualIntelligenceSection: React.FC = () => {
                 <button
                   key={item.index}
                   onClick={() => setSelectedFeature(item.index)}
-                  className={`p-3.5 rounded-xl text-left border transition-all flex items-center justify-between ${
+                  className={`p-3 rounded-xl text-left border transition-all flex items-center justify-between ${
                     isSelected
-                      ? "glass-panel border-[var(--accent)] shadow-sm"
+                      ? "bg-[var(--bg-surface)] border-[var(--accent)] shadow-sm"
                       : "bg-[var(--bg-surface)]/60 border-[var(--border-subtle)] hover:bg-[var(--bg-surface)]"
                   }`}
                 >
@@ -67,11 +152,11 @@ export const ContextualIntelligenceSection: React.FC = () => {
                       <span className="font-mono text-xs font-bold text-[var(--accent)]">
                         x{item.index}
                       </span>
-                      <span className="font-bold text-xs text-[var(--content-primary)] truncate max-w-[150px]">
+                      <span className="font-semibold text-xs text-[var(--content-primary)] truncate max-w-[150px]">
                         {item.name}
                       </span>
                     </div>
-                    <span className="font-mono text-[10px] text-[var(--content-tertiary)] block mt-0.5">
+                    <span className="font-mono text-[10px] text-[var(--content-secondary)] block mt-0.5">
                       {item.range}
                     </span>
                   </div>
@@ -84,51 +169,77 @@ export const ContextualIntelligenceSection: React.FC = () => {
 
           {/* Feature Dossier Column */}
           <div className="lg:col-span-5">
-            <div className="glass-panel p-8 tech-crosshair relative space-y-6">
-              <div className="flex items-center justify-between pb-6 border-b border-[var(--border-subtle)]">
+            <div className="p-6 sm:p-7 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-5">
+              <div className="flex items-center justify-between pb-4 border-b border-[var(--border-subtle)]">
                 <div>
-                  <span className="font-mono text-xs text-[var(--content-tertiary)] block">
+                  <span className="font-mono text-[10px] text-[var(--content-secondary)] block">
                     FEATURE x{feat.index} SPECIFICATION
                   </span>
-                  <h3 className="text-2xl font-bold font-display text-[var(--content-primary)]">
+                  <h3 className="text-xl font-bold font-display text-[var(--content-primary)]">
                     {feat.name}
                   </h3>
                 </div>
 
-                <div className="px-3 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-subtle)] font-mono text-xs text-[var(--accent)] font-bold">
+                <div className="px-2.5 py-1 rounded-full border border-[var(--border-subtle)] bg-[var(--bg-primary)] font-mono text-[11px] text-[var(--accent)] font-semibold">
                   {feat.range}
                 </div>
               </div>
 
-              {/* Exact Mathematical Formula */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-[var(--content-tertiary)]">
-                  MATHEMATICAL NORMALIZATION MAPPING
-                </span>
-                <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] font-mono text-xs text-[var(--accent)] overflow-x-auto">
-                  <code>{feat.formula}</code>
+              <div className="space-y-4 font-mono text-xs">
+                <div>
+                  <span className="text-[10px] text-[var(--content-tertiary)] uppercase block">MATHEMATICAL FORMULATION</span>
+                  <code className="text-xs font-bold text-[var(--content-primary)] bg-[var(--bg-primary)] px-2.5 py-1.5 rounded-lg border border-[var(--border-subtle)] block mt-1 break-words">
+                    {feat.formula}
+                  </code>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-[var(--content-tertiary)] uppercase block">FEATURE SOURCE</span>
+                  <span className="text-xs text-[var(--content-primary)] block mt-0.5">
+                    {feat.source}
+                  </span>
+                </div>
+
+                <div>
+                  <span className="text-[10px] text-[var(--content-tertiary)] uppercase block">PHYSICAL & ALGORITHMIC ROLE</span>
+                  <p className="text-xs text-[var(--content-secondary)] leading-relaxed font-sans mt-1">
+                    {feat.interpretation}
+                  </p>
                 </div>
               </div>
 
-              {/* Physical Interpretation */}
-              <div className="space-y-2">
-                <span className="text-xs font-mono uppercase tracking-wider text-[var(--content-tertiary)]">
-                  SEMANTIC & STATE-SPACE SIGNIFICANCE
-                </span>
-                <p className="text-xs text-[var(--content-secondary)] leading-relaxed">
-                  {feat.interpretation}
-                </p>
+              <div className="pt-4 border-t border-[var(--border-subtle)] flex items-center justify-between font-mono text-[10px] text-[var(--content-secondary)]">
+                <span>BAYESIAN LINEAR REGRESSION</span>
+                <span>B_a ← B_a + x xᵀ</span>
               </div>
+            </div>
+          </div>
+        </div>
 
-              {/* Thompson Sampling Posterior Formulation */}
-              <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] space-y-2">
-                <span className="text-[11px] font-mono uppercase tracking-wider text-[var(--content-primary)] font-bold block">
-                  BAYESIAN POSTERIOR SAMPLING RULE
-                </span>
-                <p className="text-[11px] font-mono text-[var(--content-secondary)] leading-relaxed">
-                  Payoff sampled via θ̃_a ~ N(μ_a, v² B_a⁻¹). Arm with highest expected reward r̂_a = xᵀ θ̃_a deployed if eligible.
-                </p>
-              </div>
+        {/* Explicit Architectural Clarification: Bandit Context vs Failure Memory Embedding */}
+        <div className="p-6 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] shadow-sm space-y-4">
+          <div className="flex items-center gap-2 font-mono text-xs font-semibold text-[var(--content-primary)]">
+            <Database className="w-4 h-4 text-[var(--accent)]" />
+            <span>ARCHITECTURAL CLARIFICATION: BANDIT CONTEXT VS FAILURE MEMORY EMBEDDING</span>
+          </div>
+
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-xs font-sans text-[var(--content-secondary)] leading-relaxed">
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] space-y-2">
+              <span className="font-mono font-bold text-[var(--content-primary)] block">
+                1. 12D Bandit Context Vector (x in backend/bandit.py)
+              </span>
+              <p>
+                Constructed at decision time to condition Thompson Sampling. It comprises: bias, loss, log grad norm, log grad variance, parameter velocity, circuit depth, diagnosis probability, diagnosis entropy, <strong>historical memory prior reward (x₉)</strong>, <strong>memory top similarity (x₁₀)</strong>, <strong>digital-twin predicted delta (x₁₁)</strong>, and <strong>twin stability (x₁₂)</strong>. Neither learning rate nor Bloch purity are components of x.
+              </p>
+            </div>
+
+            <div className="p-4 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] space-y-2">
+              <span className="font-mono font-bold text-[var(--content-primary)] block">
+                2. 12D Failure Memory Embedding (e in backend/memory.py)
+              </span>
+              <p>
+                Constructed at anomaly detection to store failure signatures in SQLite. It comprises: bias, loss, log grad norm, log grad variance, velocity, depth, diagnosis probability, diagnosis entropy, <strong>normalized loss slope (e₉)</strong>, <strong>loss CV (e₁₀)</strong>, <strong>train-val generalization gap (e₁₁)</strong>, and <strong>normalized learning rate (e₁₂)</strong>. Used exclusively for nearest-neighbor cosine similarity queries.
+              </p>
             </div>
           </div>
         </div>
