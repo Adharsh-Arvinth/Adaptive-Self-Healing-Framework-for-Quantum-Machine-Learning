@@ -115,8 +115,8 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
         </div>
 
         {/* Lifecycle Flow Pipeline: Checkpoint -> Candidate Repair -> Validation -> Commit / Rollback */}
-        <div className="mb-3.5 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-          <div className="flex items-center justify-between text-xs font-sans">
+        <div className="mb-3.5 p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] overflow-x-auto">
+          <div className="flex items-center justify-between text-xs font-sans min-w-[340px] sm:min-w-0">
             <span
               className={`flex items-center gap-1 ${
                 isValidating || isCommitted || isRolledBack ? "text-[var(--accent)] font-semibold" : "text-[var(--content-secondary)]"

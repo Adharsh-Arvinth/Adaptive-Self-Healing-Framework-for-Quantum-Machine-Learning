@@ -24,11 +24,11 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
   return (
     <section
       id="hero"
-      className="relative min-h-[92vh] flex flex-col justify-between pt-10 pb-16 px-4 sm:px-6 lg:px-12 section-cinematic overflow-hidden"
+      className="relative min-h-[92vh] flex flex-col justify-between pt-10 pb-16 px-4 sm:px-6 lg:px-12 section-cinematic overflow-hidden max-w-full w-full"
     >
       {/* Subtle Specular Ambient Gradients */}
-      <div className="absolute top-0 left-1/4 w-[500px] h-[500px] bg-blue-600/10 rounded-full blur-[120px] pointer-events-none" />
-      <div className="absolute top-1/3 right-10 w-[450px] h-[450px] bg-amber-600/5 rounded-full blur-[140px] pointer-events-none" />
+      <div className="absolute top-0 left-1/4 w-[280px] sm:w-[500px] h-[280px] sm:h-[500px] bg-blue-600/10 rounded-full blur-[100px] sm:blur-[120px] pointer-events-none" />
+      <div className="absolute top-1/3 right-10 w-[240px] sm:w-[450px] h-[240px] sm:h-[450px] bg-amber-600/5 rounded-full blur-[100px] sm:blur-[140px] pointer-events-none" />
 
       {/* Subtle Precision Grid Backdrop */}
       <div className="absolute inset-0 pointer-events-none opacity-[0.03] bg-[linear-gradient(to_right,#ffffff_1px,transparent_1px),linear-gradient(to_bottom,#ffffff_1px,transparent_1px)] bg-[size:48px_48px]" />

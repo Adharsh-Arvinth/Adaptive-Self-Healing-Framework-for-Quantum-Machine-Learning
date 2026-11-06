@@ -22,7 +22,7 @@ import numpy as np
 from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, model_validator
 
 # Ensure root directory is on PYTHONPATH
 PROJECT_ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
@@ -59,11 +59,32 @@ class InjectFailureRequest(BaseModel):
 
 
 class SimulateTwinRequest(BaseModel):
-    repair_arm: str = Field(description="One of the 6 RepairArms: change_optimizer, reduce_circuit_depth, modify_feature_map, adjust_learning_rate, apply_noise_mitigation, perform_warm_restart")
+    repair_arm: Optional[str] = Field(default=None, description="One of the 6 RepairArms")
+    arm: Optional[str] = Field(default=None, description="Alias for repair_arm")
+    horizon: int = Field(default=3, description="Simulation horizon")
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_arm(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            val = data.get("repair_arm") or data.get("arm")
+            if val:
+                data["repair_arm"] = val
+        return data
 
 
 class TriggerRepairRequest(BaseModel):
-    repair_arm: str = Field(description="One of the 6 RepairArms: change_optimizer, reduce_circuit_depth, modify_feature_map, adjust_learning_rate, apply_noise_mitigation, perform_warm_restart")
+    repair_arm: Optional[str] = Field(default=None, description="One of the 6 RepairArms")
+    arm: Optional[str] = Field(default=None, description="Alias for repair_arm")
+
+    @model_validator(mode="before")
+    @classmethod
+    def resolve_arm(cls, data: Any) -> Any:
+        if isinstance(data, dict):
+            val = data.get("repair_arm") or data.get("arm")
+            if val:
+                data["repair_arm"] = val
+        return data
 
 
 class HealthResponse(BaseModel):

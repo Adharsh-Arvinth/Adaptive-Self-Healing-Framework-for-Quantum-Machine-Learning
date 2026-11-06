@@ -41,6 +41,19 @@ export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
           }
         };
 
+        const renderMessage = () => {
+          if (typeof toast.message === "string") return toast.message;
+          if (Array.isArray(toast.message)) {
+            return (toast.message as any[])
+              .map((item) => (typeof item === "string" ? item : item?.msg || JSON.stringify(item)))
+              .join(", ");
+          }
+          if (typeof toast.message === "object" && toast.message !== null) {
+            return (toast.message as any).msg || JSON.stringify(toast.message);
+          }
+          return String(toast.message || "");
+        };
+
         return (
           <div
             key={toast.id}
@@ -49,10 +62,10 @@ export const ToastContainer: React.FC<ToastProps> = ({ toasts, onDismiss }) => {
             <div className="mt-0.5">{getIcon()}</div>
             <div className="flex-1 min-w-0">
               <h4 className="text-xs font-semibold text-[var(--content-primary)] tracking-tight">
-                {toast.title}
+                {typeof toast.title === "string" ? toast.title : String(toast.title || "Notification")}
               </h4>
               <p className="text-[11px] text-[var(--content-secondary)] mt-0.5 leading-relaxed break-words font-mono">
-                {toast.message}
+                {renderMessage()}
               </p>
             </div>
             <button

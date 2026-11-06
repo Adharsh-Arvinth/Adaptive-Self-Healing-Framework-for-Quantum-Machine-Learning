@@ -53,12 +53,12 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14">
-      <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-4">
-        {/* Brand Lockup: Refined, un-cramped horizontal lockup */}
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14 w-full">
+      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
+        {/* Brand Lockup */}
         <div
           onClick={() => onToggleView("landing")}
-          className="flex items-center gap-2.5 cursor-pointer select-none shrink-0 group"
+          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none shrink-0 group min-w-0"
           role="button"
           tabIndex={0}
           aria-label="Navigate to Home"
@@ -66,19 +66,22 @@ export const Header: React.FC<HeaderProps> = ({
           <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-xs shadow-sm group-hover:opacity-90 transition-opacity shrink-0">
             QML
           </div>
-          <div className="flex flex-col justify-center leading-tight">
-            <span className="font-sans font-semibold text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
+          <div className="flex flex-col justify-center leading-tight min-w-0">
+            <span className="font-sans font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
               Adaptive Self-Healing VQC
             </span>
-            <span className="text-[11px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
+            <span className="hidden sm:inline text-[11px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
               Autonomous Quantum Closed-Loop Framework
+            </span>
+            <span className="sm:hidden text-[10px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
+              Autonomous Framework
             </span>
           </div>
         </div>
 
-        {/* Public Desktop Navigation: SF Pro Text, not monospace */}
+        {/* Public Desktop Navigation: Shown on XL and 2XL screens with refined spacing */}
         {activeView === "landing" ? (
-          <nav className="hidden md:flex items-center gap-6 font-sans text-sm whitespace-nowrap">
+          <nav className="hidden xl:flex items-center gap-3 2xl:gap-5 font-sans text-xs 2xl:text-sm whitespace-nowrap">
             {navLinks.map((link) => (
               <a
                 key={link.label}
@@ -95,7 +98,8 @@ export const Header: React.FC<HeaderProps> = ({
               rel="noreferrer"
               className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
             >
-              <span>Documentation</span>
+              <span className="hidden 2xl:inline">Documentation</span>
+              <span className="2xl:hidden">Docs</span>
               <ExternalLink className="w-3 h-3 text-[var(--content-secondary)]" />
             </a>
 
@@ -110,17 +114,17 @@ export const Header: React.FC<HeaderProps> = ({
             </a>
           </nav>
         ) : (
-          <div className="hidden md:flex items-center gap-3 font-sans text-xs text-[var(--content-secondary)]">
+          <div className="hidden lg:flex items-center gap-2.5 font-sans text-xs text-[var(--content-secondary)] whitespace-nowrap">
             <span className="font-semibold text-[var(--content-primary)]">Interactive Research Laboratory</span>
             <span>•</span>
-            <span>Closed-Loop Telemetry & Control System</span>
+            <span>Closed-Loop Telemetry & Control</span>
           </div>
         )}
 
         {/* Header Right Actions */}
-        <div className="flex items-center gap-2.5 shrink-0 font-sans">
+        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 font-sans">
           {/* Status Indicator Pill */}
-          <div className="hidden sm:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-[var(--border-subtle)] bg-[var(--bg-subtle)]">
+          <div className="hidden 2xl:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-[var(--border-subtle)] bg-[var(--bg-subtle)]">
             <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-emerald-500" : "bg-amber-500"}`} />
             <span className="text-[var(--content-secondary)] font-medium">
               {isConnected ? "Simulator Live" : "Standby"}
@@ -130,7 +134,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Primary View Toggle Button */}
           <button
             onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
-            className={`px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
+            className={`px-2.5 sm:px-3.5 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
               activeView === "dashboard"
                 ? "bg-[var(--bg-subtle)] text-[var(--content-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)]"
                 : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
@@ -139,12 +143,14 @@ export const Header: React.FC<HeaderProps> = ({
             {activeView === "dashboard" ? (
               <>
                 <ArrowLeft className="w-3.5 h-3.5" />
-                <span>Return to Overview</span>
+                <span className="hidden sm:inline">Return to Overview</span>
+                <span className="sm:hidden">Overview</span>
               </>
             ) : (
               <>
                 <Terminal className="w-3.5 h-3.5" />
-                <span>Launch Live Lab</span>
+                <span className="hidden sm:inline">Launch Live Lab</span>
+                <span className="sm:hidden">Live Lab</span>
               </>
             )}
           </button>
@@ -158,11 +164,11 @@ export const Header: React.FC<HeaderProps> = ({
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4" />}
           </button>
 
-          {/* Mobile Menu Toggle Button */}
+          {/* Mobile & Tablet Menu Toggle Button */}
           {activeView === "landing" && (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="md:hidden p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+              className="xl:hidden p-1.5 rounded-lg border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
               aria-label="Open mobile navigation"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
@@ -173,7 +179,7 @@ export const Header: React.FC<HeaderProps> = ({
 
       {/* Mobile Menu Drawer */}
       {mobileMenuOpen && activeView === "landing" && (
-        <div className="md:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 space-y-2 shadow-lg font-sans">
+        <div className="xl:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)] px-4 py-3 space-y-2 shadow-lg font-sans animate-fade-in">
           {navLinks.map((link) => (
             <a
               key={link.label}

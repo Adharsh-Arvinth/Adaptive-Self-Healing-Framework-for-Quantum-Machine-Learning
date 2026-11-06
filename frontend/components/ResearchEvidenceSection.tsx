@@ -7,8 +7,8 @@ export const ResearchEvidenceSection: React.FC = () => {
   const [activeTab, setActiveTab] = useState<"policies" | "calibration" | "ablation" | "diagnostics">("policies");
 
   return (
-    <section id="research" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-slate-200 section-architectural">
-      <div className="max-w-7xl mx-auto space-y-16">
+    <section id="research" className="py-24 px-4 sm:px-6 lg:px-12 border-b border-slate-200 section-architectural overflow-hidden max-w-full w-full">
+      <div className="max-w-7xl mx-auto space-y-16 max-w-full">
         {/* Section Header */}
         <div className="space-y-4 max-w-3xl">
           <div className="inline-flex items-center gap-2 font-mono text-xs font-semibold text-blue-600 uppercase tracking-wider">
@@ -23,7 +23,7 @@ export const ResearchEvidenceSection: React.FC = () => {
         </div>
 
         {/* Tab Navigation */}
-        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto font-mono text-xs">
+        <div className="flex items-center gap-2 border-b border-slate-200 pb-3 overflow-x-auto font-mono text-xs max-w-full w-full">
           <button
             onClick={() => setActiveTab("policies")}
             className={`px-4 py-2.5 rounded-xl transition-all whitespace-nowrap font-medium ${

@@ -234,7 +234,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
           </button>
 
           {showFeatureTable && (
-            <div className="mt-2.5 max-h-72 overflow-y-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
+            <div className="mt-2.5 max-h-72 overflow-y-auto overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
               <table className="w-full text-left font-mono text-[11px]">
                 <thead className="bg-[var(--bg-primary)] border-b border-[var(--border-subtle)] text-[var(--content-secondary)]">
                   <tr>

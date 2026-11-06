@@ -18,6 +18,7 @@ import { DashboardView } from "@/components/DashboardView";
 import { Footer } from "@/components/Footer";
 import { ToastContainer } from "@/components/Toast";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
+import { ErrorBoundary } from "@/components/ErrorBoundary";
 import {
   TelemetryPoint,
   DiagnosisData,
@@ -78,7 +79,7 @@ export default function Page() {
     gradientVariance: 0.001,
     parameterVelocity: 0.01,
     learningRate: 0.05,
-    circuitDepth: 4,
+    circuitDepth: 2,
   });
 
   // Bloch Coordinates & Reduced State Purity
@@ -409,6 +410,22 @@ export default function Page() {
               },
               ...prev,
             ]);
+          } else if (type === "repair_deployed") {
+            if (payload) {
+              setDeployment(payload);
+              if (payload.repair_arm) setSelectedArm(payload.repair_arm);
+              setPipelineState("DEPLOYED");
+            }
+          } else if (type === "repair_committed") {
+            if (payload) {
+              setDeployment(payload);
+              setPipelineState("COMMITTED");
+            }
+          } else if (type === "repair_rolled_back") {
+            if (payload) {
+              setDeployment(payload);
+              setPipelineState("ROLLED_BACK");
+            }
           } else if (type === "experiment_reset") {
             setHistory([]);
             setStepCount(0);
@@ -565,23 +582,38 @@ export default function Page() {
       const res = await fetch(`${API_BASE}/api/experiment/trigger-repair`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ arm: armId }),
+        body: JSON.stringify({ repair_arm: armId, arm: armId }),
       });
       const data = await res.json();
-      if (data.status === "DEPLOYED") {
+      if (res.ok && data.status === "DEPLOYED") {
         addToast(
           "success",
           "Repair Deployed",
-          `Arm '${armId}' deployed into validation window W_val=3`
+          `Arm '${armId.replace(/_/g, " ")}' deployed into validation window W_val=3`
         );
         setSelectedArm(armId);
         setPipelineState("DEPLOYED");
+        if (data.deployment) {
+          setDeployment(data.deployment);
+        }
       } else {
-        const reason = data.reason || data.detail || data.message || "Circuit mutation prohibited by safety filter.";
+        const rawDetail =
+          data.reason ||
+          data.detail ||
+          data.message ||
+          "Circuit mutation prohibited by safety filter.";
+        const reason =
+          typeof rawDetail === "string"
+            ? rawDetail
+            : Array.isArray(rawDetail)
+            ? rawDetail.map((d: any) => d.msg || d.message || JSON.stringify(d)).join("; ")
+            : typeof rawDetail === "object" && rawDetail !== null
+            ? rawDetail.msg || JSON.stringify(rawDetail)
+            : String(rawDetail);
         addToast("warning", "Safety Filter Intervened", reason);
       }
     } catch (e) {
-      addToast("error", "Deploy Failed", String(e));
+      addToast("error", "Deploy Failed", e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -590,19 +622,24 @@ export default function Page() {
       const res = await fetch(`${API_BASE}/api/experiment/simulate-twin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ arm: armId, horizon: 3 }),
+        body: JSON.stringify({ repair_arm: armId, arm: armId, horizon: 3 }),
       });
-      if (res.ok) {
-        const pred = await res.json();
+      const data = await res.json();
+      if (res.ok && data.status !== "error") {
         addToast(
-          pred.is_viable ? "success" : "warning",
+          data.is_viable ? "success" : "warning",
           "Digital Twin Simulation Complete",
-          `Predicted delta: ${pred.predicted_loss_delta >= 0 ? "+" : ""}${pred.predicted_loss_delta.toFixed(4)} (Viable: ${pred.is_viable})`
+          `Predicted delta: ${data.predicted_loss_delta >= 0 ? "+" : ""}${Number(data.predicted_loss_delta).toFixed(4)} (Viable: ${data.is_viable})`
         );
-        return pred;
+        setTwinPrediction(data);
+        return data;
+      } else {
+        const rawDetail = data.detail || data.message || "Twin simulation failed";
+        const reason = typeof rawDetail === "string" ? rawDetail : JSON.stringify(rawDetail);
+        addToast("warning", "Simulation Alert", reason);
       }
     } catch (e) {
-      addToast("error", "Twin Simulation Failed", String(e));
+      addToast("error", "Twin Simulation Failed", e instanceof Error ? e.message : String(e));
     }
     return null;
   };
@@ -614,11 +651,13 @@ export default function Page() {
       if (res.ok) {
         addToast("success", "Repair Committed", "Active repair permanently accepted.");
         setPipelineState("COMMITTED");
+        if (data.deployment) setDeployment(data.deployment);
       } else {
-        addToast("warning", "Commit Ignored", data.detail || "No active repair to commit.");
+        const msg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || "No active repair to commit.");
+        addToast("warning", "Commit Ignored", msg);
       }
     } catch (e) {
-      addToast("error", "Commit Failed", String(e));
+      addToast("error", "Commit Failed", e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -629,11 +668,13 @@ export default function Page() {
       if (res.ok) {
         addToast("warning", "Repair Rolled Back", "Model restored from pre-repair checkpoint snapshot.");
         setPipelineState("ROLLED_BACK");
+        if (data.deployment) setDeployment(data.deployment);
       } else {
-        addToast("warning", "Rollback Ignored", data.detail || "No active repair to rollback.");
+        const msg = typeof data.detail === "string" ? data.detail : JSON.stringify(data.detail || "No active repair to rollback.");
+        addToast("warning", "Rollback Ignored", msg);
       }
     } catch (e) {
-      addToast("error", "Rollback Failed", String(e));
+      addToast("error", "Rollback Failed", e instanceof Error ? e.message : String(e));
     }
   };
 
@@ -750,7 +791,11 @@ export default function Page() {
         </main>
       ) : (
         <main className="flex-1 w-full animate-fade-in py-6">
-          <DashboardView
+          <ErrorBoundary
+            fallbackTitle="Interactive Research Laboratory Interrupted"
+            onReturnToOverview={() => setActiveView("landing")}
+          >
+            <DashboardView
             isConnected={isConnected}
             pipelineState={pipelineState}
             stepCount={stepCount}
@@ -788,6 +833,7 @@ export default function Page() {
             dataset={dataset}
             API_BASE={API_BASE}
           />
+          </ErrorBoundary>
         </main>
       )}
     </div>

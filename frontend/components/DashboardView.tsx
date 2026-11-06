@@ -28,6 +28,7 @@ import { DigitalTwinPanel } from "./DigitalTwinPanel";
 import { BanditMonitor } from "./BanditMonitor";
 import { SettingsPanel } from "./SettingsPanel";
 import { BenchmarksPanel } from "./BenchmarksPanel";
+import { ErrorBoundary } from "./ErrorBoundary";
 import {
   TelemetryPoint,
   DiagnosisData,
@@ -275,7 +276,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
         <div className="space-y-6 animate-fade-in">
           {/* Active Model Topology Strip */}
           <div className="p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
-            <div className="flex items-center gap-4 text-[var(--content-secondary)]">
+            <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[var(--content-secondary)]">
               <span>Dataset: <strong className="text-[var(--content-primary)] font-mono">{dataset.toUpperCase()} (Seed 42)</strong></span>
               <span>•</span>
               <span>Topology: <strong className="text-[var(--content-primary)] font-mono">{nQbits} Qubits • {nLayers} Layers</strong></span>
@@ -334,14 +335,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* Full-Width 6-Arm Adaptive Repair Matrix */}
           <section>
-            <RepairCockpit
-              selectedArm={selectedArm}
-              eligibleArms={eligibleArms}
-              currentOptimizer={optimizerName}
-              currentFeatureMap={featureMap}
-              currentDepth={metrics.circuitDepth}
-              onTriggerRepair={onTriggerRepair}
-            />
+            <ErrorBoundary fallbackTitle="Repair Actuator Matrix Interrupted">
+              <RepairCockpit
+                selectedArm={selectedArm}
+                eligibleArms={eligibleArms}
+                currentOptimizer={optimizerName}
+                currentFeatureMap={featureMap}
+                currentDepth={metrics.circuitDepth}
+                onTriggerRepair={onTriggerRepair}
+                onSimulateTwin={onSimulateTwin}
+                deployment={deployment}
+                pipelineState={pipelineState}
+                onCommit={onCommit}
+                onRollback={onRollback}
+              />
+            </ErrorBoundary>
           </section>
         </div>
       )}
@@ -397,14 +405,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* VIEW 4: REPAIR ACTUATORS */}
       {activeTab === "repairs" && (
         <div className="space-y-6 animate-fade-in">
-          <RepairCockpit
-            selectedArm={selectedArm}
-            eligibleArms={eligibleArms}
-            currentOptimizer={optimizerName}
-            currentFeatureMap={featureMap}
-            currentDepth={metrics.circuitDepth}
-            onTriggerRepair={onTriggerRepair}
-          />
+          <ErrorBoundary fallbackTitle="Repair Actuator Matrix Interrupted">
+            <RepairCockpit
+              selectedArm={selectedArm}
+              eligibleArms={eligibleArms}
+              currentOptimizer={optimizerName}
+              currentFeatureMap={featureMap}
+              currentDepth={metrics.circuitDepth}
+              onTriggerRepair={onTriggerRepair}
+              onSimulateTwin={onSimulateTwin}
+              deployment={deployment}
+              pipelineState={pipelineState}
+              onCommit={onCommit}
+              onRollback={onRollback}
+            />
+          </ErrorBoundary>
         </div>
       )}
 
