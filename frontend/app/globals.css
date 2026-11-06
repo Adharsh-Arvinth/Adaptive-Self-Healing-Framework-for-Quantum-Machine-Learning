@@ -69,17 +69,18 @@
 }
 
 /* --------------------------------------------------------------------------
-   Titanium Obsidian Dark Mode - Precision Instrument Palette
+   Titanium Obsidian Dark Mode - Precision Quantum Instrument Palette
+   Inspired by Apple Liquid Retina XDR, Ferrari / Carlos Sainz Cockpit, and Linear
    -------------------------------------------------------------------------- */
 .dark {
-  --bg-primary: #08090C;
-  --bg-surface: #101218;
-  --bg-surface-elevated: #161922;
-  --bg-subtle: #1C202B;
-  --bg-hover: #242937;
+  --bg-primary: #05070C;
+  --bg-surface: #0A0D15;
+  --bg-surface-elevated: #101420;
+  --bg-subtle: #141926;
+  --bg-hover: #1C2233;
 
   --border-subtle: rgba(255, 255, 255, 0.08);
-  --border-highlight: rgba(255, 255, 255, 0.16);
+  --border-highlight: rgba(255, 255, 255, 0.18);
 
   --text-primary: #F8FAFC;
   --text-secondary: #94A3B8;
@@ -89,39 +90,42 @@
   --content-secondary: #94A3B8;
   --content-tertiary: #64748B;
 
-  --accent: #3B82F6;
-  --accent-primary: #3B82F6;
-  --accent-hover: #60A5FA;
-  --accent-subtle: rgba(59, 130, 246, 0.12);
+  /* Quantum Sapphire & Electric Cyan */
+  --accent: #38BDF8;
+  --accent-primary: #38BDF8;
+  --accent-hover: #0EA5E9;
+  --accent-subtle: rgba(56, 189, 248, 0.12);
 
-  --accent-copper: #E07A5F;
-  --accent-copper-hover: #F28E73;
-  --accent-copper-subtle: rgba(224, 122, 95, 0.14);
+  /* Scuderia / Carlos Sainz Warm Metallic Copper */
+  --accent-copper: #F97316;
+  --accent-copper-hover: #EA580C;
+  --accent-copper-subtle: rgba(249, 115, 22, 0.14);
 
-  --accent-cyan: #38BDF8;
-  --accent-cyan-subtle: rgba(56, 189, 248, 0.14);
+  --accent-cyan: #22D3EE;
+  --accent-cyan-subtle: rgba(34, 211, 238, 0.14);
 
-  --status-success: #22C55E;
-  --status-success-subtle: rgba(34, 197, 94, 0.12);
+  /* Precise Instrument Status Indicators */
+  --status-success: #10B981;
+  --status-success-subtle: rgba(16, 185, 129, 0.12);
 
   --status-warning: #F59E0B;
-  --status-warning-subtle: rgba(245, 158, 11, 0.12);
+  --status-warning-subtle: rgba(245, 158, 11, 0.14);
 
   --status-danger: #EF4444;
-  --status-danger-subtle: rgba(239, 68, 68, 0.12);
+  --status-danger-subtle: rgba(239, 68, 68, 0.14);
 
   --status-info: #38BDF8;
-  --status-info-subtle: rgba(56, 189, 248, 0.12);
+  --status-info-subtle: rgba(56, 189, 248, 0.14);
 
   --status-ansatz: #A78BFA;
-  --status-ansatz-subtle: rgba(167, 139, 250, 0.12);
+  --status-ansatz-subtle: rgba(167, 139, 250, 0.14);
 
-  --status-purity: #2DD4BF;
-  --status-purity-subtle: rgba(45, 212, 191, 0.12);
+  --status-purity: #06B6D4;
+  --status-purity-subtle: rgba(6, 182, 212, 0.14);
 
-  --panel-shadow: 0 4px 20px 0 rgba(0, 0, 0, 0.45);
-  --card-shadow: 0 8px 30px 0 rgba(0, 0, 0, 0.55);
-  --card-shadow-lg: 0 20px 40px -10px rgba(0, 0, 0, 0.7);
+  --panel-shadow: 0 4px 24px -1px rgba(0, 0, 0, 0.55), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
+  --card-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.65), inset 0 1px 0 0 rgba(255, 255, 255, 0.08);
+  --card-shadow-lg: 0 24px 48px -12px rgba(0, 0, 0, 0.8), inset 0 1px 0 0 rgba(255, 255, 255, 0.1);
 }
 
 /* --------------------------------------------------------------------------

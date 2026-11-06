@@ -86,11 +86,11 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     setElevation(22);
   };
 
-  // 3D to 2D Orthographic Isometric Projection
-  const size = 260;
+  // 3D to 2D Orthographic Isometric Projection - Precision Instrument Scale
+  const size = 300;
   const cx = size / 2;
   const cy = size / 2;
-  const radius = 95;
+  const radius = 110;
 
   const radAzim = (azimuth * Math.PI) / 180;
   const radElev = (elevation * Math.PI) / 180;
@@ -170,16 +170,28 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
           width={size}
           height={size}
           viewBox={`0 0 ${size} ${size}`}
-          className="overflow-visible"
+          className="overflow-visible max-w-full"
         >
-          {/* Subtle Outer Glow Sphere */}
+          <defs>
+            <radialGradient id="blochSphereGlow" cx="50%" cy="50%" r="50%">
+              <stop offset="0%" stopColor="var(--accent)" stopOpacity="0.12" />
+              <stop offset="65%" stopColor="var(--accent)" stopOpacity="0.03" />
+              <stop offset="100%" stopColor="transparent" stopOpacity="0" />
+            </radialGradient>
+            <filter id="vectorGlow" x="-20%" y="-20%" width="140%" height="140%">
+              <feGaussianBlur stdDeviation="2" result="blur" />
+              <feComposite in="SourceGraphic" in2="blur" operator="over" />
+            </filter>
+          </defs>
+
+          {/* Precision Outer Wireframe Sphere with Ambient Glow */}
           <circle
             cx={cx}
             cy={cy}
             r={radius}
-            fill="rgba(37, 99, 235, 0.03)"
-            stroke="var(--border-subtle)"
-            strokeWidth="1.2"
+            fill="url(#blochSphereGlow)"
+            stroke="var(--border-highlight)"
+            strokeWidth="1.5"
           />
 
           {/* Equator Ellipse (XY Plane) */}
@@ -304,6 +316,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
             stroke="var(--accent)"
             strokeWidth="2.5"
             strokeLinecap="round"
+            filter="url(#vectorGlow)"
             className="transition-all duration-300"
           />
 

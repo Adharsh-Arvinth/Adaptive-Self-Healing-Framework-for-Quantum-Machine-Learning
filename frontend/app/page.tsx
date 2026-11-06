@@ -47,7 +47,7 @@ const WS_URL =
 export default function Page() {
   // Primary View Mode: "landing" (Cinematic Editorial Experience) | "dashboard" (Interactive Research Lab)
   const [activeView, setActiveView] = useState<"landing" | "dashboard">("landing");
-  const [isDarkMode, setIsDarkMode] = useState(false);
+  const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Notifications & Modals
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -149,20 +149,33 @@ export default function Page() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Sync Theme
+  // Sync Theme (Cinematic Dark Default with persistence)
   useEffect(() => {
     if (typeof window !== "undefined") {
-      const root = document.documentElement;
-      if (isDarkMode) {
-        root.classList.add("dark");
+      const stored = localStorage.getItem("theme");
+      if (stored === "light") {
+        setIsDarkMode(false);
+        document.documentElement.classList.remove("dark");
       } else {
-        root.classList.remove("dark");
+        setIsDarkMode(true);
+        document.documentElement.classList.add("dark");
       }
     }
-  }, [isDarkMode]);
+  }, []);
 
   const handleToggleTheme = () => {
-    setIsDarkMode((prev) => !prev);
+    setIsDarkMode((prev) => {
+      const next = !prev;
+      if (typeof window !== "undefined") {
+        localStorage.setItem("theme", next ? "dark" : "light");
+        if (next) {
+          document.documentElement.classList.add("dark");
+        } else {
+          document.documentElement.classList.remove("dark");
+        }
+      }
+      return next;
+    });
   };
 
   // Allow ESC key to exit dashboard back to landing
