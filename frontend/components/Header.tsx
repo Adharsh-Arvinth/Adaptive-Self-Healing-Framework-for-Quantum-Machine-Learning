@@ -55,12 +55,12 @@ export const Header: React.FC<HeaderProps> = ({
   ];
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14 w-full">
+    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14 w-full max-w-full">
       <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
         {/* Brand Lockup */}
         <div
           onClick={() => onToggleView("landing")}
-          className="flex items-center gap-2 sm:gap-2.5 cursor-pointer select-none shrink-0 group min-w-0"
+          className="flex items-center gap-2 cursor-pointer select-none shrink-0 group min-w-0"
           role="button"
           tabIndex={0}
           aria-label="Navigate to Home"
@@ -69,14 +69,14 @@ export const Header: React.FC<HeaderProps> = ({
             QML
           </div>
           <div className="flex flex-col justify-center leading-tight min-w-0">
-            <span className="font-sans font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
+            <span className="hidden sm:inline font-sans font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
               Adaptive Self-Healing VQC
+            </span>
+            <span className="sm:hidden font-sans font-semibold text-xs text-[var(--content-primary)] tracking-tight whitespace-nowrap">
+              Adaptive VQC
             </span>
             <span className="hidden sm:inline text-[11px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
               Autonomous Quantum Closed-Loop Framework
-            </span>
-            <span className="sm:hidden text-[10px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
-              Autonomous Framework
             </span>
           </div>
         </div>
@@ -125,7 +125,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Primary View Toggle Button */}
           <button
             onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
-            className={`px-3 sm:px-4 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
+            className={`px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
               activeView === "dashboard"
                 ? "bg-[var(--bg-subtle)] text-[var(--content-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)]"
                 : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
@@ -141,7 +141,7 @@ export const Header: React.FC<HeaderProps> = ({
               <>
                 <FlaskConical className="w-3.5 h-3.5 text-cyan-200" />
                 <span className="hidden sm:inline">Enter Research Lab</span>
-                <span className="sm:hidden">Research Lab</span>
+                <span className="sm:hidden">Lab</span>
               </>
             )}
           </button>
@@ -149,7 +149,7 @@ export const Header: React.FC<HeaderProps> = ({
           {/* Theme Toggle */}
           <button
             onClick={onToggleTheme}
-            className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)] transition-colors"
+            className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)] transition-colors shrink-0"
             aria-label="Toggle theme"
           >
             {isDarkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4" />}
@@ -159,7 +159,7 @@ export const Header: React.FC<HeaderProps> = ({
           {activeView === "landing" && (
             <button
               onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+              className="xl:hidden p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors shrink-0"
               aria-label="Open mobile navigation"
             >
               {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
