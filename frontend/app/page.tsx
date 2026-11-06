@@ -3,16 +3,14 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { HeroSection } from "@/components/HeroSection";
-import { ChallengeSection } from "@/components/ChallengeSection";
-import { ProblemSection } from "@/components/ProblemSection";
-import { SelfHealingConceptSection } from "@/components/SelfHealingConceptSection";
-import { FrameworkSection } from "@/components/FrameworkSection";
-import { RepairMechanismsSection } from "@/components/RepairMechanismsSection";
-import { ContextualIntelligenceSection } from "@/components/ContextualIntelligenceSection";
-import { DigitalTwinSection } from "@/components/DigitalTwinSection";
-import { SafetyAndRecoverySection } from "@/components/SafetyAndRecoverySection";
-import { ResearchEvidenceSection } from "@/components/ResearchEvidenceSection";
-import { LimitationsSection } from "@/components/LimitationsSection";
+import { StoryChapter1Challenge } from "@/components/StoryChapter1Challenge";
+import { StoryChapter2Breakthrough } from "@/components/StoryChapter2Breakthrough";
+import { StoryChapter3Intelligence } from "@/components/StoryChapter3Intelligence";
+import { StoryChapter4RepairArms } from "@/components/StoryChapter4RepairArms";
+import { StoryChapter5AdaptiveBandit } from "@/components/StoryChapter5AdaptiveBandit";
+import { StoryChapter6DigitalTwinSafety } from "@/components/StoryChapter6DigitalTwinSafety";
+import { StoryChapter7Evidence } from "@/components/StoryChapter7Evidence";
+import { StoryChapter8Limitations } from "@/components/StoryChapter8Limitations";
 import { FinalCtaSection } from "@/components/FinalCtaSection";
 import { DashboardView } from "@/components/DashboardView";
 import { Footer } from "@/components/Footer";
@@ -729,55 +727,29 @@ export default function Page() {
             />
           </div>
 
-          {/* Section 2: The Challenge */}
-          <div id="the-challenge">
-            <ChallengeSection />
-          </div>
+          {/* Chapter 1: The Challenge */}
+          <StoryChapter1Challenge />
 
-          {/* Section 3: Why Quantum Models Fail */}
-          <div id="the-problem">
-            <ProblemSection />
-          </div>
+          {/* Chapter 2: The Breakthrough */}
+          <StoryChapter2Breakthrough />
 
-          {/* Section 4: The Self-Healing Concept */}
-          <div id="self-healing-concept">
-            <SelfHealingConceptSection />
-          </div>
+          {/* Chapter 3: The Architecture */}
+          <StoryChapter3Intelligence />
 
-          {/* Section 5: The Recovery Lifecycle (MAPE-K) */}
-          <div id="the-framework">
-            <FrameworkSection />
-          </div>
+          {/* Chapter 4: Six Repair Mechanisms */}
+          <StoryChapter4RepairArms />
 
-          {/* Section 6: The Six Repair Mechanisms */}
-          <div id="repair-mechanisms">
-            <RepairMechanismsSection />
-          </div>
+          {/* Chapter 5: Adaptive Intelligence */}
+          <StoryChapter5AdaptiveBandit />
 
-          {/* Section 7: Contextual Intelligence (12D Context) */}
-          <div id="contextual-intelligence">
-            <ContextualIntelligenceSection />
-          </div>
+          {/* Chapter 6: Digital Twin and Safety */}
+          <StoryChapter6DigitalTwinSafety />
 
-          {/* Section 8: Digital Twin Lookahead */}
-          <div id="digital-twin">
-            <DigitalTwinSection />
-          </div>
+          {/* Chapter 7: Experimental Evidence */}
+          <StoryChapter7Evidence />
 
-          {/* Section 9: Safety and Recovery */}
-          <div id="safety-recovery">
-            <SafetyAndRecoverySection />
-          </div>
-
-          {/* Section 10: Experimental Evidence */}
-          <div id="research">
-            <ResearchEvidenceSection />
-          </div>
-
-          {/* Section 11: Limitations & Threats to Validity */}
-          <div id="limitations">
-            <LimitationsSection />
-          </div>
+          {/* Chapter 8: Limitations and Research */}
+          <StoryChapter8Limitations />
 
           {/* Section 12: Final Call to Action */}
           <div id="cockpit-cta">

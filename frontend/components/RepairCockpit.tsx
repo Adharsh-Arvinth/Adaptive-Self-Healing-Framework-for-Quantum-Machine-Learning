@@ -15,9 +15,8 @@ import {
   RotateCcw,
   Sparkles,
   Info,
-  Activity,
-  ArrowRight,
-  Lock,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { DeploymentRecord } from "@/types";
 
@@ -41,15 +40,13 @@ interface ArmSpec {
   name: string;
   domain: string;
   domainColor: string;
-  tagColor: string;
-  desc: string;
+  oneLiner: string;
   mechanism: string;
   transformation: string;
   icon: React.ElementType;
   targetParameter: string;
   safetyRule: string;
   boundConstraint: string;
-  getParamPreview: (opt: string, feat: string, depth: number) => string;
 }
 
 const LOCKED_ARMS: ArmSpec[] = [
@@ -58,96 +55,84 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 01",
     name: "Change Optimizer",
     domain: "Classical Optimization",
-    domainColor: "border-blue-500/30 text-blue-500 bg-blue-500/10",
-    tagColor: "text-blue-500",
-    desc: "Cycles classical gradient optimizer state and purges momentum buffers to escape corrupted trajectory manifolds.",
+    domainColor: "border-blue-500/30 text-blue-400 bg-blue-500/10",
+    oneLiner: "Cycles classical optimizer (Adam ↔ RMSprop ↔ SGD) and purges corrupted momentum buffers.",
     mechanism: "Adam ↔ RMSprop ↔ SGD cycling with momentum vector zeroing m_t = 0, v_t = 0.",
     transformation: "θ_{t+1} = θ_t - η · [α·m_t / (√v_t + ε)] → clean classical descent",
     icon: Sliders,
     targetParameter: "Optimizer Momentum Buffer",
     safetyRule: "Anti-oscillation guard (W_osc = 4) blocks rapid cyclic toggles within 4 consecutive steps.",
     boundConstraint: "Cooldown: K ≥ 4 steps before re-selecting same optimizer",
-    getParamPreview: (opt) => `Active: ${opt.toUpperCase()} (Buffers Clean)`,
   },
   {
     id: "reduce_circuit_depth",
     number: "ARM 02",
     name: "Reduce Circuit Depth",
     domain: "Hilbert Expressibility",
-    domainColor: "border-amber-500/30 text-amber-500 bg-amber-500/10",
-    tagColor: "text-amber-500",
-    desc: "Truncates variational ansatz layers (L → L - 1) to restore gradient variance across Haar-measure barren plateaus.",
+    domainColor: "border-amber-500/30 text-amber-400 bg-amber-500/10",
+    oneLiner: "Truncates variational ansatz layers (L → L - 1) to relieve barren plateau gradient vanishing.",
     mechanism: "Decrements ansatz layer count and truncates parameters θ_L. Parameter tensor dimension drops by 2 per qubit.",
     transformation: "U(θ) = ∏_{l=1}^{L-1} W_l(θ_l) V_l(x) — truncates layer L",
     icon: Layers,
     targetParameter: "Ansatz Depth Capacity L",
     safetyRule: "Hard boundary constraint: ansatz depth cannot be reduced below minimum limit L_min = 2.",
     boundConstraint: "Boundary Clamp: L ≥ 2 (preserves 2-qubit entanglement expressibility)",
-    getParamPreview: (_, __, depth) => `Capacity: L = ${depth} Layers (Min L = 2)`,
   },
   {
     id: "modify_feature_map",
     number: "ARM 03",
     name: "Modify Feature Map",
     domain: "Quantum Embedding",
-    domainColor: "border-sky-500/30 text-sky-500 bg-sky-500/10",
-    tagColor: "text-sky-500",
-    desc: "Toggles classical data encoding between separable Angle encoding and non-linear entangling IQP Hilbert space kernels.",
-    mechanism: "Switches unitary data generator U_Φ(x) between independent R_y(x_i) and entangling ZZ(x_i · x_j) kernels.",
-    transformation: "Angle: ⨂ R_y(arctan(x_i)) ↔ IQP: exp(i ∑ x_i Z_i + i ∑ x_i x_j Z_i Z_j)",
+    domainColor: "border-sky-500/30 text-sky-400 bg-sky-500/10",
+    oneLiner: "Toggles classical data embedding between separable Angle encoding and entangling IQP Hilbert space.",
+    mechanism: "Mutates quantum data encoding unitary U_Φ(x) between separable rotations and non-linear entangling Ising gates.",
+    transformation: "Angle: ⊗_j R_y(x_j)|0⟩  ⟷  IQP: exp(i ∑_{j,k} x_j x_k Z_j Z_k) ⊗_j H|0⟩",
     icon: GitBranch,
-    targetParameter: "Kernel Map Generator U_Φ(x)",
-    safetyRule: "Feature map alteration enforces a 4-step stabilization observation window before secondary mutation.",
-    boundConstraint: "Cooldown: K ≥ 4 steps; preserves input coordinate space",
-    getParamPreview: (_, feat) => `Map: ${feat.toUpperCase()} Kernel`,
+    targetParameter: "Quantum Kernel Map U_Φ(x)",
+    safetyRule: "Post-mutation stabilization window (4 steps) enforced before subsequent structural changes.",
+    boundConstraint: "Stabilization: 4-step cooloff window following Hilbert kernel change",
   },
   {
     id: "adjust_learning_rate",
     number: "ARM 04",
     name: "Adjust Learning Rate",
-    domain: "Optimization Step Envelope",
-    domainColor: "border-emerald-500/30 text-emerald-500 bg-emerald-500/10",
-    tagColor: "text-emerald-500",
-    desc: "Dynamically scales gradient descent step size η by factor α to restore loss convergence and prevent trajectory divergence.",
-    mechanism: "Scales η ← η · α (α ∈ {0.5, 1.5}) based on parameter displacement velocity and loss oscillation profile.",
-    transformation: "η_{t+1} = clip(η_t · α, η_min, η_max) where [η_min, η_max] = [10⁻⁴, 1.0]",
+    domain: "Descent Dynamics",
+    domainColor: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
+    oneLiner: "Scales step size η (0.5× reduction or 1.5× acceleration) within safe operational boundaries.",
+    mechanism: "Multiplicatively scales descent step size η to recover from steep gradient divergence or flat plateau stalling.",
+    transformation: "η_{t+1} = clip(η_t · factor, 1e-4, 1.0)  where factor ∈ {0.5, 1.5}",
     icon: Zap,
-    targetParameter: "Learning Rate η",
-    safetyRule: "Strict clamping within operational envelope [10⁻⁴, 1.0] to prevent numerical underflow and explosive updates.",
-    boundConstraint: "Operational Bounds: η ∈ [1.0e-4, 1.0]",
-    getParamPreview: () => "Adaptive Factor: 0.5× / 1.5× Envelope Clamped",
+    targetParameter: "Gradient Step Size η",
+    safetyRule: "Clamped within certified operational envelope [1e-4, 1.0] to prevent numerical instability.",
+    boundConstraint: "Clamp Interval: η ∈ [1.0e-4, 1.0]",
   },
   {
-    id: "apply_noise_mitigation",
+    id: "noise_mitigation",
     number: "ARM 05",
     name: "Apply Noise Mitigation",
-    domain: "Simulation State Correction",
-    domainColor: "border-indigo-500/30 text-indigo-500 bg-indigo-500/10",
-    tagColor: "text-indigo-500",
-    desc: "Applies analytical inverse-noise contraction across the single-qubit Bloch state to correct depolarizing decoherence.",
-    mechanism: "Multiplies noisy expectation estimates by radial contraction factor r_phys⁻¹ under single-qubit depolarizing model.",
-    transformation: "⟨Z⟩_mit = ⟨Z⟩_noisy / ||r_phys||₂ (Corrected expectation estimator)",
+    domain: "Bloch State Correction",
+    domainColor: "border-purple-500/30 text-purple-400 bg-purple-500/10",
+    oneLiner: "Applies simulation-side inverse-noise contraction correction across single-qubit Bloch state.",
+    mechanism: "Evaluates single-qubit density matrix coordinates and inverts radial shrinkage r → r / (1 - p_noise).",
+    transformation: "r_mitigated = min(1.0, r / (1 - p_noise))  ⟹  Tr(ρ²) → 1.0",
     icon: Cpu,
-    targetParameter: "Expectation Estimator ⟨Z⟩",
-    safetyRule: "Simulation-side analytical expectation rescaling; purely observational and non-destructive to statevector.",
-    boundConstraint: "Radial Correction: r_phys ≥ 0.50 (No-op if mitigation already active)",
-    getParamPreview: () => "Analytical Richardson Contraction Rescaling",
+    targetParameter: "Density Matrix Purity γ = Tr(ρ²)",
+    safetyRule: "Simulation-side analytical correction on CPU statevector; non-destructive to parameter weights.",
+    boundConstraint: "State Space: Clamped to Bloch sphere surface (r ≤ 1.0)",
   },
   {
-    id: "perform_warm_restart",
+    id: "warm_restart",
     number: "ARM 06",
-    name: "Perform Warm Restart",
-    domain: "Stochastic Manifold Perturbation",
-    domainColor: "border-purple-500/30 text-purple-500 bg-purple-500/10",
-    tagColor: "text-purple-500",
-    desc: "Perturbs variational parameter coordinates with localized Gaussian jitter to escape high-loss saddle points.",
-    mechanism: "Injects stochastic perturbation θ ← θ + N(0, σ²I) with σ = 0.05 and resets classical optimizer momentum to zero.",
-    transformation: "θ_{new} = clip(θ + N(0, 0.05² · I), -π, π)",
-    icon: RefreshCw,
-    targetParameter: "Variational Weights θ",
-    safetyRule: "Perturbation magnitude σ=0.05 is bounded to preserve learned representation topology and prevent unlearning.",
-    boundConstraint: "Boundary Clamp: θ ∈ [-π, π], σ = 0.05",
-    getParamPreview: () => "Stochastic Jitter: σ = 0.05 (Clamped [-π, π])",
+    name: "Warm Restart",
+    domain: "Trajectory Escape",
+    domainColor: "border-rose-500/30 text-rose-400 bg-rose-500/10",
+    oneLiner: "Adds bounded stochastic Gaussian jitter (σ = 0.05) to parameters to escape saddle points.",
+    mechanism: "Perturbs parameter tensor coordinates θ with bounded isotropic Gaussian noise to kick weights off flat saddles.",
+    transformation: "θ_{t+1} = θ_t + ε  where  ε ~ 𝒩(0, σ² I),  σ = 0.05",
+    icon: RotateCcw,
+    targetParameter: "Parameter Coordinates θ",
+    safetyRule: "Strictly bounded jitter variance to prevent catastrophic unlearning of previously captured features.",
+    boundConstraint: "Noise Envelope: σ = 0.05 Gaussian jitter, clamped [-π, π]",
   },
 ];
 
@@ -166,7 +151,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
 }) => {
   const [deployingArm, setDeployingArm] = useState<string | null>(null);
   const [simulatingArm, setSimulatingArm] = useState<string | null>(null);
-  const [inspectedArmId, setInspectedArmId] = useState<string | null>("change_optimizer");
+  const [inspectedArmId, setInspectedArmId] = useState<string | null>(null);
 
   const isValidating =
     deployment?.status === "VALIDATING" ||
@@ -200,11 +185,11 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
     }
   };
 
-  const activeArm = LOCKED_ARMS.find((a) => a.id === inspectedArmId) || LOCKED_ARMS[0];
+  const activeArm = LOCKED_ARMS.find((a) => a.id === inspectedArmId);
 
   return (
     <div className="glass-panel p-4 sm:p-6 font-sans space-y-5 rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-      {/* Symmetrical Header */}
+      {/* Cockpit Header */}
       <div className="flex flex-col md:flex-row md:items-center justify-between gap-3 pb-4 border-b border-[var(--border-subtle)]">
         <div>
           <div className="flex items-center flex-wrap gap-2">
@@ -268,7 +253,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
         </div>
       )}
 
-      {/* Six Actuator Cards: 1 col on mobile, 2 col on tablet, 3 col on desktop */}
+      {/* Six Actuator Cards: Simplified, high-clarity layout */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3.5 sm:gap-4">
         {LOCKED_ARMS.map((arm) => {
           const isSelected = selectedArm === arm.id;
@@ -276,10 +261,8 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
           const isDeploying = deployingArm === arm.id;
           const isSimulating = simulatingArm === arm.id;
           const isDepthConstrained = arm.id === "reduce_circuit_depth" && currentDepth <= 2;
-          const isInspected = inspectedArmId === arm.id;
           const isDeployedNow = deployment?.repair_arm === arm.id && isValidating;
 
-          // An arm cannot be deployed if: currently deploying, already deployed, depth constrained, or ineligible when eligibility set is active
           const isDeployDisabled =
             isDeploying ||
             isDeployedNow ||
@@ -287,24 +270,24 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
             (eligibleArms.length > 0 && !isEligible);
 
           const Icon = arm.icon;
+          const isInspected = inspectedArmId === arm.id;
 
           return (
             <div
               key={arm.id}
-              onClick={() => setInspectedArmId(arm.id)}
-              className={`p-4 rounded-xl border transition-all flex flex-col justify-between cursor-pointer select-none relative ${
+              className={`p-4 rounded-xl border transition-all flex flex-col justify-between select-none relative ${
                 isDeployedNow
                   ? "bg-amber-500/10 border-amber-500 shadow-sm"
                   : isSelected
                   ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-sm"
                   : isInspected
-                  ? "bg-[var(--bg-surface)] border-[var(--border-highlight)] ring-1 ring-[var(--accent)]/30"
+                  ? "bg-[var(--bg-surface)] border-[var(--accent)]/60 ring-1 ring-[var(--accent)]/30"
                   : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-highlight)]"
               }`}
             >
-              <div>
-                {/* Header: Arm Number, Domain, and Operational Status Pill */}
-                <div className="flex items-start justify-between gap-2 mb-2.5">
+              <div className="space-y-2.5">
+                {/* Header: Name, Number & Eligibility Badge */}
+                <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
                     <div className="w-7 h-7 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] shrink-0">
                       <Icon className="w-4 h-4" />
@@ -345,31 +328,24 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                   </div>
                 </div>
 
-                {/* Domain Pill */}
-                <div className="mb-2">
-                  <span className={`text-[10px] font-mono px-2 py-0.5 rounded border ${arm.domainColor} inline-block`}>
-                    {arm.domain}
-                  </span>
-                </div>
-
-                {/* Description */}
-                <p className="text-xs text-[var(--content-secondary)] leading-relaxed min-h-[38px]">
-                  {arm.desc}
+                {/* One-Line Plain Explanation (Radically Simplified) */}
+                <p className="text-xs text-[var(--content-secondary)] leading-relaxed">
+                  {arm.oneLiner}
                 </p>
-
-                {/* Safety Rule Note */}
-                <div className="mt-2.5 p-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[10px] text-[var(--content-tertiary)] font-mono leading-tight">
-                  <span className="font-semibold text-[var(--content-secondary)]">Guard:</span> {arm.safetyRule}
-                </div>
               </div>
 
-              {/* Bottom Control Strip */}
-              <div className="pt-3.5 mt-3.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-2">
-                <span className="text-[11px] font-mono text-[var(--content-secondary)] truncate">
-                  {arm.getParamPreview(currentOptimizer, currentFeatureMap, currentDepth)}
-                </span>
+              {/* Bottom Actions: Deploy Button & Expandable Inspector Toggle */}
+              <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-2">
+                <button
+                  type="button"
+                  onClick={() => setInspectedArmId(isInspected ? null : arm.id)}
+                  className="text-[11px] font-mono text-[var(--content-tertiary)] hover:text-[var(--accent)] flex items-center gap-1 transition-colors"
+                >
+                  <span>{isInspected ? "Hide details" : "Inspect"}</span>
+                  {isInspected ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
+                </button>
 
-                <div className="flex items-center gap-1.5" onClick={(e) => e.stopPropagation()}>
+                <div className="flex items-center gap-1.5">
                   {onSimulateTwin && (
                     <button
                       type="button"
@@ -414,35 +390,40 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
         })}
       </div>
 
-      {/* Selected Arm Deep-Dive Telemetry Inspector */}
-      <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] space-y-3 font-mono text-xs">
-        <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
-          <div className="flex items-center gap-2">
-            <Info className="w-4 h-4 text-[var(--accent)]" />
-            <span className="font-semibold text-[var(--content-primary)]">
-              ACTUATOR MATHEMATICAL INSPECTION: {activeArm.name.toUpperCase()} ({activeArm.number})
-            </span>
+      {/* Expandable Technical Deep-Dive Inspector (Only shown when user requests) */}
+      {activeArm && (
+        <div className="p-4 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-subtle)] space-y-3 font-mono text-xs animate-fade-in">
+          <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
+            <div className="flex items-center gap-2">
+              <Info className="w-4 h-4 text-[var(--accent)]" />
+              <span className="font-semibold text-[var(--content-primary)]">
+                TECHNICAL ACTUATOR SPECIFICATION: {activeArm.name.toUpperCase()} ({activeArm.number})
+              </span>
+            </div>
+            <button
+              onClick={() => setInspectedArmId(null)}
+              className="text-[11px] text-[var(--content-tertiary)] hover:text-[var(--content-primary)]"
+            >
+              Close
+            </button>
           </div>
-          <span className="text-[11px] text-[var(--content-tertiary)]">
-            Target: {activeArm.targetParameter}
-          </span>
-        </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
-          <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
-            <span className="text-[10px] text-[var(--content-tertiary)] block">PHYSICAL TRANSFORMATION</span>
-            <span className="text-[var(--content-primary)] font-semibold block">{activeArm.mechanism}</span>
-          </div>
-          <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
-            <span className="text-[10px] text-[var(--content-tertiary)] block">OPERATOR EQUATION</span>
-            <span className="text-[var(--accent)] font-semibold block">{activeArm.transformation}</span>
-          </div>
-          <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
-            <span className="text-[10px] text-[var(--content-tertiary)] block">SAFETY CLAMP CONSTRAINT</span>
-            <span className="text-amber-500 font-semibold block">{activeArm.boundConstraint}</span>
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-3 text-[11px]">
+            <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
+              <span className="text-[10px] text-[var(--content-tertiary)] block">PHYSICAL TRANSFORMATION</span>
+              <span className="text-[var(--content-primary)] font-semibold block">{activeArm.mechanism}</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
+              <span className="text-[10px] text-[var(--content-tertiary)] block">OPERATOR EQUATION</span>
+              <span className="text-[var(--accent)] font-semibold block">{activeArm.transformation}</span>
+            </div>
+            <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
+              <span className="text-[10px] text-[var(--content-tertiary)] block">SAFETY CLAMP CONSTRAINT</span>
+              <span className="text-amber-500 font-semibold block">{activeArm.boundConstraint}</span>
+            </div>
           </div>
         </div>
-      </div>
+      )}
     </div>
   );
 };
