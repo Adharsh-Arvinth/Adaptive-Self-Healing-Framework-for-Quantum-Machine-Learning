@@ -529,6 +529,23 @@ If port 8000 or 3000 is occupied by an earlier process:
 
 ---
 
+## Cloud Deployment & CI/CD Pipeline
+
+The framework is configured for continuous cloud deployment across two synchronized environments:
+
+| Component | Target Platform | Production URL | Configuration |
+|---|---|---|---|
+| **Frontend UI** | Vercel | [adaptive-self-healing-framework-for.vercel.app](https://adaptive-self-healing-framework-for.vercel.app/) | Root Directory: `frontend` · Framework: Next.js 14 · Build: `npm run build` |
+| **Backend API** | Render Cloud | [qml-backend-nczx.onrender.com](https://qml-backend-nczx.onrender.com) | Python 3.11+ · Uvicorn FastAPI · WebSocket Telemetry |
+
+### Verified Git Attribution & Vercel Integration
+- **Verified Repository Owner & Author:** Adharsh Arvinth (`adharsharvinth2108@gmail.com`)
+- **GitHub Repository:** [`Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning`](https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning)
+- **Synchronized Deployment Branches:** `main` (primary production) and `master` (synchronized mirror)
+- **Vercel Root Directory:** `frontend` (ensures `frontend/vercel.json`, `package.json`, and `.next` are cleanly discovered and isolated from backend code)
+
+---
+
 ## Manuscript & Scientific Dossier
 
 All research documentation, peer-reviewed reference validations, and manuscript drafts are maintained in the [`manuscript/`](manuscript/) directory:
