@@ -29,6 +29,7 @@ export interface TelemetryPoint {
   deployment?: DeploymentRecord | null;
   evaluation?: EvaluationRecord | null;
   events?: EventItem[];
+  selected_arm?: string;
 }
 
 export interface DiagnosisData {

@@ -109,6 +109,10 @@ interface DashboardViewProps {
   nQbits: number;
   dataset: string;
   API_BASE: string;
+  seed?: number;
+  stepDelayMs?: number;
+  onApplyConfig?: (cfg: any) => void;
+  onStartExperimentWithConfig?: (cfg: any) => void;
 }
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
@@ -148,6 +152,10 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   nQbits,
   dataset,
   API_BASE,
+  seed = 42,
+  stepDelayMs = 250,
+  onApplyConfig,
+  onStartExperimentWithConfig,
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [memorySearch, setMemorySearch] = useState("");
@@ -158,6 +166,32 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     stepCount > 0 || history.length > 0
       ? Math.min(1.0, Math.max(0.5, (1.0 + rPhys * rPhys) / 2.0))
       : 1.0;
+
+  // Decouple independent lifecycle states (Part 8)
+  const isCompleted = stepCount >= maxSteps && stepCount > 0;
+  const trainingStateDisplay: "IDLE" | "RUNNING" | "PAUSED" | "COMPLETED" = isCompleted
+    ? "COMPLETED"
+    : isRunning
+    ? "RUNNING"
+    : stepCount > 0
+    ? "PAUSED"
+    : "IDLE";
+
+  let deploymentStateDisplay = "NO CANDIDATE";
+  if (deployment?.status) {
+    const s = String(deployment.status).toUpperCase();
+    if (s.includes("COMMIT")) deploymentStateDisplay = "COMMITTED";
+    else if (s.includes("ROLLBACK")) deploymentStateDisplay = "ROLLED BACK";
+    else if (s.includes("VALIDAT")) deploymentStateDisplay = "VALIDATING";
+    else if (s.includes("CANDIDATE")) deploymentStateDisplay = "CANDIDATE SELECTED";
+    else deploymentStateDisplay = s.replace(/_/g, " ");
+  } else if (pipelineState === "VALIDATING_REPAIR") {
+    deploymentStateDisplay = "VALIDATING";
+  } else if (pipelineState === "COMMITTED") {
+    deploymentStateDisplay = "COMMITTED";
+  } else if (pipelineState === "ROLLED_BACK") {
+    deploymentStateDisplay = "ROLLED BACK";
+  }
 
   const tabs = [
     { id: "overview" as DashboardTab, label: "Overview", icon: Activity },
@@ -188,8 +222,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     <div id="dashboard" className="space-y-6 animate-fade-in pb-16 font-sans">
       {/* Top Laboratory Control Strip */}
       <div className="glass-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
-        {/* Left: Experiment Status & Telemetry Tag */}
-        <div className="flex items-center flex-wrap gap-2.5 sm:gap-4 text-xs">
+        {/* Left: Decoupled Independent Status Badges */}
+        <div className="flex items-center flex-wrap gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-2">
             <span className={`w-2.5 h-2.5 rounded-full ${isConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"}`} />
             <span className="font-semibold text-[var(--content-primary)]">
@@ -198,7 +232,25 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
           <span className="text-[var(--border-highlight)]">•</span>
           <div className="text-[var(--content-secondary)]">
-            Status: <span className="text-[var(--content-primary)] font-semibold">{pipelineState.replace(/_/g, " ")}</span>
+            Training: <span className={`font-mono font-bold ${
+              trainingStateDisplay === "COMPLETED"
+                ? "text-blue-400"
+                : trainingStateDisplay === "RUNNING"
+                ? "text-emerald-400"
+                : "text-[var(--content-primary)]"
+            }`}>{trainingStateDisplay}</span>
+          </div>
+          <span className="text-[var(--border-highlight)]">•</span>
+          <div className="text-[var(--content-secondary)]">
+            Deployment: <span className={`font-mono font-bold ${
+              deploymentStateDisplay === "COMMITTED"
+                ? "text-emerald-400"
+                : deploymentStateDisplay === "ROLLED BACK"
+                ? "text-rose-400"
+                : deploymentStateDisplay === "VALIDATING"
+                ? "text-amber-400"
+                : "text-[var(--content-secondary)]"
+            }`}>{deploymentStateDisplay}</span>
           </div>
           <span className="text-[var(--border-highlight)]">•</span>
           <div className="text-[var(--content-secondary)]">
@@ -206,10 +258,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
         </div>
 
-        {/* Right: Tactile Hardware Action Controls */}
+        {/* Right: Tactile Hardware Action Controls with Completed State Handling */}
         <div className="flex items-center gap-2">
           <div className="flex items-center p-1 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] gap-1">
-            {isRunning ? (
+            {isCompleted ? (
+              <button
+                onClick={onResetPrompt}
+                className="apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--accent)] text-white shadow-sm flex items-center gap-1.5 active:scale-95 hover:bg-[var(--accent-hover)]"
+                title="Training budget completed. Start a new experiment run."
+              >
+                <RotateCcw className="w-3.5 h-3.5" />
+                <span>New Experiment</span>
+              </button>
+            ) : isRunning ? (
               <button
                 onClick={onPause}
                 className="apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold bg-[var(--status-warning-subtle)] text-[var(--status-warning)] flex items-center gap-1.5 active:scale-95"
@@ -229,9 +290,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
             <button
               onClick={onStep}
-              disabled={isRunning || stepCount >= maxSteps}
+              disabled={isRunning || isCompleted}
               className="apple-btn px-3 py-1.5 rounded-lg text-xs font-medium hover:bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] disabled:opacity-40 flex items-center gap-1.5 active:scale-95"
-              title="Execute a single discrete parameter-shift descent step"
+              title={isCompleted ? "Training completed (max steps reached)" : "Execute a single discrete parameter-shift descent step"}
             >
               <StepForward className="w-3.5 h-3.5" />
               <span>Step</span>
@@ -624,8 +685,17 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               nQbits={nQbits}
               dataset={dataset}
               learningRate={metrics.learningRate}
+              maxSteps={maxSteps}
+              seed={seed}
+              stepDelayMs={stepDelayMs}
               history={history}
+              episodes={episodes}
               apiBase={API_BASE}
+              isBackendConnected={isConnected}
+              trainingState={trainingStateDisplay}
+              onApplyConfig={onApplyConfig}
+              onStartExperimentWithConfig={onStartExperimentWithConfig}
+              onResetToDefaults={onResetPrompt}
             />
           </section>
           <section>

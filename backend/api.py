@@ -51,6 +51,9 @@ class StartExperimentRequest(BaseModel):
     optimizer_name: str = Field(default="adam")
     step_delay_ms: int = Field(default=250, ge=0, le=5000, description="Delay between autonomous steps")
     max_steps: int = Field(default=60, ge=1, le=500)
+    confidence_threshold: float = Field(default=0.60, ge=0.1, le=1.0, description="Diagnosis confidence threshold")
+    validation_window: int = Field(default=3, ge=1, le=10, description="Repair validation window steps")
+    oscillation_window: int = Field(default=4, ge=1, le=10, description="Safety filter anti-oscillation window")
 
 
 class InjectFailureRequest(BaseModel):
@@ -137,8 +140,9 @@ class GlobalStateManager:
             experiment_id=f"exp_{req.dataset}_{int(time.time())}",
             memory_db_path=os.path.join(PROJECT_ROOT, "data", "api_failure_memory.db"),
             bandit_storage_path=os.path.join(PROJECT_ROOT, "data", "api_bandit_posteriors.json"),
-            confidence_threshold=0.60,
-            validation_window=3,
+            confidence_threshold=req.confidence_threshold,
+            validation_window=req.validation_window,
+            oscillation_window=req.oscillation_window,
             seed=req.seed,
         )
         self.step_delay_ms = req.step_delay_ms

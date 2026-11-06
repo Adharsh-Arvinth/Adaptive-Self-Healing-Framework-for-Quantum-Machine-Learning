@@ -69,7 +69,7 @@ export const StoryChapter7Evidence: React.FC = () => {
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4 border-b border-white/10 pb-4">
             <div>
               <span className="text-xs font-mono uppercase tracking-wider text-slate-400">
-                Frozen Stage 8 Benchmark Data (Commit 7d37201)
+                Frozen Stage 8 Benchmark Data (Commit 7d37201aead20c7e5678585c998b51206bc49339)
               </span>
               <h3 className="text-lg font-bold text-white mt-0.5">
                 Policy Regret &amp; Rollback Rates Across 50 Seeds

@@ -63,10 +63,10 @@ export const LimitationsSection: React.FC = () => {
                 <span className="text-slate-500">STAGE 8 N=300</span>
               </div>
               <h3 className="text-xl font-bold font-display text-white">
-                Coverage Collapse Under Calibrated Gate
+                Selective Abstention & Admission Coverage Under Calibrated Threshold
               </h3>
               <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">
-                Temperature scaling successfully reduced the Brier score (0.8645 → 0.5768) and eliminated observed false positive diagnoses (95.8% → 0% observed), but introduced severe coverage collapse:
+                Temperature scaling successfully reduced the Brier score (0.8645 → 0.5768) and eliminated observed false positive diagnoses (95.8% → 0% observed), but required selective abstention on 83.33% of episodes (coverage: 16.67%):
               </p>
               <div className="p-4 rounded-xl bg-black/60 border border-white/10 font-mono text-xs space-y-2.5">
                 <div className="flex justify-between items-center">

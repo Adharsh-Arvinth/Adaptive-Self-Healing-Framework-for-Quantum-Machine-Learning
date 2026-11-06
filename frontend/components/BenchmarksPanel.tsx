@@ -43,12 +43,12 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
             </span>
           </div>
           <p className="text-xs text-[var(--content-secondary)] leading-relaxed max-w-3xl">
-            Empirical evidence from 2,700 total quantum model executions evaluating Bayesian temperature calibration, 10-seed paired regret vs baselines, component-level ablations, and per-failure recovery rates.
+            Empirical evidence from 3,000 executed benchmark episodes across 900 unique scenario initialisations (300 calibration, 1,200 multi-policy regret, 1,200 component ablation, and 300 per-failure recovery evaluations).
           </p>
         </div>
         <div className="flex items-center gap-2 text-xs font-mono text-[var(--content-secondary)] shrink-0 bg-[var(--bg-primary)] px-3 py-1.5 rounded-xl border border-[var(--border-subtle)]">
           <Lock className="w-3.5 h-3.5 text-[var(--accent)]" />
-          <span>Baseline: 7d37201</span>
+          <span>Baseline: <code className="font-bold text-[var(--content-primary)]">7d37201</code> <span className="text-[10px] text-[var(--content-tertiary)]" title="Frozen baseline commit">(7d37201aead20c7e5678585c998b51206bc49339)</span></span>
         </div>
       </div>
 
@@ -120,28 +120,28 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                   <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-2">
                     {data?.calibration?.calibrated?.ece?.toFixed(4) ?? "0.1939"}
                   </div>
-                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">Optimal T*=1.699, τ*=0.840</span>
+                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">Calibrated analysis threshold T*=1.70, τ*=0.84</span>
                 </div>
                 <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-                  <span className="text-[11px] text-[var(--content-secondary)] font-mono">FPR 95% Clopper-Pearson</span>
+                  <span className="text-[11px] text-[var(--content-secondary)] font-mono">Observed False-Positive Rate</span>
                   <div className="text-2xl font-bold font-mono text-emerald-600 dark:text-emerald-400 mt-2">
-                    &le; 4.99%
+                    0.0%
                   </div>
-                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">0/72 false diagnoses admitted</span>
+                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">Exact 95% Clopper-Pearson &le; 4.99% (0/72 false alarms)</span>
                 </div>
                 <div className="p-5 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-                  <span className="text-[11px] text-[var(--content-secondary)] font-mono">Coverage Collapse</span>
+                  <span className="text-[11px] text-[var(--content-secondary)] font-mono">Admission Coverage</span>
                   <div className="text-2xl font-bold font-mono text-[var(--accent)] mt-2">
                     16.7%
                   </div>
-                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">83.3% abstained to preserve precision</span>
+                  <span className="text-[10px] text-[var(--content-secondary)] mt-1">83.3% selective abstention (100% precision, FDR bound &le; 13.72%)</span>
                 </div>
               </div>
 
               <div className="p-6 rounded-2xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
                 <h3 className="text-xs font-semibold text-[var(--content-primary)] mb-3 flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-emerald-600 dark:text-emerald-400" />
-                  Disjoint Partition Calibration Protocol (N = 300 Episodes, 150 Train / 150 Test)
+                  Disjoint Partition Calibration Protocol (N = 300 Episodes: 150 Calibration / 150 Held-Out Test)
                 </h3>
                 <div className="overflow-x-auto">
                   <table className="w-full text-left font-mono text-xs">
@@ -158,7 +158,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                     </thead>
                     <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
                       <tr>
-                        <td className="p-3 font-semibold text-amber-600 dark:text-amber-400">Production Gate (Baseline)</td>
+                        <td className="p-3 font-semibold text-amber-600 dark:text-amber-400">Production Gate (Baseline Runtime)</td>
                         <td className="p-3">τ = 0.60, T = 0.50</td>
                         <td className="p-3">0.4295</td>
                         <td className="p-3">0.8645</td>
@@ -167,7 +167,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                         <td className="p-3 text-rose-600 dark:text-rose-400 font-semibold">95.8% (Uncalibrated)</td>
                       </tr>
                       <tr className="bg-emerald-500/5">
-                        <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">Calibrated Gate (Optimal)</td>
+                        <td className="p-3 font-semibold text-emerald-600 dark:text-emerald-400">Calibrated Analysis Threshold (Research Analysis)</td>
                         <td className="p-3">τ* = 0.840, T* = 1.699</td>
                         <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">0.1939 (-55%)</td>
                         <td className="p-3 font-bold text-emerald-600 dark:text-emerald-400">0.5768 (-33%)</td>
@@ -179,8 +179,7 @@ export const BenchmarksPanel: React.FC<BenchmarksPanelProps> = ({
                   </table>
                 </div>
                 <div className="mt-4 p-3.5 rounded-xl bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[11px] text-[var(--content-secondary)] leading-relaxed">
-                  <strong className="text-[var(--content-primary)]">Scientific Trade-off Disclosure:</strong> Temperature scaling and high confidence thresholding eliminate false positive repairs entirely (0.0% observed, Clopper-Pearson bound &le; 4.99%), but introduce severe coverage collapse: 83.3% of episodes are abstained, passing to conservative fallbacks.
-                </div>
+                  <strong className="text-[var(--content-primary)]">Scientific Trade-off Disclosure:</strong> Temperature scaling (T*=1.70) and calibrated analysis thresholding (τ*=0.84) reduce observed false positive diagnoses to 0.0% (exact one-sided 95% Clopper-Pearson upper bound &le; 4.99%; 0/25 false discoveries with exact upper FDR bound &le; 13.72%), but this requires selective abstention on 83.33% of episodes (admission coverage drops from 96.0% down to 16.67%, with True Positive Rate of 32.05%). The calibrated threshold τ*=0.84 is an analytical investigation result; production runtime remains frozen at τ=0.60 to maintain operational admission coverage.</div>
               </div>
             </div>
           )}

@@ -65,7 +65,9 @@ export default function Page() {
   const [featureMap, setFeatureMap] = useState("Angle");
   const [nLayers, setNLayers] = useState(2);
   const [nQbits, setNQbits] = useState(2);
-  const [dataset] = useState("moons");
+  const [dataset, setDataset] = useState("moons");
+  const [seed, setSeed] = useState(42);
+  const [stepDelayMs, setStepDelayMs] = useState(250);
 
   // Telemetry Metrics (Idle defaults)
   const [metrics, setMetrics] = useState({
@@ -505,7 +507,13 @@ export default function Page() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           dataset,
-          step_delay_ms: 200,
+          seed,
+          learning_rate: metrics.learningRate,
+          n_layers: nLayers,
+          n_qubits: nQbits,
+          feature_map: featureMap.toLowerCase(),
+          optimizer_name: optimizerName.toLowerCase(),
+          step_delay_ms: stepDelayMs,
           max_steps: maxSteps,
         }),
       });
@@ -517,6 +525,109 @@ export default function Page() {
       addToast("error", "Failed to Start", String(e));
     }
   };
+
+  const handleApplyConfig = useCallback(
+    async (cfg: {
+      dataset: string;
+      nQbits: number;
+      nLayers: number;
+      featureMap: string;
+      optimizerName: string;
+      learningRate: number;
+      maxSteps: number;
+      seed: number;
+      stepDelayMs: number;
+      confidenceThreshold?: number;
+      validationWindow?: number;
+      oscillationWindow?: number;
+    }) => {
+      setDataset(cfg.dataset);
+      setNQbits(cfg.nQbits);
+      setNLayers(cfg.nLayers);
+      setFeatureMap(cfg.featureMap);
+      setOptimizerName(cfg.optimizerName);
+      setMetrics((prev) => ({ ...prev, learningRate: cfg.learningRate }));
+      setMaxSteps(cfg.maxSteps);
+      setSeed(cfg.seed);
+      setStepDelayMs(cfg.stepDelayMs);
+
+      try {
+        await fetch(`${API_BASE}/api/experiment/reset`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataset: cfg.dataset,
+            seed: cfg.seed,
+            learning_rate: cfg.learningRate,
+            n_layers: cfg.nLayers,
+            n_qubits: cfg.nQbits,
+            feature_map: cfg.featureMap.toLowerCase(),
+            optimizer_name: cfg.optimizerName.toLowerCase(),
+            step_delay_ms: cfg.stepDelayMs,
+            max_steps: cfg.maxSteps,
+            confidence_threshold: cfg.confidenceThreshold ?? 0.60,
+            validation_window: cfg.validationWindow ?? 3,
+            oscillation_window: cfg.oscillationWindow ?? 4,
+          }),
+        });
+        setHistory([]);
+        setStepCount(0);
+        setIsRunning(false);
+        setPipelineState("IDLE");
+        addToast("info", "Configuration Applied", `Initialized ${cfg.dataset.toUpperCase()} on ${cfg.nQbits}Q / ${cfg.nLayers}L.`);
+        fetchStatusAndPosteriors();
+      } catch (e) {
+        console.warn("Could not reset experiment with new config:", e);
+      }
+    },
+    [API_BASE, addToast, fetchStatusAndPosteriors]
+  );
+
+  const handleStartExperimentWithConfig = useCallback(
+    async (cfg: {
+      dataset: string;
+      nQbits: number;
+      nLayers: number;
+      featureMap: string;
+      optimizerName: string;
+      learningRate: number;
+      maxSteps: number;
+      seed: number;
+      stepDelayMs: number;
+      confidenceThreshold?: number;
+      validationWindow?: number;
+      oscillationWindow?: number;
+    }) => {
+      await handleApplyConfig(cfg);
+      try {
+        const res = await fetch(`${API_BASE}/api/experiment/start`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            dataset: cfg.dataset,
+            seed: cfg.seed,
+            learning_rate: cfg.learningRate,
+            n_layers: cfg.nLayers,
+            n_qubits: cfg.nQbits,
+            feature_map: cfg.featureMap.toLowerCase(),
+            optimizer_name: cfg.optimizerName.toLowerCase(),
+            step_delay_ms: cfg.stepDelayMs,
+            max_steps: cfg.maxSteps,
+            confidence_threshold: cfg.confidenceThreshold ?? 0.60,
+            validation_window: cfg.validationWindow ?? 3,
+            oscillation_window: cfg.oscillationWindow ?? 4,
+          }),
+        });
+        if (res.ok) {
+          setIsRunning(true);
+          addToast("success", "Training Started", `Autonomous loop active for ${cfg.dataset.toUpperCase()}.`);
+        }
+      } catch (e) {
+        addToast("error", "Launch Failed", String(e));
+      }
+    },
+    [API_BASE, handleApplyConfig, addToast]
+  );
 
   const handlePause = async () => {
     try {
@@ -817,6 +928,10 @@ export default function Page() {
             nQbits={nQbits}
             dataset={dataset}
             API_BASE={API_BASE}
+            seed={seed}
+            stepDelayMs={stepDelayMs}
+            onApplyConfig={handleApplyConfig}
+            onStartExperimentWithConfig={handleStartExperimentWithConfig}
           />
           </ErrorBoundary>
         </main>

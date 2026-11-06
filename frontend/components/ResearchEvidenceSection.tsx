@@ -18,7 +18,7 @@ export const ResearchEvidenceSection: React.FC = () => {
             Stage 8 Empirical Benchmark Campaign.
           </h2>
           <p className="text-base sm:text-lg text-slate-600 leading-relaxed font-sans">
-            Rigorous evaluation across 2,700 total quantum model executions from frozen commit <code className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-900 font-bold">7d37201</code>. Every result is documented with exact statistical uncertainty, formal hypothesis tests, and transparent disclosure of theoretical and empirical limitations.
+            Rigorous evaluation across 3,000 executed benchmark episodes across 900 unique scenario initialisations from frozen commit <code className="font-mono text-xs bg-slate-100 px-2 py-0.5 rounded text-slate-900 font-bold">7d37201aead20c7e5678585c998b51206bc49339</code>. Every result is documented with exact statistical uncertainty, formal hypothesis tests, and transparent disclosure of theoretical and empirical limitations.
           </p>
         </div>
 
@@ -152,7 +152,7 @@ export const ResearchEvidenceSection: React.FC = () => {
                 <span className="font-semibold text-slate-900">BAYESIAN TEMPERATURE CALIBRATION &amp; SELECTIVE PREDICTION (N=300 EPISODES)</span>
               </div>
               <span className="text-slate-600 bg-slate-50 px-3 py-1 rounded-lg border border-slate-200 font-semibold">
-                150 TRAIN / 150 TEST HELD-OUT
+                150 CALIBRATION / 150 HELD-OUT TEST
               </span>
             </div>
 
@@ -201,7 +201,7 @@ export const ResearchEvidenceSection: React.FC = () => {
                     <td className="py-3 px-4 font-semibold">96.00% (144 / 150)</td>
                     <td className="py-3 px-4 font-bold text-amber-700">16.67% (25 / 150)</td>
                     <td className="py-3 px-4 text-amber-700 font-semibold">-79.3% Coverage</td>
-                    <td className="py-3 px-4 text-amber-800">Coverage collapse: 83.33% abstention rate</td>
+                    <td className="py-3 px-4 text-amber-800">Admission coverage: 16.67% (83.33% selective abstention rate)</td>
                   </tr>
                   <tr>
                     <td className="py-3 px-4 font-semibold text-slate-900">True Positive Rate (Recall)</td>
