@@ -55,11 +55,11 @@ export const StoryChapter8Limitations: React.FC = () => {
           {limitations.map((lim) => (
             <div
               key={lim.title}
-              className="p-6 rounded-2xl border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-lg space-y-3 flex flex-col justify-between"
+              className="interactive-card group p-6 rounded-2xl border border-white/10 bg-slate-950/70 backdrop-blur-xl shadow-lg space-y-3 flex flex-col justify-between hover:border-amber-400/40 hover:shadow-[0_12px_30px_rgba(0,0,0,0.6),0_0_20px_rgba(245,158,11,0.12)]"
             >
               <div className="space-y-2">
                 <div className="flex items-center gap-2 text-amber-400 font-mono text-xs font-bold">
-                  <ShieldAlert className="w-4 h-4 shrink-0" />
+                  <ShieldAlert className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110 group-hover:text-amber-300" />
                   <span>{lim.title}</span>
                 </div>
                 <p className="text-xs sm:text-sm text-slate-300 leading-relaxed font-sans">

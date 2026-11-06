@@ -112,7 +112,7 @@ export const MetricsRow: React.FC<MetricsRowProps> = ({
           return (
             <div
               key={m.id}
-              className="glass-panel p-4 flex flex-col justify-between transition-all"
+              className="interactive-card group p-4 sm:p-5 flex flex-col justify-between"
             >
               <div className="flex items-center justify-between text-xs text-[var(--content-secondary)]">
                 <span className="font-medium">{m.label}</span>
@@ -139,7 +139,7 @@ export const MetricsRow: React.FC<MetricsRowProps> = ({
           return (
             <div
               key={item.label}
-              className="p-3 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between"
+              className="interactive-card group p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex items-center justify-between"
             >
               <div>
                 <div className="text-[11px] text-[var(--content-secondary)] font-medium truncate">

@@ -115,10 +115,10 @@ export const StoryChapter1Challenge: React.FC = () => {
               <button
                 key={s.id}
                 onClick={() => setActiveStep(idx)}
-                className={`p-3.5 rounded-2xl border text-left transition-all ${
+                className={`pill-interactive p-3.5 rounded-2xl border text-left transition-all ${
                   activeStep === idx
-                    ? "bg-white/[0.08] border-cyan-400/50 shadow-[0_0_15px_rgba(34,211,238,0.15)]"
-                    : "bg-white/[0.02] border-white/10 hover:border-white/20 text-slate-400"
+                    ? "bg-white/[0.08] border-cyan-400/50 shadow-[0_0_18px_rgba(34,211,238,0.2)] -translate-y-0.5"
+                    : "bg-white/[0.02] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.06] hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.4)] text-slate-400"
                 }`}
               >
                 <span className="text-[10px] text-slate-500 block">{s.label}</span>

@@ -140,15 +140,15 @@ export const StoryChapter4RepairArms: React.FC = () => {
               <button
                 key={arm.id}
                 onClick={() => setSelectedArmId(arm.id)}
-                className={`p-4 rounded-2xl border text-left flex flex-col justify-between gap-3 transition-all active:scale-95 ${
+                className={`interactive-card group p-4 rounded-2xl border text-left flex flex-col justify-between gap-3 transition-all active:scale-95 ${
                   isSelected
-                    ? "bg-white/[0.08] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)]"
-                    : "bg-white/[0.02] border-white/10 hover:border-white/20 text-slate-400"
+                    ? "bg-white/[0.08] border-cyan-400 shadow-[0_0_20px_rgba(34,211,238,0.2)] -translate-y-0.5"
+                    : "bg-white/[0.02] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.06] hover:-translate-y-1 hover:shadow-[0_8px_24px_rgba(0,0,0,0.5)] text-slate-400"
                 }`}
               >
                 <div className="flex items-center justify-between w-full">
                   <span className="text-[10px] text-slate-500 font-bold">{arm.number}</span>
-                  <Icon className={`w-4 h-4 ${isSelected ? "text-cyan-400" : "text-slate-400"}`} />
+                  <Icon className={`w-4 h-4 transition-transform duration-200 group-hover:scale-110 ${isSelected ? "text-cyan-400" : "text-slate-400 group-hover:text-cyan-300"}`} />
                 </div>
                 <span className={`text-xs font-bold leading-tight ${isSelected ? "text-white" : "text-slate-300"}`}>
                   {arm.name}

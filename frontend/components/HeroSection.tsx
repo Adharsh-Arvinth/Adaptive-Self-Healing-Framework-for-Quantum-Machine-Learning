@@ -77,17 +77,17 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
         <div className="flex flex-col sm:flex-row items-center justify-center gap-3.5 sm:gap-4 w-full sm:w-auto pt-2">
           <button
             onClick={onExploreClick}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_30px_rgba(255,255,255,0.2)] hover:shadow-[0_0_40px_rgba(255,255,255,0.3)] transition-all active:scale-[0.98]"
+            className="apple-btn group w-full sm:w-auto px-7 py-3.5 rounded-xl bg-white hover:bg-slate-100 text-slate-950 font-semibold text-sm sm:text-base flex items-center justify-center gap-2 shadow-[0_0_25px_rgba(255,255,255,0.2)] hover:shadow-[0_8px_30px_rgba(255,255,255,0.35)] transition-all hover:-translate-y-1 active:scale-95"
           >
             <span>Explore the Framework</span>
-            <ArrowDown className="w-4 h-4 text-slate-800" />
+            <ArrowDown className="w-4 h-4 text-slate-800 transition-transform duration-200 group-hover:translate-y-0.5" />
           </button>
 
           <button
             onClick={onLaunchLabClick}
-            className="w-full sm:w-auto px-7 py-3.5 rounded-xl border border-white/20 bg-white/[0.05] hover:bg-white/[0.1] text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 backdrop-blur-md transition-all active:scale-[0.98]"
+            className="btn-glow-primary group w-full sm:w-auto px-7 py-3.5 rounded-xl border border-white/20 bg-white/[0.05] hover:bg-white/[0.12] hover:border-cyan-400/50 text-white font-semibold text-sm sm:text-base flex items-center justify-center gap-2 backdrop-blur-md transition-all hover:-translate-y-1 active:scale-95"
           >
-            <FlaskConical className="w-4 h-4 text-cyan-400" />
+            <FlaskConical className="w-4 h-4 text-cyan-400 transition-transform duration-200 group-hover:scale-110 group-hover:rotate-6" />
             <span>Enter Research Lab</span>
           </button>
         </div>
@@ -148,7 +148,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Hadamard (H): Creates equal quantum superposition |0⟩ → (|0⟩+|1⟩)/√2")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className="relative z-10 w-9 h-9 rounded-lg bg-slate-900 border border-white/20 hover:border-cyan-400 flex items-center justify-center font-bold text-white shadow-md transition-all hover:scale-105 active:scale-95"
+                    className="relative z-10 w-9 h-9 rounded-lg bg-slate-900 border border-white/20 hover:border-cyan-400 flex items-center justify-center font-bold text-white shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95"
                   >
                     H
                   </button>
@@ -157,7 +157,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Ry(x₀): Classical data feature encoding via rotation")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className="relative z-10 px-2.5 h-9 rounded-lg bg-blue-950/80 border border-blue-500/40 hover:border-cyan-400 flex items-center justify-center font-bold text-cyan-300 text-[11px] shadow-md transition-all hover:scale-105 active:scale-95"
+                    className="relative z-10 px-2.5 h-9 rounded-lg bg-blue-950/80 border border-blue-500/40 hover:border-cyan-400 flex items-center justify-center font-bold text-cyan-300 text-[11px] shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95"
                   >
                     Ry(x₀)
                   </button>
@@ -169,7 +169,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Ry(θ₀): Variational parameter adjusted by optimizer")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className={`relative z-10 px-2.5 h-9 rounded-lg border font-bold text-[11px] shadow-md transition-all hover:scale-105 active:scale-95 ${
+                    className={`relative z-10 px-2.5 h-9 rounded-lg border font-bold text-[11px] shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95 ${
                       circuitPhase === "anomaly"
                         ? "bg-rose-950/80 border-rose-500/50 text-rose-300"
                         : circuitPhase === "healed"
@@ -210,7 +210,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Hadamard (H): Creates superposition on qubit 1")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className="relative z-10 w-9 h-9 rounded-lg bg-slate-900 border border-white/20 hover:border-cyan-400 flex items-center justify-center font-bold text-white shadow-md transition-all hover:scale-105 active:scale-95"
+                    className="relative z-10 w-9 h-9 rounded-lg bg-slate-900 border border-white/20 hover:border-cyan-400 flex items-center justify-center font-bold text-white shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95"
                   >
                     H
                   </button>
@@ -218,7 +218,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Ry(x₁): Classical feature map encoding feature x₁")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className="relative z-10 px-2.5 h-9 rounded-lg bg-blue-950/80 border border-blue-500/40 hover:border-cyan-400 flex items-center justify-center font-bold text-cyan-300 text-[11px] shadow-md transition-all hover:scale-105 active:scale-95"
+                    className="relative z-10 px-2.5 h-9 rounded-lg bg-blue-950/80 border border-blue-500/40 hover:border-cyan-400 flex items-center justify-center font-bold text-cyan-300 text-[11px] shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95"
                   >
                     Ry(x₁)
                   </button>
@@ -231,7 +231,7 @@ export const HeroSection: React.FC<HeroSectionProps> = ({
                   <button
                     onMouseEnter={() => setActiveGate("Rz(θ₁): Variational ansatz phase rotation")}
                     onMouseLeave={() => setActiveGate(null)}
-                    className={`relative z-10 px-2.5 h-9 rounded-lg border font-bold text-[11px] shadow-md transition-all hover:scale-105 active:scale-95 ${
+                    className={`relative z-10 px-2.5 h-9 rounded-lg border font-bold text-[11px] shadow-md transition-all hover:scale-110 hover:shadow-[0_0_15px_rgba(34,211,238,0.5)] active:scale-95 ${
                       circuitPhase === "anomaly"
                         ? "bg-rose-950/80 border-rose-500/50 text-rose-300"
                         : circuitPhase === "healed"

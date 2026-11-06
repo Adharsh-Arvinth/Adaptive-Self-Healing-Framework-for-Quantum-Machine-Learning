@@ -275,22 +275,22 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
           return (
             <div
               key={arm.id}
-              className={`p-4 rounded-xl border transition-all flex flex-col justify-between select-none relative ${
+              className={`interactive-card group p-4 sm:p-5 rounded-2xl border flex flex-col justify-between select-none relative ${
                 isDeployedNow
-                  ? "bg-amber-500/10 border-amber-500 shadow-sm"
+                  ? "bg-amber-500/10 border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.2)]"
                   : isSelected
-                  ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-sm"
+                  ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-[0_0_24px_rgba(56,189,248,0.2)]"
                   : isInspected
-                  ? "bg-[var(--bg-surface)] border-[var(--accent)]/60 ring-1 ring-[var(--accent)]/30"
-                  : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-highlight)]"
+                  ? "bg-[var(--bg-surface)] border-[var(--accent)]/60 ring-1 ring-[var(--accent)]/30 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                  : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
               }`}
             >
               <div className="space-y-2.5">
                 {/* Header: Name, Number & Eligibility Badge */}
                 <div className="flex items-start justify-between gap-2">
                   <div className="flex items-center gap-2.5 min-w-0">
-                    <div className="w-7 h-7 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] shrink-0">
-                      <Icon className="w-4 h-4" />
+                    <div className="card-icon w-8 h-8 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-primary)] shrink-0 shadow-sm">
+                      <Icon className="w-4 h-4 transition-transform duration-200 group-hover:scale-110" />
                     </div>
                     <div className="min-w-0">
                       <span className="text-[10px] font-mono text-[var(--content-tertiary)] block">

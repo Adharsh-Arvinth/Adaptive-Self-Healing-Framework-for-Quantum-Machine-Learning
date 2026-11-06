@@ -232,10 +232,10 @@ export const StoryChapter5AdaptiveBandit: React.FC = () => {
                       <button
                         key={f.index}
                         onClick={() => setSelectedFeatureIdx(f.index)}
-                        className={`py-2 px-1 rounded-xl border text-center transition-all ${
+                        className={`pill-interactive py-2 px-1 rounded-xl border text-center transition-all ${
                           selectedFeatureIdx === f.index
-                            ? "bg-cyan-500 text-slate-950 font-bold border-cyan-400"
-                            : "bg-white/[0.02] border-white/10 text-slate-400 hover:text-white"
+                            ? "bg-cyan-500 text-slate-950 font-bold border-cyan-400 shadow-[0_0_12px_rgba(34,211,238,0.3)] -translate-y-0.5"
+                            : "bg-white/[0.02] border-white/10 text-slate-400 hover:text-white hover:border-cyan-400/40 hover:bg-white/[0.06] hover:-translate-y-0.5"
                         }`}
                       >
                         x_{f.index}

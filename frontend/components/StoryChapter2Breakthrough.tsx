@@ -65,7 +65,7 @@ export const StoryChapter2Breakthrough: React.FC = () => {
           {activeMode === "traditional" ? (
             /* Traditional Failure Workflow */
             <div className="grid grid-cols-1 md:grid-cols-4 gap-4 animate-fade-in">
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2">
+              <div className="interactive-card group p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2 hover:border-cyan-400/30">
                 <span className="text-xs font-mono text-slate-500">STEP 1</span>
                 <h4 className="text-sm font-bold text-slate-200">Silent Anomaly</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
@@ -73,7 +73,7 @@ export const StoryChapter2Breakthrough: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2">
+              <div className="interactive-card group p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2 hover:border-cyan-400/30">
                 <span className="text-xs font-mono text-slate-500">STEP 2</span>
                 <h4 className="text-sm font-bold text-slate-200">Execution Stalls</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">
@@ -81,7 +81,7 @@ export const StoryChapter2Breakthrough: React.FC = () => {
                 </p>
               </div>
 
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2">
+              <div className="interactive-card group p-5 rounded-2xl bg-white/[0.02] border border-white/10 space-y-2 hover:border-cyan-400/30">
                 <span className="text-xs font-mono text-rose-400">STEP 3</span>
                 <h4 className="text-sm font-bold text-rose-300">Run Aborts</h4>
                 <p className="text-xs text-slate-400 leading-relaxed">

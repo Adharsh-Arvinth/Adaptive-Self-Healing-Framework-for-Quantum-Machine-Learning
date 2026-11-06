@@ -258,9 +258,9 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             <button
               key={tab.id}
               onClick={() => setActiveTab(tab.id)}
-              className={`flex items-center gap-2 px-3.5 py-1.5 rounded-lg text-xs font-medium transition-all whitespace-nowrap ${
+              className={`pill-interactive group flex items-center gap-2 px-3.5 py-1.5 rounded-xl text-xs font-medium whitespace-nowrap ${
                 isActive
-                  ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-semibold shadow-sm"
+                  ? "bg-[var(--content-primary)] text-[var(--bg-primary)] font-semibold shadow-sm -translate-y-0.5"
                   : "text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:bg-[var(--bg-subtle)]"
               }`}
             >

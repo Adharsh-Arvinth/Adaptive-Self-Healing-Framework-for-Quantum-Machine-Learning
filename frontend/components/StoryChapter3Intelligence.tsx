@@ -140,16 +140,16 @@ export const StoryChapter3Intelligence: React.FC = () => {
                 <button
                   key={s.id}
                   onClick={() => setSelectedStageIndex(idx)}
-                  className={`p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all active:scale-95 ${
+                  className={`group p-3 rounded-2xl border flex flex-col items-center text-center gap-1.5 transition-all duration-200 active:scale-95 ${
                     isSelected
-                      ? "bg-cyan-500 text-slate-950 border-cyan-400 font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)]"
-                      : "bg-white/[0.03] border-white/10 hover:border-white/20 text-slate-300"
+                      ? "bg-cyan-500 text-slate-950 border-cyan-400 font-bold shadow-[0_0_20px_rgba(34,211,238,0.3)] -translate-y-0.5"
+                      : "bg-white/[0.03] border-white/10 hover:border-cyan-400/40 hover:bg-white/[0.07] hover:-translate-y-1 hover:shadow-[0_8px_20px_rgba(0,0,0,0.4)] text-slate-300"
                   }`}
                 >
                   <span className={`text-[10px] ${isSelected ? "text-slate-900" : "text-slate-500"}`}>
                     {s.number}
                   </span>
-                  <StageIcon className="w-4 h-4 shrink-0" />
+                  <StageIcon className="w-4 h-4 shrink-0 transition-transform duration-200 group-hover:scale-110" />
                   <span className="text-[11px] truncate w-full">{s.verb}</span>
                 </button>
               );
