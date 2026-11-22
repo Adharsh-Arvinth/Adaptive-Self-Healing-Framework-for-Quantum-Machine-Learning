@@ -8,9 +8,16 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20%7C%20Render-black.svg?logo=vercel&logoColor=white)](https://adaptive-self-healing-framework-for.vercel.app/)
 
-An autonomous, closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). The framework unifies continuous quantum telemetry extraction, multi-heuristic anomaly detection, Bayesian confidence-gated root-cause diagnosis, contextual bandit repair selection via **Contextual Thompson Sampling**, digital-twin predictive sandbox validation, and transactional atomic commit/rollback mechanisms.
+An autonomous, closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). The framework unifies continuous quantum telemetry extraction, multi-heuristic anomaly detection, confidence-gated root-cause diagnosis, contextual bandit repair selection via **Contextual Thompson Sampling**, digital-twin predictive sandbox validation, and transactional atomic commit/rollback mechanisms.
 
 Developed as an Autonomous Closed-Loop Runtime Platform for Variational Quantum Classifiers.
+
+> 🧪 **Research status (November 2026).** The evidence behind this project was rebuilt from scratch.
+> The earlier "Stage 8" benchmark (in `benchmark_results/` and `manuscript/`) trained on random labels and is
+> **superseded**; see the audit in [`research/RESEARCH_FINDINGS.md`](research/RESEARCH_FINDINGS.md).
+> Current results come from the counterfactual campaign in [`research/`](research/) (11 datasets, an
+> IBM-calibrated noise regime, 2,310 episodes) and are tabulated in [`research/RESULTS.md`](research/RESULTS.md).
+> The benchmark is released as a dataset in [`research/dataset/qfaultbench_v1/`](research/dataset/qfaultbench_v1/).
 
 > 🌐 **Live Web Application:** [https://adaptive-self-healing-framework-for.vercel.app/](https://adaptive-self-healing-framework-for.vercel.app/)  
 > ⚡ **Cloud Telemetry API:** [https://qml-backend-nczx.onrender.com/health](https://qml-backend-nczx.onrender.com/health)
@@ -31,7 +38,7 @@ Developed as an Autonomous Closed-Loop Runtime Platform for Variational Quantum 
    - [Mode 1: Full-Stack Web Dashboard](#mode-1-full-stack-web-dashboard)
    - [Mode 2: Fast Vertical Slice CLI](#mode-2-fast-vertical-slice-cli)
    - [Mode 3: Automated Test Suite](#mode-3-automated-test-suite)
-   - [Mode 4: Stage 8 Benchmark Replication](#mode-4-stage-8-benchmark-replication)
+   - [Mode 4: QFaultBench Counterfactual Campaign](#mode-4-qfaultbench-counterfactual-campaign)
 8. [Dashboard Walkthrough & Telemetry](#dashboard-walkthrough--telemetry)
 9. [Mathematical & Algorithmic Foundations](#mathematical--algorithmic-foundations)
    - [Multi-Objective Reward Formulation](#1-multi-objective-reward-formulation)
@@ -51,7 +58,7 @@ Variational Quantum Algorithms (VQAs) and Quantum Neural Networks (QNNs) deploye
 Existing workflows rely on manual post-hoc trial and error or uncalibrated restarts that discard optimization history. This framework presents an automated, closed-loop diagnostic and recovery architecture comprising:
 1. **12-Dimensional Continuous Telemetry:** Computes training loss, parameter-shift gradient norms, gradient variances, parameter velocities, and diagnostic metrics at every optimization step.
 2. **Statistical Anomaly Detection:** Employs sliding-window variance and moving Z-score thresholding across short ($W_{\text{short}}=3$) and long ($W_{\text{long}}=10$) observation windows.
-3. **Calibrated Bayesian Diagnosis:** Formulates posterior belief distributions $P(F_k \mid \mathbf{x}_t)$ over six canonical quantum failure classes, guarded by an empirical Bayesian confidence gate ($\tau = 0.60$) that safely abstains from ungrounded interventions when symptoms are ambiguous.
+3. **Confidence-Gated Diagnosis:** Expert evidence rules are scored and passed through a temperature-scaled softmax to give a distribution over six failure classes; a confidence gate ($\tau = 0.60$) abstains when symptoms are ambiguous. A learned, baseline-relative diagnoser trained on the released benchmark is evaluated alongside it (see `research/`).
 4. **Contextual Thompson Sampling Bandit:** Models expected repair payoffs using independent Bayesian linear regression posteriors $\mathcal{N}(\boldsymbol{\mu}_a, v^2 B_a^{-1})$ across six locked repair arms, updated online via Sherman-Morrison rank-1 inversions.
 5. **Digital-Twin Predictive Validation:** Executes an isolated short-horizon ($H=3$) forward simulation of candidate repairs on non-training batches to verify numerical viability before touching the live model.
 6. **Atomic Rollback Architecture:** Applies the selected repair with state snapshotting; if validation window performance ($W_{\text{val}}=3$) indicates divergence or degradation, the model is atomically reverted to its pre-failure checkpoint.
@@ -86,7 +93,7 @@ Existing workflows rely on manual post-hoc trial and error or uncalibrated resta
                                           | Anomaly Flagged
                                           v
                       +---------------------------------------+
-                      |     Bayesian Root-Cause Diagnosis     |
+                      |   Confidence-Gated Root-Cause Diag.   |
                       |    Temperature-Scaled Softmax P(F|x)  |
                       +-------------------+-------------------+
                                           |
@@ -139,12 +146,12 @@ The framework diagnoses exactly **six canonical failure categories** (`backend/q
 
 | Code | Failure Mode | Physical / Mathematical Symptoms | Primary Trigger Condition |
 | :--- | :--- | :--- | :--- |
-| `F1` | `barren_plateau` | Exponential gradient vanishing, cost variance flattening | $\|\mathbf{g}\|_2 < 10^{-4}$ and $\text{Var}[\mathbf{g}] < 10^{-5}$ sustained for $\ge 2$ steps |
-| `F2` | `lr_misconfiguration` | Destabilizing step size inducing oscillatory loss spikes | Severe loss oscillation variance $\ge 0.10$ or divergence under oversized steps |
-| `F3` | `optimizer_instability` | Classical momentum buffer corruption, directional incoherence | Loss coefficient of variation $CV(L) > 0.30$ with incoherent gradients |
-| `F4` | `training_divergence` | Numerical divergence, gradient norm overflow, NaNs | Loss $L > 5.0$, gradient norm $\|\mathbf{g}\|_2 > 50.0$, or IEEE 754 NaN/Inf |
-| `F5` | `persistent_plateau` | Trapped in low-curvature saddle manifold | Parameter displacement velocity $v_\theta < 10^{-4}$ with non-vanishing loss |
-| `F6` | `noise_degradation` | Mixed-state purity degradation, Bloch radius contraction | Radial Bloch vector contraction $\|\mathbf{r}\|_2 < 0.70$ with stagnant accuracy |
+| `F1` | `barren_plateau` | Gradient signal below shot-noise level (emulated SNR collapse; optionally a deep Haar-scrambled re-initialisation) | Consecutive gradients decorrelate ($|\cos(\mathbf{g}_t,\mathbf{g}_{t-1})| < 0.3$) while loss stops improving |
+| `F2` | `lr_misconfiguration` | Step size scaled up 50x: the loss bounces between valley walls | Loss oscillation with large recent jumps at elevated learning rate |
+| `F3` | `optimizer_instability` | Corrupted optimiser moment buffers and decay coefficients | Loss coefficient of variation $CV(L) > 0.30$ |
+| `F4` | `training_divergence` | Non-finite parameters | NaN/Inf loss or gradient, loss $> 5$, or $\|\mathbf{g}\| > 50$ |
+| `F5` | `persistent_plateau` | Step-size collapse (learning rate x 1e-3): live gradients, no motion | Flat loss with non-vanishing gradient norm |
+| `F6` | `noise_degradation` | Per-layer depolarizing contraction $(1-p)^L$ plus shot noise (or a 3-5x calibration drift on an IBM-calibrated baseline) | Label-aligned output margin contracts below 80% of its recent maximum |
 
 ### 2. Locked Repair Strategy Library
 
@@ -168,7 +175,7 @@ Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning/
 │   ├── bandit.py                       # Contextual Thompson Sampling bandit engine
 │   ├── deployment.py                   # Atomic transaction engine (Commit / Rollback)
 │   ├── detection.py                    # Multi-heuristic statistical anomaly detector
-│   ├── diagnosis.py                    # Calibrated Bayesian diagnosis & confidence gate
+│   ├── diagnosis.py                    # Evidence-scored diagnosis & confidence gate
 │   ├── digital_twin.py                 # Isolated H=3 forward simulation sandbox
 │   ├── evaluation.py                   # Multi-objective reward equation calculator
 │   ├── memory.py                       # SQLite episodic memory & episode recorder
@@ -184,7 +191,7 @@ Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning/
 │   │   ├── BanditMonitor.tsx           # Contextual Thompson Sampling posteriors & weights
 │   │   ├── BlochSphere.tsx             # Interactive 3D Canvas Bloch sphere visualizer
 │   │   ├── DeploymentMonitor.tsx       # Transactional rollback ledger & health status
-│   │   ├── DiagnosisPanel.tsx          # Bayesian root-cause probabilities & gate state
+│   │   ├── DiagnosisPanel.tsx          # Root-cause probabilities & gate state
 │   │   ├── DigitalTwinPanel.tsx        # Forward simulation matrix & trajectory preview
 │   │   ├── FailureInjectionPanel.tsx   # Controlled synthetic failure injection testing
 │   │   ├── Header.tsx                  # System status bar & experiment controls
@@ -194,7 +201,15 @@ Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning/
 │   │   └── RepairCockpit.tsx           # Six-Arm adaptive repair cockpit & status
 │   ├── package.json                    # Frontend dependencies & npm scripts
 │   └── tailwind.config.ts              # Apple-inspired UI styling configuration
-├── benchmark_results/                   # Stage 8 Frozen Benchmark Campaign Data
+├── research/                            # Current evidence: QFaultBench-VQC campaign, analysis, dataset
+│   ├── datasets.py / episodes.py       # 11 tasks; counterfactual fault-injection episodes
+│   ├── run_campaign.py / analysis.py   # Parallel campaign runner; statistics and policy replay
+│   ├── replay.py / figures.py / report.py
+│   ├── external/                       # Downloaded datasets + IBM calibration snapshots (provenance README)
+│   ├── data/raw/                       # Raw campaign records (gzipped JSON lines)
+│   ├── results/                        # summary.json, figures (ideal and hw_torino regimes)
+│   └── dataset/qfaultbench_v1/         # Released benchmark dataset with datasheet
+├── benchmark_results/                   # SUPERSEDED Stage 8 data (kept for the audit trail)
 │   ├── figures/                        # Publication figures (PDF & PNG, 300 DPI)
 │   │   ├── figure1_calibration_reliability.pdf / .png
 │   │   ├── figure2_policy_regret_trajectories.pdf / .png
@@ -227,7 +242,7 @@ Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning/
 │   ├── test_api.py                     # REST endpoints & WebSocket telemetry tests
 │   ├── test_audit_safety_failure.py    # Numerical safety and failure injection tests
 │   ├── test_bandit_digital_twin.py     # Bandit updates & forward simulation tests
-│   ├── test_detection_diagnosis.py     # Anomaly detector & Bayesian diagnosis tests
+│   ├── test_detection_diagnosis.py     # Anomaly detector & diagnosis tests
 │   ├── test_memory_repair.py           # SQLite persistence & repair library tests
 │   ├── test_pipeline_deployment.py     # End-to-end pipeline & rollback tests
 │   └── test_qml_model.py               # PennyLane VQC circuit & Bloch sphere tests
@@ -326,7 +341,7 @@ To ensure clarity for researchers, evaluators, and beginners, this repository su
 | **Mode 4** | Full Benchmark Campaign | `python scripts/benchmark_*.py` | **1–3 hours** | High (Multi-seed) |
 
 ### Mode 1: Full-Stack Web Dashboard
-Provides an Apple-inspired visual control center. Real-time telemetry, 3D Bloch sphere updates, anomaly alerts, Bayesian confidence indicators, and manual fault injection controls are streamed over WebSockets (`ws://127.0.0.1:8000/ws/telemetry`).
+Provides an Apple-inspired visual control center. Real-time telemetry, 3D Bloch sphere updates, anomaly alerts, diagnosis confidence indicators, and manual fault injection controls are streamed over WebSockets (`ws://127.0.0.1:8000/ws/telemetry`).
 
 ### Mode 2: Fast Vertical Slice CLI Verification
 If you want an immediate, non-visual verification that the entire pipeline functions correctly (nominal training $\to$ fault injection $\to$ anomaly detection $\to$ confidence gating $\to$ Thompson Sampling selection $\to$ digital-twin validation $\to$ atomic commit):
@@ -340,21 +355,23 @@ To verify code integrity, numerical correctness, and API endpoints across the en
 ```bash
 pytest -q
 ```
-*Runs all 93 unit and integration tests. Expected output:*
+*Runs all 97 unit and integration tests. Expected output:*
 ```
-93 passed, 1 warning in 9.52s
+97 passed, 1 warning
 ```
 
-### Mode 4: Stage 8 Benchmark Replication
-> ⚠️ **NOTICE ON PRE-COMPUTED BENCHMARK EVIDENCE:**  
-> All Stage 8 benchmark campaign results are **already computed, audited, and frozen** in the [`benchmark_results/`](benchmark_results/) directory. The raw JSON files and high-resolution figures in `benchmark_results/figures/` match the published manuscript.
-> 
-> You do **not** need to rerun the benchmarks to inspect the data or run the application. Re-running the full benchmark scripts executes over 3,000 quantum training episodes across multiple seeds and takes **several hours**:
-> - `python scripts/benchmark_calibration_n300.py` (300 episodes, ~15 mins)
-> - `python scripts/benchmark_policy_regret.py` (1,200 episodes, ~45 mins)
-> - `python scripts/benchmark_ablation_study.py` (1,200 episodes, ~45 mins)
-> - `python scripts/benchmark_per_class.py` (300 episodes, ~15 mins)
-> - `python scripts/generate_publication_figures.py` (Regenerates all publication figures in ~5 seconds)
+### Mode 4: QFaultBench Counterfactual Campaign
+Every fault episode is replayed under all 8 actions (no repair, restore checkpoint, six repair arms) from the identical
+decision state, so policies are compared with exact regret against the per-episode oracle.
+```bash
+python -m research.run_campaign --seeds 0-19 --workers 14                    # ideal regime, ~2-3 h on 8 cores, resumable
+python -m research.run_campaign --seeds 0-9 --workers 14 --hw-device torino  # IBM-calibrated noise regime
+python -m research.analysis                     # REGIME=hw_torino for the hardware regime
+python -m research.figures && python -m research.report && python -m research.export_dataset
+```
+The raw campaign (`research/data/raw/`), results (`research/results/`) and released dataset are committed, so
+nothing has to be rerun to inspect or reuse them. The legacy `scripts/benchmark_*.py` (Stage 8) are kept only for
+the audit trail.
 
 ---
 
@@ -401,12 +418,10 @@ Continuous summary cards providing high-level diagnostics:
 - **Contextual Thompson Sampling Monitor (`BanditMonitor.tsx`):** Posterior weight norms ($\|\boldsymbol{\mu}_a\|$), update counters, and a collapsible, exhaustive **12-Dimensional Context Vector Specification Table** documenting formulas, bounds, and live feature values ($x_1$ through $x_{12}$).
 - **Episodic Failure Memory & Live Audit (`MemoryAndAuditLog.tsx`):** Searchable and filterable SQLite failure episode table, historical recovery rewards, and live timestamped MAPE-K pipeline transition stream.
 
-#### Tab 5 — Stage 8 Empirical Proof (`BenchmarksPanel.tsx`)
-Direct visualization of frozen empirical benchmark campaign evidence (`GET /api/benchmarks/summary`):
-- **Temperature Calibration:** ECE and Brier score improvements under optimal $T^*$, plus exact Clopper-Pearson 95% confidence intervals for False Positive Rate ($\le 4.99\%$) and False Discovery Rate ($\le 13.72\%$).
-- **Policy Regret:** 10-seed paired comparisons across Thompson Sampling, Greedy, Heuristic, and Random baselines.
-- **Ablation Studies:** 5-condition architectural ablations isolating the necessity of the safety filter, digital twin, memory, and confidence gate.
-- **Per-Class Recovery:** Recovery rates and precision/recall metrics across all six canonical quantum failure categories.
+#### Evidence tab (`BenchmarksPanel.tsx`)
+Renders the current benchmark results from `frontend/public/data/qfaultbench_results.json`, which is written by
+`python -m research.analysis` (counterfactual landscape, policy comparison with confidence intervals, diagnosis,
+digital-twin fidelity and the ablation table). A guided tour (`LabTour.tsx`) opens on the first visit to the lab.
 
 #### Tab 6 — Settings & Operations (`SettingsPanel.tsx`)
 - **Quantum Circuit Configuration:** Inspect and configure ansatz layers ($L$), qubits ($N$), Hilbert space feature map, and optimizer.
@@ -485,18 +500,17 @@ At decision step $t$, the agent:
 
 ## Empirical Scope & Research Limitations
 
-In keeping with rigorous academic integrity, we document the empirical scope, negative findings, and boundary conditions established in Stage 8:
+Current findings and their limits are documented in [`research/RESEARCH_FINDINGS.md`](research/RESEARCH_FINDINGS.md)
+with all numbers in [`research/RESULTS.md`](research/RESULTS.md). In short:
 
-1. **Simulation-Only Quantum Circuit Execution:**  
-   All quantum circuits were executed on classical CPU simulators using PennyLane's `default.qubit` device. Physical QPU deployment on superconducting or trapped-ion hardware subject to non-Markovian noise remains future work.
-2. **Cumulative Reward Significance:**  
-   In the 10-seed policy benchmark ($N=1,200$ episodes), Contextual Thompson Sampling achieved significant reductions in destructive parameter rollbacks ($10.7\%$ vs $23.0\%$ for heuristics, a $>50\%$ reduction) and superior seed stability ($\sigma = 0.28$ vs $0.76$ for greedy). However, the difference in cumulative reward between Thompson Sampling and Greedy was **not statistically significant** ($p = 0.3282$, paired Student's $t = -1.034$).
-3. **Undefined Precision for Optimizer Instability:**  
-   Under the frozen diagnostic gate ($\tau = 0.60$), the diagnostician issued zero positive predictions for `optimizer_instability` across the 300-episode per-class evaluation. Consequently, precision and F1 score for this specific class are mathematically **Undefined ($0/0$)**, with empirical recall = $0.0\%$ ($0/50$, Wilson 95% CI: $[0.0\%, 7.1\%]$). Despite this diagnostic limitation, systemic recovery was $58.0\%$ because Thompson Sampling explored universal parameter dislodgement repairs.
-4. **Finite Sample Calibration Bounds:**  
-   In the $N=150$ unseen test split, the calibrated gate admitted 0 false positives out of 72 condition negatives (empirical FPR = $0.00\%$, exact Clopper–Pearson 95% upper bound = $4.99\%$). On the 25 admitted cases, 0 were false discoveries (empirical FDR = $0.00\%$, exact Clopper–Pearson 95% upper bound = $13.72\%$). Observed zero errors on finite splits do not constitute a proof of zero population risk.
-5. **Digital Twin Evaluation Overhead:**  
-   Executing $H=3$ proxy steps imposes a $3.8\times$ computational circuit evaluation overhead ($191.0 \pm 4.1$ vs $50.0 \pm 0.0$ evaluations). For applications where quantum circuit calls are expensive, this computational trade-off must be weighed against the marginal $1.0\%$ reduction in physical rollbacks.
+1. **Simulation only.** PennyLane statevector simulation of a 4-qubit classifier; no physical QPU runs.
+2. **Emulated faults.** Barren plateaus cannot be reproduced at 4 qubits and are emulated as a gradient
+   signal-to-noise collapse; the hardware regime uses public IBM calibration medians, not live devices.
+3. **Checkpoint restoration is a very strong baseline.** On this benchmark, restoring the last healthy checkpoint
+   recovers far more faulty runs than bandit selection over the six configuration arms; even the hindsight-optimal
+   choice among those arms is far below it.
+4. **Short-window reward.** The 3-step multi-objective reward only moderately predicts the eventual outcome.
+5. **Single, fixed-onset faults.** Compound, gradual, and pre-checkpoint (latent) faults are not yet covered.
 
 ---
 
@@ -548,12 +562,13 @@ The framework is configured for continuous cloud deployment across two synchroni
 
 ## Manuscript & Scientific Dossier
 
-All research documentation, peer-reviewed reference validations, and manuscript drafts are maintained in the [`manuscript/`](manuscript/) directory:
-- **`manuscript/MANUSCRIPT_DRAFT.md`**: Complete, formal journal article draft with Abstract, Sections I–X, Tables 1–4, and Figures 1–5.
-- **`manuscript/REFERENCE_VERIFICATION.md`**: Bibliographic audit verifying DOIs, authors, titles, and publication venues for all 20 cited references.
-- **`manuscript/CLAIM_EVIDENCE_MATRIX.md`**: Mathematical and experimental claim traceability matrix linking every paper claim to exact JSON data files and lines of code.
-- **`manuscript/FIGURE_TABLE_PLAN.md`**: Detailed captions, data provenance, and SHA-256 cryptographic hashes for all publication figures and tables.
-- **`manuscript/AUTHOR_REVIEW_CHECKLIST.md`**: Formal author review and reproducibility checklist.
+> ⚠️ The draft in [`manuscript/`](manuscript/) reports the superseded Stage 8 numbers and must not be submitted.
+> A new manuscript will be written from [`research/`](research/) once the framing is settled.
+
+- **`research/RESEARCH_FINDINGS.md`**: audit of the Stage 8 evidence, system changes, protocol, and interpretation.
+- **`research/RESULTS.md`**: generated result tables (do not edit by hand).
+- **`research/dataset/qfaultbench_v1/`**: the released benchmark with datasheet and checksums.
+- **`research/external/README.md`**: provenance of downloaded datasets and IBM calibration snapshots.
 
 ---
 

@@ -1,0 +1,77 @@
+{
+ "manila": {
+  "backend_name": "ibmq_manila",
+  "last_update": "2024-05-27T15:27:23-03:00",
+  "n_qubits": 5,
+  "two_qubit_gate": [
+   "cx"
+  ],
+  "median_1q_error": 0.0003538722158551261,
+  "median_2q_error": 0.01009091745491146,
+  "median_readout_error": 0.02190000000000003,
+  "median_T1_us": 144.67316223194067,
+  "median_T2_us": 54.36101156476186,
+  "per_layer_depolarizing_p": 0.041115302086520256,
+  "readout_contraction": 0.9561999999999999
+ },
+ "lagos": {
+  "backend_name": "ibm_lagos",
+  "last_update": "2024-05-27T15:51:15-03:00",
+  "n_qubits": 7,
+  "two_qubit_gate": [
+   "cx"
+  ],
+  "median_1q_error": 0.0002528425052139458,
+  "median_2q_error": 0.010493822919656226,
+  "median_readout_error": 0.16900000000000004,
+  "median_T1_us": 105.43661157788414,
+  "median_T2_us": 72.3991910306952,
+  "per_layer_depolarizing_p": 0.04228839334383683,
+  "readout_contraction": 0.6619999999999999
+ },
+ "kolkata": {
+  "backend_name": "ibmq_kolkata",
+  "last_update": "2021-12-09T13:31:31-05:00",
+  "n_qubits": 27,
+  "two_qubit_gate": [
+   "cx"
+  ],
+  "median_1q_error": 0.00019798931961037083,
+  "median_2q_error": 0.007542471410836901,
+  "median_readout_error": 0.009600000000000053,
+  "median_T1_us": 111.48198580190842,
+  "median_T2_us": 82.6760048552031,
+  "per_layer_depolarizing_p": 0.0305983703180569,
+  "readout_contraction": 0.9807999999999999
+ },
+ "sherbrooke": {
+  "backend_name": "ibm_sherbrooke",
+  "last_update": "2025-02-26T14:43:10-05:00",
+  "n_qubits": 127,
+  "two_qubit_gate": [
+   "ecr"
+  ],
+  "median_1q_error": 0.0002362269001245515,
+  "median_2q_error": 0.0075004597922939675,
+  "median_readout_error": 0.019775390625,
+  "median_T1_us": 278.41972084544125,
+  "median_T2_us": 170.0127424244177,
+  "per_layer_depolarizing_p": 0.030582533585366112,
+  "readout_contraction": 0.96044921875
+ },
+ "torino": {
+  "backend_name": "ibm_torino",
+  "last_update": "2025-02-26T15:26:08-05:00",
+  "n_qubits": 133,
+  "two_qubit_gate": [
+   "cz"
+  ],
+  "median_1q_error": 0.000271147748591249,
+  "median_2q_error": 0.00408020905993689,
+  "median_readout_error": 0.02294921875,
+  "median_T1_us": 184.9874260203931,
+  "median_T2_us": 140.938949034492,
+  "per_layer_depolarizing_p": 0.017287782751485237,
+  "readout_contraction": 0.9541015625
+ }
+}
