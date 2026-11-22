@@ -121,11 +121,16 @@ def device_noise(name: str) -> Dict[str, float]:
 
 
 def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
-             hw_device: Optional[str] = None) -> List[Dict[str, Any]]:
+             hw_device: Optional[str] = None, latent_lag: int = 0) -> List[Dict[str, Any]]:
     """Run one base run and return one record per condition.
 
     hw_device: if given (e.g. "torino"), healthy training runs under that device's calibrated noise
     baseline (gate + readout error, 1,024-shot sampling noise) and the noise fault is a drift event.
+
+    latent_lag: if > 0, the fault starts `latent_lag` steps BEFORE the periodic checkpoint taken at step
+    W_WARM, so the most recent checkpoint already carries the fault ("latent fault"). Two restore actions
+    are then evaluated: `rollback_healthy` (restore the most recent, possibly faulty, checkpoint) and
+    `rollback_clean` (restore the older clean checkpoint, losing more progress).
     """
     t0 = time.time()
     sp = load_splits(dataset, seed)
@@ -136,9 +141,13 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
         cal = device_noise(hw_device)
         model.set_device_noise(cal["per_layer_depolarizing_p"], cal["median_readout_error"], shots=1024)
         regime = f"hw_{hw_device}"
+    if latent_lag:
+        regime = f"latent{latent_lag}" + ("" if regime == "ideal" else f"_{regime}")
+    warm_steps = W_WARM - latent_lag
+    action_list = ACTIONS + (["rollback_clean"] if latent_lag else [])
     monitor = HealthMonitor(window_size=10, experiment_id=f"{dataset}_{seed}")
     warm_rows = []
-    for t in range(W_WARM):
+    for t in range(warm_steps):
         m = model.train_step(sp.X_train, sp.y_train, sp.X_val, sp.y_val)
         monitor.record_step(m)
         warm_rows.append(_metrics_row(t + 1, m, model, sp))
@@ -151,10 +160,10 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
     ref_model = VQCModel(deepcopy(healthy_state.config))
     ref_model.set_state(deepcopy(healthy_state))
     healthy_cont = {}
-    for t in range(T_OBS + K_POST):
+    for t in range(latent_lag + T_OBS + K_POST):
         m = ref_model.train_step(sp.X_train, sp.y_train, sp.X_val, sp.y_val)
         te = _eval(ref_model, sp.X_test, sp.y_test)
-        healthy_cont[W_WARM + t + 1] = te
+        healthy_cont[warm_steps + t + 1] = te
 
     lib = RepairLibrary()
     safety = SafetyFilter(SafetyFilterConfig())
@@ -175,6 +184,13 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
         inject_report = None
         if cond != "nominal":
             inject_report = model.inject_failure(FailureType(cond), severity=severity, mode=bp_mode)
+        # Latent phase: the fault runs undetected until the periodic checkpoint at step W_WARM.
+        lag_rows = []
+        for t in range(latent_lag):
+            m = model.train_step(sp.X_train, sp.y_train, sp.X_val, sp.y_val)
+            mon.record_step(m)
+            lag_rows.append(_metrics_row(warm_steps + t + 1, m, model, sp))
+        last_ckpt = model.get_state() if latent_lag else healthy_state
 
         obs_rows, step_log = [], []
         first_anomaly, decision_step, gate_cleared = None, None, False
@@ -227,13 +243,13 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
 
         # Counterfactual outcomes
         outcomes = {}
-        for action in ACTIONS:
+        for action in action_list:
             cm = VQCModel(deepcopy(S_d.config))
             cm.set_state(deepcopy(S_d))
             applied, err = True, None
-            if action == "rollback_healthy":
+            if action in ("rollback_healthy", "rollback_clean"):
                 env = (cm._noise_level, cm._depol_p, cm._readout_err)  # device noise is environmental: survives a rollback
-                cm.set_state(deepcopy(healthy_state))
+                cm.set_state(deepcopy(last_ckpt if action == "rollback_healthy" else healthy_state))
                 cm._noise_level, cm._depol_p, cm._readout_err = env
                 cm.rng.set_state(S_d.rng_state)
                 cm.epoch = S_d.epoch
@@ -274,7 +290,7 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
 
         records.append({
             "episode_id": f"{dataset}_s{seed}_{cond}" + ("" if regime == "ideal" else f"_{regime}"),
-            "regime": regime,
+            "regime": regime, "latent_lag": latent_lag, "actions": action_list, "lag_telemetry": lag_rows,
             "dataset": dataset, "seed": seed, "condition": cond, "severity": severity if cond != "nominal" else 0.0,
             "bp_mode": bp_mode if cond == "barren_plateau" else None, "inject_report": inject_report,
             "healthy_test": healthy_test, "healthy_val": healthy_val,

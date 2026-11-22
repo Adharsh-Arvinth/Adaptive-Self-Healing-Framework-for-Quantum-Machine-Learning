@@ -13,6 +13,7 @@ import asyncio
 from contextlib import asynccontextmanager
 from dataclasses import asdict
 import json
+import math
 import os
 import sys
 import time
@@ -101,6 +102,26 @@ class HealthResponse(BaseModel):
 # Global Application & Pipeline State Manager
 # ----------------------------------------------------------------------
 
+def json_safe(obj: Any) -> Any:
+    """Make a payload strictly JSON-compliant: NaN/Inf become null and NumPy scalars/arrays become
+    plain Python values. (A diverged model produces NaN losses; json.dumps would otherwise raise
+    and break the step endpoint and the WebSocket stream.)"""
+    if isinstance(obj, dict):
+        return {k: json_safe(v) for k, v in obj.items()}
+    if isinstance(obj, (list, tuple)):
+        return [json_safe(v) for v in obj]
+    if isinstance(obj, np.ndarray):
+        return json_safe(obj.tolist())
+    if isinstance(obj, (np.floating, float)):
+        f = float(obj)
+        return f if math.isfinite(f) else None
+    if isinstance(obj, np.integer):
+        return int(obj)
+    if isinstance(obj, np.bool_):
+        return bool(obj)
+    return obj
+
+
 class GlobalStateManager:
     """Manages the active pipeline instance, background runner, and WebSocket client connections."""
 
@@ -162,7 +183,7 @@ class GlobalStateManager:
             return
 
         dead_connections = set()
-        msg_text = json.dumps(message)
+        msg_text = json.dumps(json_safe(message), allow_nan=False)
         for client in self.active_connections:
             try:
                 await client.send_text(msg_text)
@@ -263,6 +284,7 @@ class GlobalStateManager:
                 "rejection_reason": pred.rejection_reason,
             }
 
+        payload = json_safe(payload)
         self.telemetry_history.append(payload)
         return payload
 
@@ -896,7 +918,7 @@ async def websocket_telemetry_endpoint(websocket: WebSocket):
     await state_mgr.connect_client(websocket)
     # Send welcome handshake with initial state and full history
     try:
-        await websocket.send_text(json.dumps({
+        await websocket.send_text(json.dumps(json_safe({
             "type": "connection_established",
             "payload": {
                 "step_count": state_mgr.pipeline.step_count if state_mgr.pipeline else 0,
@@ -904,7 +926,7 @@ async def websocket_telemetry_endpoint(websocket: WebSocket):
                 "history": state_mgr.telemetry_history,
                 "bloch": state_mgr.model.get_bloch_coordinates() if state_mgr.model else None,
             }
-        }))
+        })))
 
         # Keep connection alive and accept incoming command messages
         while True:
