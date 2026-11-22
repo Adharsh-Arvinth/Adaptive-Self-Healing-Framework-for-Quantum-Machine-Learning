@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Network, Layers, ChevronDown, ChevronUp } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { ChevronDown } from "lucide-react";
 import { BanditDecisionData, PosteriorData, TelemetryPoint } from "@/types";
+import { Badge, Empty, Meter, Panel, Stat, SubHead, fmt } from "./ui/kit";
 
 interface BanditMonitorProps {
   decision: BanditDecisionData | null;
@@ -10,259 +12,141 @@ interface BanditMonitorProps {
   currentTelemetry?: TelemetryPoint | null;
 }
 
-interface ContextFeatureSpec {
-  index: number;
-  name: string;
-  formula: string;
-  range: string;
-  getValue: (t: TelemetryPoint | null) => string;
-  description: string;
-}
+const ARM_LABEL: Record<string, string> = {
+  change_optimizer: "Change optimizer",
+  reduce_circuit_depth: "Reduce depth",
+  modify_feature_map: "Swap feature map",
+  adjust_learning_rate: "Re-anchor LR",
+  apply_noise_mitigation: "Noise mitigation",
+  perform_warm_restart: "Warm restart",
+};
 
-const CONTEXT_12D_SPECS: ContextFeatureSpec[] = [
-  {
-    index: 1,
-    name: "Constant Bias",
-    formula: "x₁ = 1.0",
-    range: "[1.0, 1.0]",
-    getValue: () => "1.000",
-    description: "Affine intercept term for Bayesian regression",
-  },
-  {
-    index: 2,
-    name: "Normalized Loss",
-    formula: "tanh(L_t)",
-    range: "[0.0, 1.0)",
-    getValue: (t) => (t?.loss !== undefined ? Math.tanh(t.loss).toFixed(4) : "—"),
-    description: "Current training binary cross-entropy loss compressed via tanh",
-  },
-  {
-    index: 3,
-    name: "Log Gradient Norm",
-    formula: "clip((log₁₀(||g||) + 6)/6, 0, 1)",
-    range: "[0.0, 1.0]",
-    getValue: (t) => {
-      if (!t?.gradient_norm) return "—";
-      const val = Math.max(0, Math.min(1, (Math.log10(Math.max(1e-12, t.gradient_norm)) + 6) / 6));
-      return val.toFixed(4);
-    },
-    description: "Measures gradient magnitude relative to vanishing gradient floor",
-  },
-  {
-    index: 4,
-    name: "Log Gradient Variance",
-    formula: "clip((log₁₀(Var(g)) + 10)/10, 0, 1)",
-    range: "[0.0, 1.0]",
-    getValue: (t) => {
-      if (!t?.gradient_variance) return "—";
-      const val = Math.max(0, Math.min(1, (Math.log10(Math.max(1e-15, t.gradient_variance)) + 10) / 10));
-      return val.toFixed(4);
-    },
-    description: "Quantifies stochastic variance across quantum parameter gradients",
-  },
-  {
-    index: 5,
-    name: "Parameter Velocity",
-    formula: "tanh(10 · ||θ_t - θ_{t-1}||)",
-    range: "[0.0, 1.0)",
-    getValue: (t) => (t?.parameter_velocity !== undefined ? Math.tanh(10 * t.parameter_velocity).toFixed(4) : "—"),
-    description: "Dynamical momentum of quantum variational circuit parameters",
-  },
-  {
-    index: 6,
-    name: "Normalized Circuit Depth",
-    formula: "L / 8.0",
-    range: "[0.125, 1.0]",
-    getValue: (t) => (t?.circuit_depth !== undefined ? (t.circuit_depth / 8.0).toFixed(3) : "—"),
-    description: "Depth of variational ansatz relative to maximum capacity L=8",
-  },
-  {
-    index: 7,
-    name: "Diagnosis Confidence",
-    formula: "P(c* | x)",
-    range: "[0.0, 1.0]",
-    getValue: (t) => (t?.diagnosis?.confidence !== undefined ? t.diagnosis.confidence.toFixed(4) : "—"),
-    description: "Posterior probability of the identified primary root-cause failure mode",
-  },
-  {
-    index: 8,
-    name: "Diagnosis Entropy",
-    formula: "H(P) / log(6)",
-    range: "[0.0, 1.0]",
-    getValue: (t) => {
-      if (!t?.diagnosis?.probabilities) return "—";
-      const p = Object.values(t.diagnosis.probabilities);
-      const ent = -p.reduce((acc, v) => acc + (v > 1e-12 ? v * Math.log(v) : 0), 0);
-      return (ent / Math.log(6)).toFixed(4);
-    },
-    description: "Normalized Shannon entropy quantifying multi-class diagnostic ambiguity",
-  },
-  {
-    index: 9,
-    name: "Memory Success Prior",
-    formula: "Success Rate(a | c*)",
-    range: "[0.0, 1.0]",
-    getValue: () => "0.850",
-    description: "Empirical success frequency of candidate repair arm from episodic store",
-  },
-  {
-    index: 10,
-    name: "Memory Cosine Similarity",
-    formula: "Sim(q_curr, v_mem)",
-    range: "[0.0, 1.0]",
-    getValue: () => "0.920",
-    description: "Vector similarity to nearest historical failure episode embedding",
-  },
-  {
-    index: 11,
-    name: "Twin Predicted Delta",
-    formula: "tanh(10 · ΔL_twin)",
-    range: "(-1.0, 1.0)",
-    getValue: (t) => {
-      const delta = t?.twin_prediction?.predicted_loss_delta ?? 0;
-      return Math.tanh(10 * delta).toFixed(4);
-    },
-    description: "Simulated H=3 loss improvement predicted by digital twin proxy",
-  },
-  {
-    index: 12,
-    name: "Twin Stability Score",
-    formula: "S_twin ∈ [0, 1]",
-    range: "[0.0, 1.0]",
-    getValue: (t) => (t?.twin_prediction?.proxy_stability !== undefined ? t.twin_prediction.proxy_stability.toFixed(3) : "—"),
-    description: "Stability indicator assessing curvature constancy over forward proxy horizon",
-  },
+const clip = (v: number, lo: number, hi: number) => Math.max(lo, Math.min(hi, v));
+const fin = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
+
+/* The 12-D context exactly as backend/bandit.py::build_context_vector computes it. */
+const CONTEXT: { x: string; name: string; formula: string; live?: (t: TelemetryPoint | null) => string }[] = [
+  { x: "x₁", name: "Bias", formula: "1", live: () => "1.000" },
+  { x: "x₂", name: "Loss", formula: "tanh(L)", live: (t) => (fin(t?.loss) ? Math.tanh(t!.loss).toFixed(3) : "—") },
+  { x: "x₃", name: "Gradient norm", formula: "clip((ln(‖g‖+1e-8)+8)/12, −1, 1)", live: (t) => (fin(t?.gradient_norm) ? clip((Math.log(Math.max(1e-12, t!.gradient_norm) + 1e-8) + 8) / 12, -1, 1).toFixed(3) : "—") },
+  { x: "x₄", name: "Gradient variance", formula: "clip((ln(Var g+1e-10)+10)/14, −1, 1)", live: (t) => (fin(t?.gradient_variance) ? clip((Math.log(Math.max(1e-12, t!.gradient_variance) + 1e-10) + 10) / 14, -1, 1).toFixed(3) : "—") },
+  { x: "x₅", name: "Parameter velocity", formula: "tanh(10·‖Δθ‖)", live: (t) => (fin(t?.parameter_velocity) ? Math.tanh(10 * t!.parameter_velocity).toFixed(3) : "—") },
+  { x: "x₆", name: "Circuit depth", formula: "L / 8", live: (t) => (fin(t?.circuit_depth) ? clip(t!.circuit_depth / 8, 0, 1).toFixed(3) : "—") },
+  { x: "x₇", name: "Diagnosis confidence", formula: "max P(fault)" },
+  { x: "x₈", name: "Diagnosis entropy", formula: "H(P) / ln 6" },
+  { x: "x₉", name: "Memory: past reward", formula: "reward of nearest past episode" },
+  { x: "x₁₀", name: "Memory: similarity", formula: "cosine to nearest past episode" },
+  { x: "x₁₁", name: "Twin: predicted gain", formula: "best viable twin Δloss (normalised)" },
+  { x: "x₁₂", name: "Twin: stability", formula: "1 − CV of rehearsed loss" },
 ];
 
-export const BanditMonitor: React.FC<BanditMonitorProps> = ({
-  decision,
-  posteriors,
-  currentTelemetry,
-}) => {
-  const [showFeatureTable, setShowFeatureTable] = useState(false);
+export const BanditMonitor: React.FC<BanditMonitorProps> = ({ decision, posteriors, currentTelemetry = null }) => {
+  const [showCtx, setShowCtx] = useState(false);
+  const arms = Object.keys(ARM_LABEL);
+  const maxNorm = Math.max(1e-9, ...arms.map((a) => posteriors?.[a]?.mu_norm ?? 0));
+  const totalUpdates = arms.reduce((s, a) => s + (posteriors?.[a]?.update_count ?? 0), 0);
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between">
-      <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Network className="w-4 h-4 text-[var(--accent)]" />
-            <h2 className="text-xs font-semibold text-[var(--content-primary)]">
-              Contextual Thompson Sampling & Posteriors
-            </h2>
+    <Panel
+      eyebrow="Repair selection"
+      title="How the next repair is chosen"
+      description="A contextual Thompson-sampling bandit keeps a Bayesian linear model per repair. It samples a plausible payoff for each from its beliefs and picks the best, so it keeps exploring while it is still uncertain."
+      actions={<Badge tone={decision ? "accent" : "neutral"}>{decision ? fmt.human(decision.decision_mode).toLowerCase() : "no decision yet"}</Badge>}
+    >
+      <div className="grid lg:grid-cols-5 gap-8">
+        <div className="lg:col-span-2 space-y-6">
+          <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] p-5">
+            <div className="type-label text-[var(--content-tertiary)]">Latest choice</div>
+            <AnimatePresence mode="wait" initial={false}>
+              <motion.div
+                key={decision?.selected_arm ?? "none"}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: -10 }}
+                transition={{ duration: 0.3, ease: [0.23, 1, 0.32, 1] }}
+                className="type-condensed text-[clamp(2.2rem,3.6vw,3.2rem)] leading-none mt-2"
+              >
+                {decision ? ARM_LABEL[decision.selected_arm] ?? fmt.human(decision.selected_arm) : "Waiting"}
+              </motion.div>
+            </AnimatePresence>
+            <div className="grid grid-cols-2 gap-3 mt-5">
+              <Stat label="Sampled payoff" value={decision ? fmt.n(decision.sampled_reward, 3) : "—"} />
+              <Stat label="Expected payoff" value={decision ? fmt.n(decision.expected_reward, 3) : "—"} />
+            </div>
           </div>
-          <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--content-secondary)]">
-            <span>Algorithm:</span>
-            <span className="px-2 py-0.5 rounded bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/30 font-semibold">
-              Contextual Thompson Sampling
-            </span>
+          <div>
+            <SubHead>Eligible after safety checks</SubHead>
+            {decision?.eligible_arms?.length ? (
+              <div className="flex flex-wrap gap-2">
+                {decision.eligible_arms.map((a) => (
+                  <Badge key={a} tone={a === decision.selected_arm ? "accent" : "neutral"}>{ARM_LABEL[a] ?? fmt.human(a)}</Badge>
+                ))}
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--content-secondary)]">Shown after the first repair decision.</p>
+            )}
           </div>
         </div>
 
-        {/* Decision Summary */}
-        {decision && (
-          <div className="p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] grid grid-cols-2 md:grid-cols-4 gap-2 font-mono text-xs mb-3.5">
-            <div>
-              <span className="text-[10px] text-[var(--content-secondary)] block">Selected Arm</span>
-              <span className="text-[var(--accent)] font-semibold">{decision.selected_arm.replace(/_/g, " ")}</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-[var(--content-secondary)] block">Sampled Payoff r̃</span>
-              <span className="text-[var(--content-primary)] font-semibold">{decision.sampled_reward.toFixed(4)}</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-[var(--content-secondary)] block">Expected Reward μ</span>
-              <span className="text-[var(--status-info)] font-semibold">{decision.expected_reward.toFixed(4)}</span>
-            </div>
-            <div>
-              <span className="text-[10px] text-[var(--content-secondary)] block">Eligible Pool</span>
-              <span className="text-[var(--status-success)] font-semibold">{decision.eligible_arms.length} / 6 Arms</span>
-            </div>
-          </div>
-        )}
-
-        {/* Posterior Weights Across All 6 Arms */}
-        <div className="mb-3.5">
-          <span className="text-[10px] font-mono text-[var(--content-secondary)] uppercase tracking-wider block mb-2">
-            Bayesian Posterior Beliefs Across Arms (μ_a, Σ_a)
-          </span>
-          <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-2 font-mono text-xs">
-            {posteriors &&
-              Object.entries(posteriors).map(([armName, data]) => {
-                const isSelected = decision?.selected_arm === armName;
+        <div className="lg:col-span-3">
+          <SubHead right={<span className="type-label text-[var(--content-tertiary)] tabular">{totalUpdates} updates</span>}>
+            What it has learned, per repair
+          </SubHead>
+          {posteriors ? (
+            <ul className="space-y-3">
+              {arms.map((a) => {
+                const p = posteriors[a];
+                const isSel = decision?.selected_arm === a;
                 return (
-                  <div
-                    key={armName}
-                    className={`p-2.5 rounded-xl border flex flex-col justify-between transition-all ${
-                      isSelected
-                        ? "bg-[var(--accent-subtle)] border-c-accent/40 shadow-sm"
-                        : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
-                    }`}
-                  >
-                    <span className="text-[10px] text-[var(--content-secondary)] truncate" title={armName}>
-                      {armName.replace(/_/g, " ")}
-                    </span>
-                    <div className="text-sm font-bold text-[var(--content-primary)] mt-1">
-                      {data.mu_norm.toFixed(3)}
-                      <span className="text-[9px] text-[var(--content-secondary)] font-normal ml-1">||μ||</span>
-                    </div>
-                    <div className="text-[9px] text-[var(--content-secondary)] mt-1 flex justify-between">
-                      <span>Updates:</span>
-                      <span className="text-[var(--content-primary)] font-semibold">{data.update_count}</span>
-                    </div>
-                  </div>
+                  <li key={a} className="grid grid-cols-[minmax(0,10rem)_1fr_4.5rem] items-center gap-3">
+                    <span className={`text-sm truncate ${isSel ? "font-semibold text-[var(--content-primary)]" : "text-[var(--content-secondary)]"}`}>{ARM_LABEL[a]}</span>
+                    <Meter value={(p?.mu_norm ?? 0) / maxNorm} tone={isSel ? "accent" : "neutral"} label={`${a} belief strength`} />
+                    <span className="text-xs font-mono tabular text-right text-[var(--content-tertiary)]">{p?.update_count ?? 0} obs</span>
+                  </li>
                 );
               })}
-          </div>
-        </div>
-
-        {/* 12-Dimensional Context Feature Space Table Toggle */}
-        <div className="pt-2 border-t border-[var(--border-subtle)]">
-          <button
-            onClick={() => setShowFeatureTable(!showFeatureTable)}
-            className="w-full flex items-center justify-between text-xs font-mono text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1"
-          >
-            <span className="flex items-center gap-1.5 font-semibold">
-              <Layers className="w-3.5 h-3.5 text-[var(--accent)]" />
-              12-Dimensional Context Vector Specification ({CONTEXT_12D_SPECS.length} features)
-            </span>
-            <span className="flex items-center gap-1 text-[11px]">
-              {showFeatureTable ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
-              <span>{showFeatureTable ? "Hide" : "Inspect Vector"}</span>
-            </span>
-          </button>
-
-          {showFeatureTable && (
-            <div className="mt-2.5 max-h-72 overflow-y-auto overflow-x-auto rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)]">
-              <table className="w-full text-left font-mono text-[11px]">
-                <thead className="bg-[var(--bg-primary)] border-b border-[var(--border-subtle)] text-[var(--content-secondary)]">
-                  <tr>
-                    <th className="p-2">Idx</th>
-                    <th className="p-2">Feature Name</th>
-                    <th className="p-2">Formula</th>
-                    <th className="p-2">Range</th>
-                    <th className="p-2">Value</th>
-                  </tr>
-                </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] text-[var(--content-primary)]">
-                  {CONTEXT_12D_SPECS.map((f) => (
-                    <tr key={f.index} className="hover:bg-white/[0.02]">
-                      <td className="p-2 text-[var(--accent)] font-semibold">x{f.index}</td>
-                      <td className="p-2 font-sans font-medium">{f.name}</td>
-                      <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.formula}</td>
-                      <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.range}</td>
-                      <td className="p-2 text-[var(--status-success)] font-semibold">
-                        {f.getValue(currentTelemetry || null)}
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
+            </ul>
+          ) : (
+            <Empty title="No beliefs yet">Every repair starts from the same uninformative prior; this fills in as repairs are evaluated.</Empty>
           )}
+          <p className="text-xs text-[var(--content-tertiary)] mt-3">Bar length: size of the learned weight vector ‖μ‖ relative to the largest; observations: completed repairs of that kind.</p>
         </div>
       </div>
-    </div>
+
+      <div className="mt-8 border-t border-[var(--border-subtle)]">
+        <button type="button" onClick={() => setShowCtx((v) => !v)} aria-expanded={showCtx} className="w-full flex items-center justify-between py-4 text-left">
+          <span className="type-label text-[var(--content-secondary)]">The 12-dimensional context it sees</span>
+          <motion.span animate={{ rotate: showCtx ? 180 : 0 }} transition={{ type: "spring", bounce: 0, duration: 0.35 }}>
+            <ChevronDown className="w-4 h-4 text-[var(--content-secondary)]" />
+          </motion.span>
+        </button>
+        <motion.div initial={false} animate={{ height: showCtx ? "auto" : 0, opacity: showCtx ? 1 : 0 }} transition={{ duration: 0.4, ease: [0.23, 1, 0.32, 1] }} className="overflow-hidden">
+          <div className="overflow-x-auto pb-2" data-lenis-prevent>
+            <table className="w-full min-w-[34rem] text-sm">
+              <thead>
+                <tr className="text-left type-label text-[var(--content-tertiary)] border-b border-[var(--border-subtle)]">
+                  <th className="py-2 font-normal w-14">Feature</th>
+                  <th className="py-2 font-normal">Meaning</th>
+                  <th className="py-2 font-normal">Formula</th>
+                  <th className="py-2 font-normal text-right">Now</th>
+                </tr>
+              </thead>
+              <tbody>
+                {CONTEXT.map((c) => (
+                  <tr key={c.x} className="border-b border-[var(--border-subtle)]">
+                    <td className="py-2.5 font-mono text-[var(--accent)]">{c.x}</td>
+                    <td className="py-2.5 text-[var(--content-primary)]">{c.name}</td>
+                    <td className="py-2.5 font-mono text-xs text-[var(--content-secondary)]">{c.formula}</td>
+                    <td className="py-2.5 font-mono tabular text-right text-[var(--content-secondary)]">{c.live ? c.live(currentTelemetry) : "at decision"}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </motion.div>
+      </div>
+    </Panel>
   );
 };
+
+export default BanditMonitor;

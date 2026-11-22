@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState } from "react";
-import { BarChart2, Info, Sparkles, TrendingDown } from "lucide-react";
+import { motion } from "motion/react";
 import { TelemetryPoint } from "@/types";
 
 interface LossChartProps {
@@ -62,76 +62,41 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
   const activePoint = hoveredIdx !== null && history[hoveredIdx] ? history[hoveredIdx] : (hasData ? history[history.length - 1] : null);
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between h-full font-sans">
-      {/* Symmetrical Header */}
-      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mb-3 pb-3 border-b border-[var(--border-subtle)]">
-        <div>
-          <div className="flex items-center gap-2">
-            <h3 className="text-sm font-semibold text-[var(--content-primary)]">
-              {mode === "loss"
-                ? "Binary Cross-Entropy Loss Trajectory"
-                : mode === "accuracy"
-                ? "Classification Accuracy Convergence"
-                : "Dual Loss & Accuracy Dynamics"}
-            </h3>
-            {hasData && (
-              <span className="text-[11px] font-mono px-2 py-0.5 rounded bg-[var(--bg-subtle)] text-[var(--content-secondary)]">
-                Step {activePoint?.step ?? 0}
-              </span>
-            )}
+    <div className="rounded-[1.75rem] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 sm:p-7 flex flex-col h-full min-w-0">
+      <div className="flex flex-wrap items-end justify-between gap-4 mb-5">
+        <div className="min-w-0">
+          <div className="type-label text-[var(--accent)] tabular">
+            Training curve{hasData ? ` · step ${activePoint?.step ?? 0}` : ""}
           </div>
-          <p className="text-xs text-[var(--content-secondary)] mt-0.5">
-            Step-by-step optimization curve showing training vs validation holdout
-          </p>
+          <h3 className="font-display font-bold text-[1.2rem] tracking-[-0.02em] mt-1 text-[var(--content-primary)]">
+            {mode === "loss" ? "Loss, train vs validation" : mode === "accuracy" ? "Accuracy, train vs validation" : "Loss and accuracy together"}
+          </h3>
+          <div className="flex flex-wrap items-center gap-x-4 gap-y-1 mt-2 type-label text-[var(--content-tertiary)]">
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 h-0.5 bg-[var(--accent)] rounded-full" /> Training
+            </span>
+            <span className="flex items-center gap-1.5">
+              <span className="w-3 border-t-2 border-dashed border-[var(--status-warning)]" /> Validation
+            </span>
+          </div>
         </div>
-
-        {/* Right Controls: Mode Switcher & Legend */}
-        <div className="flex items-center gap-3 text-xs">
-          {/* Legend */}
-          <div className="hidden sm:flex items-center gap-3 text-[11px]">
-            <span className="flex items-center gap-1.5 text-[var(--content-secondary)]">
-              <span className="w-2.5 h-0.5 bg-[var(--accent)] rounded-full" />
-              <span>Training</span>
-            </span>
-            <span className="flex items-center gap-1.5 text-[var(--content-secondary)]">
-              <span className="w-2.5 h-0.5 border-b border-dashed border-[var(--status-warning)]" />
-              <span>Validation</span>
-            </span>
-          </div>
-
-          {/* Segmented Mode Toggle */}
-          <div className="flex items-center p-0.5 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
+        <div className="flex gap-1 p-1 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)]" role="radiogroup" aria-label="Chart mode">
+          {([
+            { v: "loss", l: "Loss" },
+            { v: "accuracy", l: "Accuracy" },
+            { v: "dual", l: "Both" },
+          ] as { v: ChartMode; l: string }[]).map((o) => (
             <button
-              onClick={() => setMode("loss")}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                mode === "loss"
-                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
-                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-              }`}
+              key={o.v}
+              role="radio"
+              aria-checked={mode === o.v}
+              onClick={() => setMode(o.v)}
+              className={`relative h-8 px-3.5 rounded-full text-sm font-medium transition-colors duration-200 ${mode === o.v ? "text-[var(--bg-primary)]" : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"}`}
             >
-              Loss
+              {mode === o.v && <motion.span layoutId="chart-mode" className="absolute inset-0 rounded-full bg-[var(--content-primary)]" transition={{ type: "spring", bounce: 0, duration: 0.4 }} />}
+              <span className="relative">{o.l}</span>
             </button>
-            <button
-              onClick={() => setMode("accuracy")}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                mode === "accuracy"
-                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
-                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-              }`}
-            >
-              Accuracy
-            </button>
-            <button
-              onClick={() => setMode("dual")}
-              className={`px-2.5 py-1 rounded-md text-xs font-medium transition-all ${
-                mode === "dual"
-                  ? "bg-[var(--bg-surface)] text-[var(--content-primary)] shadow-sm font-semibold"
-                  : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-              }`}
-            >
-              Dual
-            </button>
-          </div>
+          ))}
         </div>
       </div>
 
@@ -322,14 +287,11 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
         {/* Meaningful Idle State Notice Overlay if No Data */}
         {!hasData && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-4">
-            <div className="max-w-md bg-c-bg-surface/95 backdrop-blur-sm border border-[var(--border-subtle)] p-4 rounded-xl shadow-sm text-center">
-              <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--content-primary)]">
-                <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>Simulation Ready for Execution</span>
-              </div>
-              <p className="text-xs text-[var(--content-secondary)] mt-1 leading-relaxed">
-                The Variational Quantum Classifier is initialized at the random-guess baseline (L0 ≈ 0.6931).
-                Click <strong className="text-[var(--content-primary)]">Start Autonomous</strong> in the cockpit controls to stream parameter-shift descent steps.
+            <div className="max-w-sm rounded-2xl border border-[var(--border-subtle)] bg-c-bg-surface/90 backdrop-blur-sm px-5 py-4 text-center">
+              <div className="type-label text-[var(--accent)]">Ready</div>
+              <p className="font-semibold text-[var(--content-primary)] mt-1">No training steps yet</p>
+              <p className="text-sm text-[var(--content-secondary)] mt-1 leading-relaxed">
+                The classifier starts at the random-guess loss, ln 2 ≈ 0.693. Press <strong className="text-[var(--content-primary)]">Start training</strong> to stream steps here.
               </p>
             </div>
           </div>
@@ -337,21 +299,20 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
       </div>
 
       {/* Footer Readout Strip */}
-      <div className="pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between text-xs text-[var(--content-secondary)]">
-        <div className="flex items-center gap-4">
-          <span>
-            Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? f4(activePoint.loss) : "0.6931"}</strong>
-          </span>
-          <span>
-            Val Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? f4(activePoint.val_loss) : "0.6931"}</strong>
-          </span>
-          <span>
-            Accuracy: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? fp(activePoint.accuracy) : "50.0%"}</strong>
-          </span>
+      <div className="mt-4 pt-4 border-t border-[var(--border-subtle)]">
+        <div className="grid grid-cols-3 gap-3">
+          {[
+            { k: "Loss", v: activePoint ? f4(activePoint.loss) : "—" },
+            { k: "Val loss", v: activePoint ? f4(activePoint.val_loss) : "—" },
+            { k: "Accuracy", v: activePoint ? fp(activePoint.accuracy) : "—" },
+          ].map((m) => (
+            <div key={m.k} className="min-w-0">
+              <div className="type-label text-[var(--content-tertiary)]">{m.k}</div>
+              <div className="font-mono tabular text-[var(--content-primary)] mt-1 truncate">{m.v}</div>
+            </div>
+          ))}
         </div>
-        <div className="text-[11px] text-[var(--content-tertiary)] font-mono">
-          Loss: binary cross-entropy · Ansatz: RY layers + CNOT ring
-        </div>
+        <p className="text-xs text-[var(--content-tertiary)] mt-4">Binary cross-entropy · RY layers + CNOT ring</p>
       </div>
     </div>
   );

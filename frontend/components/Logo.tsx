@@ -58,10 +58,10 @@ export const LogoMark: React.FC<{ className?: string; animate?: boolean; title?:
   );
 };
 
-export const Logo: React.FC<{ className?: string; compact?: boolean }> = ({ className = "", compact = false }) => (
-  <span className={`inline-flex items-center gap-2.5 select-none ${className}`}>
+export const Logo: React.FC<{ className?: string; compact?: boolean; textClassName?: string }> = ({ className = "", compact = false, textClassName = "" }) => (
+  <span className={`inline-flex items-center gap-2.5 select-none whitespace-nowrap ${className}`}>
     <LogoMark className="w-7 h-7 shrink-0" />
-    <span className="leading-none">
+    <span className={`leading-none ${textClassName}`}>
       <span className="block font-display font-bold tracking-[-0.02em] text-[0.95rem]">Self-Healing</span>
       {!compact && <span className="block type-label opacity-60 mt-0.5 !text-[0.6rem]">Quantum ML</span>}
     </span>

@@ -33,6 +33,7 @@ import { BenchmarksPanel } from "./BenchmarksPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
 import { LabTour, TourTab } from "./LabTour";
 import { AppearancePanel } from "./appearance/AppearancePanel";
+import { Badge, Btn, Empty, Panel, Stat } from "./ui/kit";
 import {
   TelemetryPoint,
   DiagnosisData,
@@ -466,11 +467,11 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                 <div className="type-wide text-[clamp(1.25rem,1.8vw,1.75rem)] mt-1">{nextStep.title}</div>
                 <p className="text-[var(--content-secondary)] mt-1.5 max-w-2xl">{nextStep.body}</p>
               </div>
-              <ol className="flex items-center gap-2 shrink-0" aria-label="Walkthrough progress">
+              <ol className="flex flex-wrap items-center gap-1.5 sm:gap-2 min-w-0" aria-label="Walkthrough progress">
                 {["Train", "Break", "Watch"].map((label, i) => (
-                  <li key={label} className="flex items-center gap-2">
+                  <li key={label} className="flex items-center gap-1.5 sm:gap-2">
                     <span
-                      className={`h-9 px-3.5 rounded-full flex items-center gap-2 text-sm font-medium border transition-colors duration-300 ${
+                      className={`h-9 px-3 sm:px-3.5 rounded-full flex items-center gap-2 text-sm font-medium border whitespace-nowrap transition-colors duration-300 ${
                         i < nextStep.stage
                           ? "bg-[var(--content-primary)] text-[var(--bg-primary)] border-[var(--content-primary)]"
                           : i === nextStep.stage
@@ -481,7 +482,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       <span className="type-label tabular">{String(i + 1).padStart(2, "0")}</span>
                       {label}
                     </span>
-                    {i < 2 && <span className="w-4 h-px bg-[var(--border-highlight)]" />}
+                    {i < 2 && <span className="w-2 sm:w-4 h-px bg-[var(--border-highlight)]" />}
                   </li>
                 ))}
               </ol>
@@ -553,38 +554,14 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <section data-tour="inject">
             <FailureInjectionPanel onInject={onInjectFailure} isRunning={isRunning} />
           </section>
-          <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <div className="glass-panel p-5 space-y-3">
-              <h3 className="text-sm font-semibold text-[var(--content-primary)]">
-                Active Quantum Circuit Model Configuration
-              </h3>
-              <div className="grid grid-cols-2 gap-3 text-xs">
-                <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">DATASET SEED</span>
-                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{dataset.toUpperCase()} (Seed {seed})</span>
-                </div>
-                <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">CIRCUIT TOPOLOGY</span>
-                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{nQbits} Qubits • {nLayers} Layers</span>
-                </div>
-                <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">CLASSICAL OPTIMIZER</span>
-                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{optimizerName.toUpperCase()}</span>
-                </div>
-                <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">FEATURE EMBEDDING</span>
-                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{featureMap.toUpperCase()} Map</span>
-                </div>
-              </div>
+          <Panel eyebrow="Current model" title="What you are breaking" description="The live classifier the faults are injected into. Change it in Settings.">
+            <div className="grid grid-cols-2 lg:grid-cols-4 gap-3">
+              <Stat label="Dataset" value={dataset.toUpperCase()} hint={`seed ${seed}`} />
+              <Stat label="Circuit" value={`${nQbits}q × ${nLayers}L`} hint="qubits × layers" />
+              <Stat label="Optimizer" value={optimizerName.toUpperCase()} hint={`LR ${Number.isFinite(metrics.learningRate) ? metrics.learningRate.toFixed(4) : "—"}`} />
+              <Stat label="Encoding" value={featureMap.toUpperCase()} hint="feature map" />
             </div>
-
-            <DeploymentMonitor
-              deployment={deployment}
-              pipelineState={pipelineState}
-              onCommit={onCommit}
-              onRollback={onRollback}
-            />
-          </section>
+          </Panel>
         </div>
       )}
 
@@ -657,157 +634,121 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* VIEW 8: PERSISTENT MEMORY */}
       {activeTab === "memory" && (
-        <div className="space-y-6">
-          <div className="glass-panel p-5 space-y-4">
-            <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pb-3 border-b border-[var(--border-subtle)]">
-              <div>
-                <div className="flex items-center gap-2">
-                  <Database className="w-4 h-4 text-[var(--accent)]" />
-                  <h3 className="text-sm font-semibold text-[var(--content-primary)]">
-                    Episodic Failure Memory Store (SQLite Backend)
-                  </h3>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] mt-0.5">
-                  Cosine similarity nearest-neighbor lookup over 12D historical failure embeddings
-                </p>
-              </div>
-
-              <div className="text-xs text-[var(--content-secondary)] font-mono">
-                {filteredEpisodes.length} / {episodes.length} Episodes
-              </div>
+        <Panel
+          eyebrow="Memory"
+          title="Every past repair, remembered"
+          description="Each repair episode is stored with its telemetry fingerprint. New faults are matched to the most similar past episode, and its outcome informs the next choice."
+          actions={<Badge tone="neutral">{filteredEpisodes.length} of {episodes.length}</Badge>}
+        >
+          <div className="flex flex-col sm:flex-row gap-3 mb-5">
+            <div className="relative flex-1">
+              <Search className="w-4 h-4 absolute left-4 top-1/2 -translate-y-1/2 text-[var(--content-tertiary)]" />
+              <input
+                type="text"
+                placeholder="Search by cause, repair or episode ID"
+                value={memorySearch}
+                onChange={(e) => setMemorySearch(e.target.value)}
+                className="w-full h-11 pl-11 pr-4 rounded-full bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-sm text-[var(--content-primary)] placeholder:text-[var(--content-tertiary)] focus:outline-none focus:border-[var(--accent)] transition-colors"
+              />
             </div>
-
-            {/* Search and Filters */}
-            <div className="flex items-center gap-3">
-              <div className="relative flex-1">
-                <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-[var(--content-tertiary)]" />
-                <input
-                  type="text"
-                  placeholder="Search episodes by cause, repair arm, or ID..."
-                  value={memorySearch}
-                  onChange={(e) => setMemorySearch(e.target.value)}
-                  className="w-full text-xs pl-9 pr-3 py-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none focus:border-[var(--border-highlight)]"
-                />
-              </div>
-
-              <select
-                value={memoryFilter}
-                onChange={(e) => setMemoryFilter(e.target.value)}
-                className="text-xs px-3 py-2 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none"
-              >
-                <option value="all">All Outcomes</option>
-                <option value="resolved">Resolved</option>
-                <option value="rolled_back">Rolled Back</option>
-                <option value="failed">Failed</option>
-              </select>
+            <div className="flex gap-1 p-1 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)]" role="radiogroup" aria-label="Outcome filter">
+              {[
+                { v: "all", l: "All" },
+                { v: "resolved", l: "Resolved" },
+                { v: "rolled_back", l: "Rolled back" },
+              ].map((o) => (
+                <button
+                  key={o.v}
+                  role="radio"
+                  aria-checked={memoryFilter === o.v}
+                  onClick={() => setMemoryFilter(o.v)}
+                  className={`relative h-9 px-4 rounded-full text-sm font-medium transition-colors duration-200 ${memoryFilter === o.v ? "text-[var(--bg-primary)]" : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"}`}
+                >
+                  {memoryFilter === o.v && <motion.span layoutId="mem-filter" className="absolute inset-0 rounded-full bg-[var(--content-primary)]" transition={{ type: "spring", bounce: 0, duration: 0.4 }} />}
+                  <span className="relative">{o.l}</span>
+                </button>
+              ))}
             </div>
-
-            {/* Episodes Table */}
-            <div className="border border-[var(--border-subtle)] rounded-lg overflow-hidden overflow-x-auto">
-              <table className="w-full text-left text-xs font-sans">
-                <thead className="bg-[var(--bg-subtle)] border-b border-[var(--border-subtle)] text-[11px] text-[var(--content-tertiary)]">
-                  <tr>
-                    <th className="p-3">EPISODE ID</th>
-                    <th className="p-3">DIAGNOSED CAUSE</th>
-                    <th className="p-3">REPAIR ARM</th>
-                    <th className="p-3">LOSS IMPROVEMENT</th>
-                    <th className="p-3">REWARD</th>
-                    <th className="p-3">STATUS</th>
+          </div>
+          {filteredEpisodes.length === 0 ? (
+            <Empty title={episodes.length ? "No episodes match" : "Nothing remembered yet"}>
+              {episodes.length ? "Try a different search or filter." : "Episodes appear here after the first repair finishes probation."}
+            </Empty>
+          ) : (
+            <div className="overflow-x-auto rounded-2xl border border-[var(--border-subtle)]" data-lenis-prevent>
+              <table className="w-full min-w-[40rem] text-sm">
+                <thead>
+                  <tr className="text-left type-label text-[var(--content-tertiary)] bg-[var(--bg-primary)]">
+                    <th className="px-4 py-3 font-normal">Episode</th>
+                    <th className="px-4 py-3 font-normal">Diagnosed cause</th>
+                    <th className="px-4 py-3 font-normal">Repair</th>
+                    <th className="px-4 py-3 font-normal text-right">Loss change</th>
+                    <th className="px-4 py-3 font-normal text-right">Reward</th>
+                    <th className="px-4 py-3 font-normal text-right">Outcome</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-[var(--border-subtle)] font-mono">
-                  {filteredEpisodes.length === 0 ? (
-                    <tr>
-                      <td colSpan={6} className="p-8 text-center text-[var(--content-tertiary)] font-sans">
-                        No episodic memory records found.
+                <tbody className="divide-y divide-[var(--border-subtle)]">
+                  {filteredEpisodes.map((ep) => (
+                    <tr key={ep.episode_id} className="hover:bg-[var(--bg-subtle)] transition-colors duration-150">
+                      <td className="px-4 py-3 font-mono text-xs text-[var(--content-secondary)]" title={ep.episode_id}>{ep.episode_id.slice(0, 14)}…</td>
+                      <td className="px-4 py-3 text-[var(--content-primary)] capitalize">{(ep.diagnosed_cause || "—").replace(/_/g, " ")}</td>
+                      <td className="px-4 py-3 text-[var(--content-secondary)] capitalize">{(ep.selected_repair || "—").replace(/_/g, " ")}</td>
+                      <td className={`px-4 py-3 font-mono tabular text-right ${ep.loss_improvement >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"}`}>
+                        {Number.isFinite(ep.loss_improvement) ? `${ep.loss_improvement >= 0 ? "−" : "+"}${Math.abs(ep.loss_improvement).toFixed(4)}` : "—"}
+                      </td>
+                      <td className="px-4 py-3 font-mono tabular text-right text-[var(--content-primary)]">{Number.isFinite(ep.reward) ? ep.reward.toFixed(3) : "—"}</td>
+                      <td className="px-4 py-3 text-right">
+                        <Badge tone={ep.status === "RESOLVED" ? "ok" : ep.status === "ROLLED_BACK" ? "warn" : "bad"}>
+                          {ep.status === "RESOLVED" ? "Resolved" : ep.status === "ROLLED_BACK" ? "Rolled back" : (ep.status || "—").toLowerCase()}
+                        </Badge>
                       </td>
                     </tr>
-                  ) : (
-                    filteredEpisodes.map((ep) => (
-                      <tr key={ep.episode_id} className="hover:bg-c-bg-subtle/50 transition-colors">
-                        <td className="p-3 font-semibold text-[var(--content-primary)]">{ep.episode_id.slice(0, 12)}...</td>
-                        <td className="p-3 text-[var(--accent)] font-semibold font-sans">{ep.diagnosed_cause}</td>
-                        <td className="p-3 text-[var(--content-secondary)] font-sans">{ep.selected_repair}</td>
-                        <td className="p-3">
-                          <span className={ep.loss_improvement >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"}>
-                            {ep.loss_improvement >= 0 ? "-" : "+"}{Math.abs(ep.loss_improvement).toFixed(4)}
-                          </span>
-                        </td>
-                        <td className="p-3 font-semibold text-[var(--content-primary)]">{ep.reward.toFixed(4)}</td>
-                        <td className="p-3 font-sans">
-                          <span className={`px-2 py-0.5 rounded text-[10px] font-semibold ${
-                            ep.status === "RESOLVED"
-                              ? "bg-[var(--status-success-subtle)] text-[var(--status-success)]"
-                              : ep.status === "ROLLED_BACK"
-                              ? "bg-[var(--status-warning-subtle)] text-[var(--status-warning)]"
-                              : "bg-[var(--status-danger-subtle)] text-[var(--status-danger)]"
-                          }`}>
-                            {ep.status}
-                          </span>
-                        </td>
-                      </tr>
-                    ))
-                  )}
+                  ))}
                 </tbody>
               </table>
             </div>
-          </div>
-        </div>
+          )}
+        </Panel>
       )}
 
       {/* VIEW 9: AUDIT LOG */}
       {activeTab === "audit" && (
-        <div className="space-y-6">
-          <div className="glass-panel p-5 space-y-4">
-            <div className="flex items-center justify-between pb-3 border-b border-[var(--border-subtle)]">
-              <div>
-                <div className="flex items-center gap-2">
-                  <History className="w-4 h-4 text-[var(--accent)]" />
-                  <h3 className="text-sm font-semibold text-[var(--content-primary)]">
-                    Deterministic Chronological Audit Log
-                  </h3>
-                </div>
-                <p className="text-xs text-[var(--content-secondary)] mt-0.5">
-                  State machine transitions, transaction snapshots, and diagnostic traces
-                </p>
-              </div>
-
-              <button
-                onClick={onClearEvents}
-                className="apple-btn px-3 py-1 rounded-lg border border-[var(--border-subtle)] text-xs text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-              >
-                Clear Log
-              </button>
-            </div>
-
-            <div className="space-y-2 max-h-[500px] overflow-y-auto pr-2 text-xs">
-              {events.length === 0 ? (
-                <div className="p-8 text-center text-[var(--content-tertiary)]">
-                  Audit log buffer is currently empty.
-                </div>
-              ) : (
-                events.map((ev, idx) => (
-                  <div
-                    key={idx}
-                    className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-start justify-between gap-4"
-                  >
-                    <div className="space-y-1">
-                      <div className="flex items-center gap-2">
-                        <span className="px-2 py-0.5 rounded text-[10px] font-mono font-semibold bg-[var(--bg-surface)] border border-[var(--border-subtle)] text-[var(--accent)]">
-                          {ev.state}
-                        </span>
-                        <span className="text-[10px] text-[var(--content-tertiary)] font-mono">
-                          EVENT #{events.length - idx}
-                        </span>
+        <Panel
+          eyebrow="Audit log"
+          title="Every decision, in order"
+          description="State changes of the self-healing loop: detections, diagnoses, rehearsals, deployments, commits and rollbacks."
+          actions={
+            <Btn size="sm" variant="secondary" onClick={onClearEvents} disabled={events.length === 0}>
+              Clear log
+            </Btn>
+          }
+        >
+          {events.length === 0 ? (
+            <Empty title="No events yet">Start training; every transition of the loop is recorded here.</Empty>
+          ) : (
+            <ol className="relative max-h-[36rem] overflow-y-auto pr-2" data-lenis-prevent>
+              {events.map((ev, idx) => {
+                const st = String(ev.state || "");
+                const tone = /ROLL|FAIL|ERROR/.test(st) ? "bad" : /COMMIT|HEALTHY/.test(st) ? "ok" : /ANOMAL|DIAGNOS|HOLD|VALIDAT/.test(st) ? "warn" : "accent";
+                return (
+                  <li key={idx} className="grid grid-cols-[1.5rem_1fr] gap-4 pb-5">
+                    <span className="relative flex justify-center">
+                      <span className={`mt-1.5 w-2.5 h-2.5 rounded-full ${tone === "bad" ? "bg-[var(--status-danger)]" : tone === "ok" ? "bg-[var(--status-success)]" : tone === "warn" ? "bg-[var(--status-warning)]" : "bg-[var(--accent)]"}`} />
+                      {idx < events.length - 1 && <span className="absolute top-5 bottom-[-1.25rem] w-px bg-[var(--border-subtle)]" />}
+                    </span>
+                    <div className="min-w-0">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge tone={tone as "bad" | "ok" | "warn" | "accent"}>{st.replace(/_/g, " ").toLowerCase()}</Badge>
+                        <span className="type-label text-[var(--content-tertiary)] tabular">#{events.length - idx}</span>
                       </div>
-                      <p className="text-xs text-[var(--content-primary)]">{ev.message}</p>
+                      <p className="text-sm text-[var(--content-primary)] mt-1.5 leading-relaxed break-words">{ev.message}</p>
                     </div>
-                  </div>
-                ))
-              )}
-            </div>
-          </div>
-        </div>
+                  </li>
+                );
+              })}
+            </ol>
+          )}
+        </Panel>
       )}
 
       {/* VIEW 10: SETTINGS & BENCHMARKS */}

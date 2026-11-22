@@ -1,154 +1,118 @@
 "use client";
 
 import React, { useState } from "react";
-import { AlertCircle, Flame, Zap, Sliders, ShieldX, Compass, Radio, Check } from "lucide-react";
+import { AnimatePresence, motion } from "motion/react";
+import { Check, Compass, Flame, Radio, ShieldX, Sliders, Zap } from "lucide-react";
+import { Badge, Panel } from "./ui/kit";
 
 interface FailureInjectionPanelProps {
   onInject: (failureType: string, severity: number) => Promise<void> | void;
   isRunning: boolean;
 }
 
-const FAILURE_OPTIONS = [
-  {
-    type: "lr_misconfiguration",
-    label: "LR Misconfig (50x)",
-    desc: "Learning rate x50: the loss starts to bounce",
-    icon: Zap,
-    color: "text-[var(--status-warning)] hover:border-c-status-warning/40",
-  },
-  {
-    type: "barren_plateau",
-    label: "Barren Plateau",
-    desc: "Gradient signal drops below shot noise (SNR collapse)",
-    icon: Compass,
-    color: "text-[var(--status-ansatz)] hover:border-c-status-ansatz/40",
-  },
-  {
-    type: "optimizer_instability",
-    label: "Optimizer Instability",
-    desc: "Inverts and corrupts classical momentum buffers",
-    icon: Sliders,
-    color: "text-[var(--status-info)] hover:border-c-status-info/40",
-  },
-  {
-    type: "training_divergence",
-    label: "Training Divergence",
-    desc: "Injects non-finite parameter tensor triggering divergence",
-    icon: Flame,
-    color: "text-[var(--status-danger)] hover:border-c-status-danger/40",
-  },
-  {
-    type: "persistent_plateau",
-    label: "Step-Size Collapse",
-    desc: "Learning rate collapses 1000x: live gradients, no motion",
-    icon: ShieldX,
-    color: "text-[var(--accent)] hover:border-c-accent/40",
-  },
-  {
-    type: "noise_degradation",
-    label: "Noise Degradation",
-    desc: "Per-layer depolarizing contraction plus shot noise",
-    icon: Radio,
-    color: "text-[var(--status-purity)] hover:border-c-status-purity/40",
-  },
+/* Each fault: what it does, and the telemetry signature to watch for afterwards. */
+const FAULTS = [
+  { type: "lr_misconfiguration", label: "LR misconfiguration", what: "Learning rate ×50: the loss starts to bounce.", watch: "Oscillating loss, opposing gradients", icon: Zap, recommended: true },
+  { type: "barren_plateau", label: "Barren plateau", what: "Gradient signal sinks below shot noise.", watch: "Decorrelated gradients, flat loss", icon: Compass },
+  { type: "optimizer_instability", label: "Optimizer corrupted", what: "Momentum buffers inverted and amplified.", watch: "Loss drifts upward smoothly", icon: Sliders },
+  { type: "training_divergence", label: "Numerical divergence", what: "Parameters become NaN.", watch: "Non-finite loss in one step", icon: Flame },
+  { type: "persistent_plateau", label: "Step-size collapse", what: "Learning rate ÷1000: live gradients, no motion.", watch: "Healthy gradient, zero velocity", icon: ShieldX },
+  { type: "noise_degradation", label: "Device noise", what: "Depolarizing contraction plus shot noise.", watch: "Output margin shrinks", icon: Radio },
 ];
 
-export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
-  onInject,
-  isRunning,
-}) => {
+const SEVERITIES = [1, 2, 3];
+
+export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({ onInject, isRunning }) => {
   const [severity, setSeverity] = useState(1.0);
-  const [injectingType, setInjectingType] = useState<string | null>(null);
+  const [injected, setInjected] = useState<string | null>(null);
 
   const handleInject = async (type: string) => {
-    setInjectingType(type);
+    setInjected(type);
     try {
       await onInject(type, severity);
     } finally {
-      setTimeout(() => setInjectingType(null), 1200);
+      window.setTimeout(() => setInjected(null), 1600);
     }
   };
 
   return (
-    <div className="glass-panel p-5 font-sans flex flex-col justify-between">
-      {/* Symmetrical Header */}
-      <div>
-        <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 mb-4 pb-3 border-b border-[var(--border-subtle)]">
-          <div className="flex items-center gap-2.5">
-            <div className="w-8 h-8 rounded-xl bg-[var(--status-danger-subtle)] flex items-center justify-center text-[var(--status-danger)] shrink-0">
-              <AlertCircle className="w-4 h-4" />
-            </div>
-            <div>
-              <div className="flex items-center gap-2">
-                <h2 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
-                  Controlled Synthetic Failure Injection Testing
-                </h2>
-                {isRunning && (
-                  <span
-                    className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse"
-                    title="Model actively training"
-                  />
-                )}
-              </div>
-              <p className="text-[11px] text-[var(--content-tertiary)]">
-                Empirical fault verification across 6 non-overlapping quantum failure modes
-              </p>
-            </div>
-          </div>
-
-          <div className="flex items-center gap-2 text-xs font-mono self-start sm:self-auto">
-            <span className="text-[var(--content-secondary)] text-[11px]">Severity:</span>
-            {[1.0, 2.0, 3.0].map((s) => (
+    <Panel
+      eyebrow="Break it on purpose"
+      title="Inject a fault"
+      description="Pick a severity, then a fault. Keep training running and watch the Dashboard and Diagnosis respond within a few steps."
+      actions={
+        <>
+          <Badge tone={isRunning ? "ok" : "neutral"} pulse={isRunning}>
+            {isRunning ? "Training live" : "Training paused"}
+          </Badge>
+          <div className="relative grid grid-cols-3 p-1 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)]" role="radiogroup" aria-label="Severity">
+            {SEVERITIES.map((s) => (
               <button
                 key={s}
+                role="radio"
+                aria-checked={severity === s}
                 onClick={() => setSeverity(s)}
-                className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-medium transition-all ${
-                  severity === s
-                    ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-c-status-danger/40 shadow-sm"
-                    : "glass-panel-subtle text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                }`}
+                className={`relative h-9 px-4 rounded-full type-label transition-colors duration-200 ${severity === s ? "text-white" : "text-[var(--content-secondary)] hover:text-[var(--content-primary)]"}`}
               >
-                {s.toFixed(1)}x
+                {severity === s && (
+                  <motion.span layoutId="severity-pill" className="absolute inset-0 rounded-full bg-[var(--accent)]" transition={{ type: "spring", bounce: 0, duration: 0.4 }} />
+                )}
+                <span className="relative">{s.toFixed(1)}×</span>
               </button>
             ))}
           </div>
-        </div>
-
-        {/* Symmetrical 6-Column Failure Buttons Grid */}
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3.5">
-          {FAILURE_OPTIONS.map((f) => {
-            const Icon = f.icon;
-            const isTarget = injectingType === f.type;
-            return (
-              <button
-                key={f.type}
-                onClick={() => handleInject(f.type)}
-                className={`apple-btn p-3.5 rounded-xl border text-left flex flex-col justify-between h-[115px] transition-all duration-150 glass-panel-subtle hover:border-[var(--border-highlight)] ${
-                  isTarget ? "ring-2 ring-[var(--status-danger)] scale-[0.98] border-[var(--status-danger)]" : ""
-                }`}
-              >
-                <div>
-                  <div className="flex items-center gap-1.5 mb-1.5">
-                    <Icon className="w-3.5 h-3.5 text-[var(--status-danger)] shrink-0" />
-                    <span className="text-xs font-semibold text-[var(--content-primary)] leading-tight truncate">
-                      {f.label}
-                    </span>
-                  </div>
-                  <p className="text-[10px] text-[var(--content-secondary)] leading-snug line-clamp-2">
-                    {f.desc}
-                  </p>
-                </div>
-                <div className="pt-2 border-t border-[var(--border-subtle)] text-[10px] font-mono font-medium text-[var(--content-secondary)] flex items-center justify-between">
-                  <span className={isTarget ? "text-[var(--status-danger)] font-semibold" : ""}>
-                    {isTarget ? "Injected!" : "Inject"}
-                  </span>
-                  {isTarget && <Check className="w-3 h-3 text-[var(--status-danger)]" />}
-                </div>
-              </button>
-            );
-          })}
-        </div>
+        </>
+      }
+    >
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4">
+        {FAULTS.map((f) => {
+          const Icon = f.icon;
+          const done = injected === f.type;
+          return (
+            <button
+              key={f.type}
+              onClick={() => handleInject(f.type)}
+              className={`interactive-card group relative text-left rounded-[1.4rem] border p-5 flex flex-col justify-between min-h-[12.5rem] bg-[var(--bg-primary)] ${
+                done ? "border-[var(--accent)] ring-1 ring-[var(--accent)]" : "border-[var(--border-subtle)]"
+              }`}
+            >
+              <div className="flex items-start justify-between gap-3">
+                <span className="card-icon w-11 h-11 rounded-2xl border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-secondary)]">
+                  <Icon className="w-5 h-5" />
+                </span>
+                {f.recommended && <span className="type-label text-[var(--accent)]">Start here</span>}
+              </div>
+              <div className="mt-6">
+                <div className="font-display font-bold text-[1.15rem] tracking-[-0.02em] text-[var(--content-primary)]">{f.label}</div>
+                <p className="text-sm text-[var(--content-secondary)] mt-1 leading-relaxed">{f.what}</p>
+              </div>
+              <div className="mt-4 pt-3 border-t border-[var(--border-subtle)] flex items-center justify-between gap-3">
+                <span className="text-xs text-[var(--content-tertiary)] truncate">Watch: {f.watch}</span>
+                <AnimatePresence mode="wait" initial={false}>
+                  <motion.span
+                    key={done ? "done" : "idle"}
+                    initial={{ opacity: 0, y: 6 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: -6 }}
+                    transition={{ duration: 0.2 }}
+                    className={`shrink-0 inline-flex items-center gap-1.5 type-label ${done ? "text-[var(--accent)]" : "text-[var(--content-primary)] group-hover:text-[var(--accent)]"}`}
+                  >
+                    {done ? (
+                      <>
+                        <Check className="w-3.5 h-3.5" /> Injected
+                      </>
+                    ) : (
+                      "Inject →"
+                    )}
+                  </motion.span>
+                </AnimatePresence>
+              </div>
+            </button>
+          );
+        })}
       </div>
-    </div>
+    </Panel>
   );
 };
+
+export default FailureInjectionPanel;

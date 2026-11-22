@@ -2,33 +2,27 @@
 
 import React, { useState, useEffect, useCallback } from "react";
 import {
-  Sliders,
   Download,
   Cpu,
   ShieldCheck,
   HardDrive,
-  Activity,
-  Layers,
   Zap,
   RotateCcw,
   AlertTriangle,
   Lock,
   CheckCircle2,
-  XCircle,
-  HelpCircle,
   Sparkles,
-  Database,
   Radio,
   FileSpreadsheet,
   FileCode,
   Terminal,
-  Settings as SettingsIcon,
   Play,
   Eye,
   Check,
   RefreshCw,
 } from "lucide-react";
 import { TelemetryPoint, Episode } from "@/types";
+import { Btn, Panel } from "./ui/kit";
 
 export interface SettingsPanelProps {
   optimizerName: string;
@@ -114,7 +108,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   isDarkMode = true,
   onToggleTheme,
 }) => {
-  const [activeSection, setActiveSection] = useState<SettingsSection>("general");
+  const [activeSection, setActiveSection] = useState<SettingsSection>("experiment");
 
   // Draft Experiment Configuration
   const [draftDataset, setDraftDataset] = useState(dataset);
@@ -514,49 +508,25 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   const circuitParamCount = 2 * draftNLayers * draftNQbits;
 
   return (
-    <div className="space-y-6 font-sans">
-      {/* Top Banner with Quick Actions */}
-      <div className="glass-panel p-6 flex flex-col md:flex-row md:items-center justify-between gap-4">
-        <div>
-          <div className="flex items-center gap-2 mb-1.5">
-            <SettingsIcon className="w-5 h-5 text-[var(--accent)]" />
-            <h1 className="text-base font-bold text-[var(--content-primary)] tracking-tight">
-              Control Centre &amp; Experiment Configuration
-            </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/40">
-              VQC ARCHITECTURE
-            </span>
-          </div>
-          <p className="text-xs text-[var(--content-secondary)] leading-relaxed max-w-2xl">
-            Configure variational hyperparameters, dataset topology, classical optimization, diagnostic thresholds, live telemetry feeds, and empirical data exports.
-          </p>
-        </div>
-
-        <div className="flex items-center flex-wrap gap-2 shrink-0">
-          <button
-            onClick={handleResetDefaults}
-            className="apple-btn px-3 py-1.5 rounded-xl text-xs font-medium text-[var(--content-secondary)] hover:text-[var(--content-primary)] bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex items-center gap-1.5 active:scale-95 transition-all"
-            title="Restore recommended research defaults"
-          >
-            <RotateCcw className="w-3.5 h-3.5" />
-            <span>Restore Defaults</span>
-          </button>
-          <button
-            onClick={handleSaveSettings}
-            className="apple-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-white bg-[var(--accent)] hover:bg-[var(--accent-hover)] flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-          >
-            <Check className="w-3.5 h-3.5" />
-            <span>Save Preferences</span>
-          </button>
-          <button
-            onClick={() => setIsPreviewOpen(true)}
-            className="apple-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--status-success)] bg-c-status-success/10 hover:bg-c-status-success/20 border border-c-status-success/30 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
-          >
-            <Eye className="w-3.5 h-3.5" />
-            <span>Preview &amp; Run</span>
-          </button>
-        </div>
-      </div>
+    <div className="space-y-6 font-sans settings-legacy">
+      <Panel
+        eyebrow="Configuration"
+        title="Experiment settings"
+        description="Circuit, dataset, optimizer, detection thresholds, connectivity and exports. Changes apply to the next training run."
+        actions={
+          <>
+            <Btn size="sm" variant="ghost" onClick={handleResetDefaults} icon={<RotateCcw className="w-3.5 h-3.5" />} title="Restore recommended research defaults">
+              Defaults
+            </Btn>
+            <Btn size="sm" variant="secondary" onClick={handleSaveSettings} icon={<Check className="w-3.5 h-3.5" />}>
+              Save
+            </Btn>
+            <Btn size="sm" variant="primary" onClick={() => setIsPreviewOpen(true)} icon={<Eye className="w-3.5 h-3.5" />}>
+              Preview &amp; run
+            </Btn>
+          </>
+        }
+      />
 
       {saveBanner && (
         <div className="p-3 rounded-xl bg-c-status-success/10 border border-c-status-success/30 text-[var(--status-success)] text-xs font-medium flex items-center gap-2 animate-fade-in">
@@ -568,9 +538,8 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       {/* Main Two-Column Layout: Navigation Dock + Configuration Pane */}
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6 items-start">
         {/* Navigation Sidebar */}
-        <div className="lg:col-span-1 glass-panel p-3 space-y-1">
+        <nav className="lg:col-span-1 glass-panel settings-nav-wrap space-y-1" aria-label="Settings sections">
           {[
-            { id: "general", label: "General & Appearance", icon: Sliders },
             { id: "experiment", label: "Experiment & Presets", icon: Sparkles },
             { id: "circuit", label: "Quantum Circuit Topology", icon: Cpu },
             { id: "optimization", label: "Classical Optimization", icon: Zap },
@@ -586,20 +555,21 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <button
                 key={item.id}
                 onClick={() => setActiveSection(item.id as SettingsSection)}
-                className={`w-full text-left px-3.5 py-2.5 rounded-xl text-xs font-medium flex items-center justify-between transition-all ${
+                aria-current={isActive ? "true" : undefined}
+                className={`settings-nav w-full text-left px-4 h-11 rounded-full text-sm font-medium flex items-center justify-between gap-2 transition-colors duration-200 ${
                   isActive
-                    ? "bg-[var(--accent)] text-white font-semibold shadow-sm"
+                    ? "bg-[var(--content-primary)] text-[var(--bg-primary)]"
                     : "text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:bg-[var(--bg-subtle)]"
                 }`}
               >
-                <div className="flex items-center gap-2.5">
-                  <Icon className="w-3.5 h-3.5 shrink-0" />
+                <div className="flex items-center gap-2.5 min-w-0">
+                  <Icon className="w-4 h-4 shrink-0" />
                   <span className="truncate">{item.label}</span>
                 </div>
                 {item.badge && (
                   <span
                     className={`px-1.5 py-0.5 rounded text-[10px] font-mono uppercase ${
-                      isActive ? "bg-white/20 text-white" : "bg-c-status-warning/10 text-[var(--status-warning)] border border-c-status-warning/20"
+                      isActive ? "bg-c-bg-primary/20 text-[var(--bg-primary)]" : "bg-c-status-warning/10 text-[var(--status-warning)] border border-c-status-warning/20"
                     }`}
                   >
                     {item.badge}
@@ -608,191 +578,10 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </button>
             );
           })}
-        </div>
+        </nav>
 
         {/* Configuration Content Area */}
         <div className="lg:col-span-3 space-y-6">
-          {/* TAB 1: GENERAL & APPEARANCE */}
-          {activeSection === "general" && (
-            <div className="glass-panel p-6 space-y-6 animate-fade-in">
-              <div className="border-b border-[var(--border-subtle)] pb-4">
-                <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                  <Sliders className="w-4 h-4 text-[var(--accent)]" />
-                  General Preferences &amp; Interface Ergonomics
-                </h2>
-                <p className="text-xs text-[var(--content-secondary)] mt-1">
-                  Customise display density, colour theme, animation timing, and formatting across sessions.
-                </p>
-              </div>
-
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                {/* Theme Selector */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-[var(--content-primary)] block">
-                    Colour Palette Theme
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "dark", label: "Dark Obsidian" },
-                      { id: "light", label: "Light Precision" },
-                      { id: "system", label: "System Sync" },
-                    ].map((t) => (
-                      <button
-                        key={t.id}
-                        onClick={() => {
-                          setThemePreference(t.id as "dark" | "light" | "system");
-                          onToggleTheme?.(t.id as "dark" | "light" | "system");
-                        }}
-                        className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
-                          themePreference === t.id
-                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold shadow-sm"
-                            : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                        }`}
-                      >
-                        {t.label}
-                      </button>
-                    ))}
-                  </div>
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">
-                    Defaults to cinematic dark obsidian with Apple Liquid Retina &amp; motorsport styling.
-                  </span>
-                </div>
-
-                {/* Interface Density */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-[var(--content-primary)] block">
-                    Interface Density
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { id: "comfortable", label: "Comfortable (Default)" },
-                      { id: "compact", label: "Compact Density" },
-                    ].map((d) => (
-                      <button
-                        key={d.id}
-                        onClick={() => {
-                          setDensityPreference(d.id as "comfortable" | "compact");
-                          onDensityChange?.(d.id as "comfortable" | "compact");
-                        }}
-                        className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
-                          densityPreference === d.id
-                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
-                            : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                        }`}
-                      >
-                        {d.label}
-                      </button>
-                    ))}
-                  </div>
-                  <span className="text-[11px] text-[var(--content-tertiary)] block">
-                    Controls padding and row height across telemetry tables and cockpit cards.
-                  </span>
-                </div>
-
-                {/* Animation Preferences */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-[var(--content-primary)] block">
-                    Animation Physics &amp; Motion
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "cinematic", label: "Cinematic (Apple)" },
-                      { id: "subtle", label: "Subtle (Crisp)" },
-                      { id: "reduced", label: "Reduced Motion" },
-                    ].map((a) => (
-                      <button
-                        key={a.id}
-                        onClick={() => setAnimationSpeed(a.id as "cinematic" | "subtle" | "reduced")}
-                        className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
-                          animationSpeed === a.id
-                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
-                            : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                        }`}
-                      >
-                        {a.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Numeric Precision */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-[var(--content-primary)] block">
-                    Scientific Decimal Precision
-                  </label>
-                  <div className="grid grid-cols-2 gap-2">
-                    {[
-                      { val: 4, label: "4 Decimals (e.g. 0.0500)" },
-                      { val: 3, label: "3 Decimals (e.g. 0.050)" },
-                    ].map((p) => (
-                      <button
-                        key={p.val}
-                        onClick={() => setNumericPrecision(p.val)}
-                        className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
-                          numericPrecision === p.val
-                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
-                            : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                        }`}
-                      >
-                        {p.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Default Chart View */}
-                <div className="space-y-2">
-                  <label className="text-xs font-medium text-[var(--content-primary)] block">
-                    Default Loss Chart Representation
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {[
-                      { id: "dual", label: "Loss & Accuracy" },
-                      { id: "loss", label: "Loss Only" },
-                      { id: "accuracy", label: "Accuracy Only" },
-                    ].map((c) => (
-                      <button
-                        key={c.id}
-                        onClick={() => setDefaultChartDisplay(c.id as "dual" | "loss" | "accuracy")}
-                        className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
-                          defaultChartDisplay === c.id
-                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
-                            : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
-                        }`}
-                      >
-                        {c.label}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Destructive Confirmations */}
-                <div className="space-y-2 flex flex-col justify-between p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-                  <div>
-                    <span className="text-xs font-medium text-[var(--content-primary)] block">
-                      Destructive Action Confirmation
-                    </span>
-                    <span className="text-[11px] text-[var(--content-tertiary)] block mt-0.5">
-                      Prompt confirmation dialog prior to clearing session memory or resetting model weights.
-                    </span>
-                  </div>
-                  <div className="flex items-center gap-2 mt-2">
-                    <button
-                      onClick={() => setConfirmDestructive(!confirmDestructive)}
-                      className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
-                        confirmDestructive
-                          ? "bg-c-status-success/20 text-[var(--status-success)] border border-c-status-success/30"
-                          : "bg-neutral-800 text-neutral-400 border border-neutral-700"
-                      }`}
-                    >
-                      {confirmDestructive ? "Enabled (Recommended)" : "Disabled"}
-                    </button>
-                  </div>
-                </div>
-              </div>
-            </div>
-          )}
-
           {/* TAB 2: EXPERIMENT CONFIGURATION & PRESETS */}
           {activeSection === "experiment" && (
             <div className="glass-panel p-6 space-y-6 animate-fade-in">
@@ -1408,7 +1197,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <span className="text-[10px] font-mono text-[var(--accent)] font-bold">
                           INVARIANT {inv.num}
                         </span>
-                        <Lock className="w-3.5 h-3.5 text-neutral-500" />
+                        <Lock className="w-3.5 h-3.5 text-[var(--content-tertiary)]" />
                       </div>
                       <h4 className="text-xs font-bold text-[var(--content-primary)]">{inv.title}</h4>
                       <div className="font-mono text-[11px] text-[var(--accent)] my-1 bg-[var(--bg-primary)] px-2 py-1 rounded border border-[var(--border-subtle)]">

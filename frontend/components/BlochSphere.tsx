@@ -1,7 +1,7 @@
 "use client";
 
 import React, { useState, useRef, useEffect, useCallback } from "react";
-import { Atom, RotateCcw, Compass, Info } from "lucide-react";
+import { RotateCcw, Compass } from "lucide-react";
 
 interface BlochSphereProps {
   x: number;
@@ -122,42 +122,31 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
     : null;
 
   return (
-    <div className="glass-panel p-5 flex flex-col justify-between items-center text-center select-none h-full font-sans">
-      {/* Header */}
-      <div className="w-full flex items-center justify-between mb-3 pb-3 border-b border-[var(--border-subtle)]">
-        <div className="flex items-center gap-2.5">
-          <div className="w-8 h-8 rounded-xl bg-[var(--accent-subtle)] flex items-center justify-center text-[var(--accent)] shrink-0">
-            <Atom className="w-4 h-4" />
-          </div>
-          <div className="text-left">
-            <h3 className="text-sm font-semibold tracking-tight text-[var(--content-primary)]">
-              Qubit {qubitIndex} State Coordinates
-            </h3>
-            <p className="text-[11px] text-[var(--content-tertiary)]">
-              Physical state vector &amp; corrected expectation estimators
-            </p>
-          </div>
+    <div className="rounded-[1.75rem] border border-[var(--border-subtle)] bg-[var(--bg-surface)] p-5 sm:p-7 flex flex-col h-full min-w-0 items-center select-none">
+      <div className="w-full flex flex-wrap items-start justify-between gap-3 mb-3">
+        <div className="min-w-0 text-left">
+          <div className="type-label text-[var(--accent)]">Qubit {qubitIndex} · Bloch sphere</div>
+          <h3 className="font-display font-bold text-[1.2rem] tracking-[-0.02em] mt-1 text-[var(--content-primary)]">Where the state points</h3>
         </div>
         <div className="flex items-center gap-2">
+          <span
+            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border type-label tabular ${
+              purityPhysical >= 0.95
+                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-c-status-success/20"
+                : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-c-status-warning/20"
+            }`}
+            title="Purity: γ = (1 + ‖r‖²) / 2"
+          >
+            γ {purityPhysical.toFixed(3)}
+          </span>
           <button
             onClick={resetView}
-            title="Reset 3D camera rotation"
-            className="p-1 rounded-md bg-[var(--bg-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors"
+            title="Reset rotation"
+            aria-label="Reset sphere rotation"
+            className="apple-btn w-8 h-8 rounded-full border border-[var(--border-subtle)] flex items-center justify-center text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)]"
           >
-            <RotateCcw className="w-3 h-3" />
+            <RotateCcw className="w-3.5 h-3.5" />
           </button>
-          <div className="px-2.5 py-0.5 rounded-full bg-[var(--bg-subtle)] border border-[var(--border-subtle)] text-[11px] font-mono flex items-center gap-1.5">
-            <span className="text-[var(--content-secondary)]">Physical γ:</span>
-            <span
-              className={
-                purityPhysical >= 0.95
-                  ? "text-[var(--status-success)] font-semibold"
-                  : "text-[var(--status-warning)] font-semibold"
-              }
-            >
-              {purityPhysical.toFixed(4)}
-            </span>
-          </div>
         </div>
       </div>
 
@@ -333,59 +322,44 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         </svg>
 
         {/* Drag Hint Overlay */}
-        <div className="absolute bottom-1 right-2 text-[9px] font-mono text-[var(--content-secondary)] opacity-60 pointer-events-none flex items-center gap-1">
-          <Compass className="w-2.5 h-2.5" />
+        <div className="absolute bottom-1 right-2 text-[0.7rem] text-[var(--content-tertiary)] pointer-events-none flex items-center gap-1">
+          <Compass className="w-3 h-3" />
           <span>drag to rotate</span>
         </div>
       </div>
 
-      {/* Vector Legend: Distinguish Physical from Corrected Expectation */}
-      <div className="w-full flex items-center justify-center gap-4 py-1 text-[10px] font-mono border-t border-[var(--border-subtle)] text-[var(--content-secondary)]">
-        <div className="flex items-center gap-1.5">
-          <span className="w-2.5 h-0.5 bg-[var(--accent)] rounded-full" />
-          <span className="text-[var(--content-primary)]">Physical State r</span>
-        </div>
+      {/* Legend */}
+      <div className="w-full flex flex-wrap items-center justify-center gap-x-4 gap-y-1 py-2 type-label text-[var(--content-tertiary)]">
+        <span className="flex items-center gap-1.5">
+          <span className="w-3 h-0.5 bg-[var(--accent)] rounded-full" /> State r
+        </span>
         {hasMitigated && (
-          <div className="flex items-center gap-1.5">
-            <span className="w-2.5 h-0.5 border-t border-dashed border-[var(--status-purity)]" />
-            <span className="text-[var(--status-purity)]">Corrected Estimator</span>
-          </div>
+          <span className="flex items-center gap-1.5">
+            <span className="w-3 border-t-2 border-dashed border-[var(--status-purity)]" /> Corrected estimate
+          </span>
         )}
       </div>
 
-      {/* Expectation Values & Mitigated Readouts */}
-      <div className="w-full grid grid-cols-3 gap-2 pt-2 border-t border-[var(--border-subtle)] font-mono text-xs">
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] text-[var(--content-secondary)]">⟨X⟩</span>
-          <span className="text-[var(--content-primary)] font-semibold">{x.toFixed(3)}</span>
-          {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-purity)]">est: {xMitigated!.toFixed(3)}</span>
-          )}
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] text-[var(--content-secondary)]">⟨Y⟩</span>
-          <span className="text-[var(--content-primary)] font-semibold">{y.toFixed(3)}</span>
-          {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-purity)]">est: {yMitigated!.toFixed(3)}</span>
-          )}
-        </div>
-        <div className="flex flex-col items-center">
-          <span className="text-[10px] text-[var(--content-secondary)]">⟨Z⟩</span>
-          <span className="text-[var(--accent)] font-semibold">{z.toFixed(3)}</span>
-          {hasMitigated && (
-            <span className="text-[9px] text-[var(--status-purity)]">est: {zMitigated!.toFixed(3)}</span>
-          )}
-        </div>
+      {/* Expectation values */}
+      <div className="w-full grid grid-cols-3 gap-2 mt-1">
+        {[
+          { k: "⟨X⟩", v: x, m: xMitigated },
+          { k: "⟨Y⟩", v: y, m: yMitigated },
+          { k: "⟨Z⟩", v: z, m: zMitigated },
+        ].map((e) => (
+          <div key={e.k} className="rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] px-3 py-2.5 text-left min-w-0">
+            <div className="text-xs text-[var(--content-tertiary)] font-mono">{e.k}</div>
+            <div className="font-mono tabular text-[var(--content-primary)] font-semibold mt-0.5">{e.v.toFixed(3)}</div>
+            {hasMitigated && typeof e.m === "number" && (
+              <div className="text-[0.7rem] font-mono tabular text-[var(--status-purity)] truncate">est {e.m.toFixed(3)}</div>
+            )}
+          </div>
+        ))}
       </div>
 
-      {/* Purity Formula Note */}
-      <div className="w-full mt-2 pt-1 text-[9px] font-mono text-[var(--content-secondary)] flex items-center justify-between border-t border-[var(--border-subtle)]">
-        <span className="flex items-center gap-1">
-          <Info className="w-2.5 h-2.5 text-[var(--accent)]" />
-          <span>Physical γ = (1 + ||r||²)/2</span>
-        </span>
-        <span>||r_phys|| = {rPhysical.toFixed(4)}</span>
-      </div>
+      <p className="w-full mt-3 text-xs text-[var(--content-tertiary)] text-left">
+        γ = (1 + ‖r‖²)/2 · ‖r‖ = <span className="font-mono tabular">{rPhysical.toFixed(3)}</span>
+      </p>
     </div>
   );
 };

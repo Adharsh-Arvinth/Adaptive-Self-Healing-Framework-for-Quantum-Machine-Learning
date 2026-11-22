@@ -90,7 +90,7 @@ export const Hero: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> =
   const titleOpacity = useTransform(scrollYProgress, [0, 0.85], [1, reduce ? 1 : 0.15]);
 
   return (
-    <section ref={ref} id="top" className="relative bg-grid-paper text-[var(--ink)] overflow-hidden pt-24 sm:pt-28">
+    <section ref={ref} id="top" className="relative bg-grid-paper text-[var(--ink)] overflow-hidden pt-[6.5rem] sm:pt-28">
       {/* Signal stripes (motorsport livery), sweeping in once */}
       <div className="pointer-events-none absolute -right-[12vw] top-0 h-full w-[46vw] hidden md:block" aria-hidden="true">
         {[0, 1, 2].map((i) => (

@@ -1,7 +1,10 @@
 "use client";
 
-import React from "react";
-import { AlertTriangle, X } from "lucide-react";
+import React, { useEffect } from "react";
+import { createPortal } from "react-dom";
+import { AnimatePresence, motion, useReducedMotion } from "motion/react";
+import { RotateCcw, X } from "lucide-react";
+import { Btn } from "./ui/kit";
 
 interface ConfirmationModalProps {
   isOpen: boolean;
@@ -13,60 +16,55 @@ interface ConfirmationModalProps {
   onCancel: () => void;
 }
 
+/** Centred confirmation dialog (modals stay centred; scale from 0.96, never from 0). */
 export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
   isOpen,
   title,
   message,
-  confirmLabel = "Reset Experiment",
+  confirmLabel = "Reset",
   cancelLabel = "Cancel",
   onConfirm,
   onCancel,
 }) => {
-  if (!isOpen) return null;
+  const reduce = useReducedMotion();
+  useEffect(() => {
+    if (!isOpen) return;
+    const onKey = (e: KeyboardEvent) => e.key === "Escape" && onCancel();
+    window.addEventListener("keydown", onKey);
+    return () => window.removeEventListener("keydown", onKey);
+  }, [isOpen, onCancel]);
 
-  return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/40 backdrop-blur-sm animate-fade-in">
-      <div className="relative max-w-md w-full p-6 rounded-apple-lg bg-bg-surface border border-border-subtle shadow-apple-lg animate-slide-down">
-        {/* Close Button */}
-        <button
-          onClick={onCancel}
-          className="absolute top-4 right-4 p-1.5 rounded-full text-content-tertiary hover:text-content-primary hover:bg-bg-subtle transition-colors"
-          aria-label="Close modal"
-        >
-          <X className="w-4 h-4" />
-        </button>
-
-        {/* Modal Content */}
-        <div className="flex items-start gap-4">
-          <div className="p-2.5 rounded-full bg-status-danger-subtle text-status-danger shrink-0">
-            <AlertTriangle className="w-5 h-5" />
-          </div>
-          <div>
-            <h3 className="text-sm font-semibold text-content-primary tracking-tight">
-              {title}
-            </h3>
-            <p className="text-xs text-content-secondary mt-1.5 leading-relaxed">
-              {message}
-            </p>
-          </div>
-        </div>
-
-        {/* Actions */}
-        <div className="flex items-center justify-end gap-2.5 mt-6 pt-4 border-t border-border-subtle">
-          <button
-            onClick={onCancel}
-            className="apple-btn px-4 py-2 rounded-lg text-xs font-medium text-content-secondary hover:text-content-primary hover:bg-bg-subtle transition-colors"
+  if (typeof document === "undefined") return null;
+  return createPortal(
+    <AnimatePresence>
+      {isOpen && (
+        <div className="fixed inset-0 z-[96] flex items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="confirm-title">
+          <motion.div className="absolute inset-0 bg-black/45 backdrop-blur-[2px]" initial={{ opacity: 0 }} animate={{ opacity: 1 }} exit={{ opacity: 0 }} transition={{ duration: 0.2 }} onClick={onCancel} />
+          <motion.div
+            className="relative w-full max-w-md rounded-[1.75rem] border border-[var(--border-subtle)] bg-[var(--bg-surface-elevated)] p-7 shadow-[0_40px_80px_-30px_rgba(0,0,0,0.6)]"
+            initial={{ opacity: 0, scale: reduce ? 1 : 0.96, y: reduce ? 0 : 8 }}
+            animate={{ opacity: 1, scale: 1, y: 0 }}
+            exit={{ opacity: 0, scale: reduce ? 1 : 0.97 }}
+            transition={{ type: "spring", bounce: 0, duration: 0.35 }}
           >
-            {cancelLabel}
-          </button>
-          <button
-            onClick={onConfirm}
-            className="apple-btn px-4 py-2 rounded-lg text-xs font-semibold bg-[var(--status-danger)] text-white hover:bg-[var(--status-danger)] shadow-sm transition-colors"
-          >
-            {confirmLabel}
-          </button>
+            <button onClick={onCancel} className="apple-btn absolute right-4 top-4 w-9 h-9 rounded-full flex items-center justify-center text-[var(--content-tertiary)] hover:text-[var(--content-primary)] hover:bg-[var(--bg-subtle)]" aria-label="Close">
+              <X className="w-4 h-4" />
+            </button>
+            <div className="type-label text-[var(--status-danger)]">Please confirm</div>
+            <h3 id="confirm-title" className="lab-title mt-2 text-[var(--content-primary)]">{title}</h3>
+            <p className="text-[0.95rem] text-[var(--content-secondary)] mt-3 leading-relaxed">{message}</p>
+            <div className="flex flex-wrap justify-end gap-2 mt-7">
+              <Btn variant="secondary" onClick={onCancel}>{cancelLabel}</Btn>
+              <Btn variant="danger" onClick={onConfirm} icon={<RotateCcw className="w-4 h-4" />} autoFocus>
+                {confirmLabel}
+              </Btn>
+            </div>
+          </motion.div>
         </div>
-      </div>
-    </div>
+      )}
+    </AnimatePresence>,
+    document.body
   );
 };
+
+export default ConfirmationModal;

@@ -1,8 +1,10 @@
 "use client";
 
 import React, { useState } from "react";
-import { Eye, CheckCircle2, XCircle, FlaskConical, Play } from "lucide-react";
+import { motion, useReducedMotion } from "motion/react";
+import { FlaskConical } from "lucide-react";
 import { DigitalTwinPrediction, EvaluationRecord } from "@/types";
+import { Badge, Btn, Empty, Panel, Stat, SubHead, fmt } from "./ui/kit";
 
 interface DigitalTwinPanelProps {
   prediction: DigitalTwinPrediction | null;
@@ -11,206 +13,131 @@ interface DigitalTwinPanelProps {
   selectedArm?: string | null;
 }
 
-const ARMS = [
-  "adjust_learning_rate",
-  "change_optimizer",
-  "reduce_circuit_depth",
-  "modify_feature_map",
-  "apply_noise_mitigation",
-  "perform_warm_restart",
+const ARMS: { id: string; label: string }[] = [
+  { id: "adjust_learning_rate", label: "Re-anchor LR" },
+  { id: "change_optimizer", label: "Change optimizer" },
+  { id: "perform_warm_restart", label: "Warm restart" },
+  { id: "apply_noise_mitigation", label: "Noise mitigation" },
+  { id: "reduce_circuit_depth", label: "Reduce depth" },
+  { id: "modify_feature_map", label: "Swap feature map" },
 ];
 
-export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
-  prediction,
-  evaluation,
-  onSimulateTwin,
-  selectedArm,
-}) => {
-  const [testArm, setTestArm] = useState<string>(selectedArm || "adjust_learning_rate");
-  const [isSimulating, setIsSimulating] = useState(false);
-  const [customPrediction, setCustomPrediction] = useState<DigitalTwinPrediction | null>(null);
+const Trajectory: React.FC<{ values: (number | null | undefined)[]; viable: boolean }> = ({ values, viable }) => {
+  const reduce = useReducedMotion();
+  const pts = values.map((v, i) => ({ i, v: typeof v === "number" && Number.isFinite(v) ? v : null }));
+  const finite = pts.filter((p) => p.v !== null) as { i: number; v: number }[];
+  if (finite.length < 2) return <Empty title="No trajectory">The rehearsal produced non-finite losses.</Empty>;
+  const min = Math.min(...finite.map((p) => p.v));
+  const max = Math.max(...finite.map((p) => p.v));
+  const W = 320, H = 120, pad = 14;
+  const x = (i: number) => pad + (i / Math.max(1, values.length - 1)) * (W - 2 * pad);
+  const y = (v: number) => (max === min ? H / 2 : pad + (1 - (v - min) / (max - min)) * (H - 2 * pad));
+  const d = finite.map((p, k) => `${k ? "L" : "M"} ${x(p.i).toFixed(1)} ${y(p.v).toFixed(1)}`).join(" ");
+  const color = viable ? "var(--status-success)" : "var(--status-danger)";
+  return (
+    <svg viewBox={`0 0 ${W} ${H}`} className="w-full h-36" role="img" aria-label="Rehearsed loss over the three twin steps">
+      {[0.25, 0.5, 0.75].map((f) => (
+        <line key={f} x1={pad} x2={W - pad} y1={pad + f * (H - 2 * pad)} y2={pad + f * (H - 2 * pad)} stroke="var(--border-subtle)" strokeDasharray="2 5" />
+      ))}
+      <motion.path key={d} d={d} fill="none" stroke={color} strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round"
+        initial={{ pathLength: reduce ? 1 : 0 }} animate={{ pathLength: 1 }} transition={{ duration: reduce ? 0 : 0.8, ease: [0.23, 1, 0.32, 1] }} />
+      {finite.map((p) => (
+        <g key={p.i}>
+          <circle cx={x(p.i)} cy={y(p.v)} r="4" fill="var(--bg-surface)" stroke={color} strokeWidth="2" />
+          <text x={x(p.i)} y={H - 1} textAnchor="middle" fontSize="9" fill="var(--content-tertiary)" fontFamily="var(--font-mono)">h={p.i}</text>
+        </g>
+      ))}
+    </svg>
+  );
+};
 
-  const activePred = customPrediction || prediction;
+export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({ prediction, evaluation, onSimulateTwin, selectedArm }) => {
+  const [arm, setArm] = useState<string>(selectedArm || "adjust_learning_rate");
+  const [running, setRunning] = useState(false);
+  const [custom, setCustom] = useState<DigitalTwinPrediction | null>(null);
 
-  const isViable = activePred ? activePred.is_viable !== false : true;
-  const trajectory = activePred?.proxy_loss_trajectory || [];
-  const delta = activePred?.predicted_loss_delta ?? 0.0;
-  const stability = activePred?.proxy_stability ?? 0.0;
-  const gradVar = activePred?.proxy_grad_variance ?? 0.0;
-  const evals = activePred?.circuit_evaluations ?? 0;
+  const pred = custom || prediction;
+  const viable = pred ? pred.is_viable !== false : true;
 
-  const handleRunSimulation = async () => {
+  const run = async () => {
     if (!onSimulateTwin) return;
-    setIsSimulating(true);
+    setRunning(true);
     try {
-      const res = await onSimulateTwin(testArm);
-      if (res) {
-        setCustomPrediction(res);
-      }
+      const res = await onSimulateTwin(arm);
+      if (res) setCustom(res);
     } finally {
-      setIsSimulating(false);
+      setRunning(false);
     }
   };
 
   return (
-    <div className="glass-panel p-5 font-sans flex flex-col justify-between h-full">
-      <div>
-        {/* Header */}
-        <div className="flex items-center justify-between mb-3">
-          <div className="flex items-center gap-2">
-            <Eye className="w-4 h-4 text-[var(--accent)]" />
-            <h2 className="text-xs font-semibold text-[var(--content-primary)]">
-              Digital-Twin Proxy Simulator (H = 3)
-            </h2>
-          </div>
-          <span
-            className={`px-2 py-0.5 rounded-full text-[11px] font-mono border flex items-center gap-1 ${
-              isViable
-                ? "bg-c-status-success/15 text-[var(--status-success)] border-c-status-success/30"
-                : "bg-c-status-danger/15 text-[var(--status-danger)] border-c-status-danger/30"
+    <Panel
+      eyebrow="Digital twin"
+      title="Rehearse a repair first"
+      description="The twin copies the live model and runs the repair for three steps on held-out data. The real model is never touched; repairs that make things worse are vetoed."
+      actions={pred ? <Badge tone={viable ? "ok" : "bad"}>{viable ? "Viable" : "Vetoed"}</Badge> : undefined}
+    >
+      <SubHead>Choose a repair to rehearse</SubHead>
+      <div className="flex flex-wrap gap-2" role="radiogroup" aria-label="Repair to rehearse">
+        {ARMS.map((a) => (
+          <button
+            key={a.id}
+            role="radio"
+            aria-checked={arm === a.id}
+            onClick={() => setArm(a.id)}
+            className={`relative h-10 px-4 rounded-full text-sm font-medium border transition-colors duration-200 ${
+              arm === a.id ? "text-[var(--bg-primary)] border-transparent" : "border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
             }`}
           >
-            {isViable ? (
-              <>
-                <CheckCircle2 className="w-3 h-3" /> Viable (&lt; 20% degradation)
-              </>
-            ) : (
-              <>
-                <XCircle className="w-3 h-3" /> Viability Rejected
-              </>
-            )}
-          </span>
-        </div>
-
-        {/* 3-Step Mini Trajectory Display */}
-        <div className="mb-3.5 p-3 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] font-mono text-xs">
-          <div className="flex items-center justify-between mb-2">
-            <span className="text-[10px] text-[var(--content-secondary)] uppercase tracking-wider">
-              Proxy Loss Trajectory (H = 3 steps)
-            </span>
-            {activePred?.arm && (
-              <span className="text-[10px] text-[var(--accent)] font-semibold">
-                Arm: {activePred.arm.replace(/_/g, " ")}
-              </span>
-            )}
-          </div>
-          <div className="flex items-center justify-between">
-            {trajectory.length > 0 ? (
-              trajectory.map((val, idx) => (
-                <div key={idx} className="flex flex-col items-center">
-                  <span className="text-[10px] text-[var(--content-secondary)]">h = {idx}</span>
-                  <span className="text-[var(--content-primary)] font-semibold">{typeof val === "number" && Number.isFinite(val) ? val.toFixed(4) : "—"}</span>
-                </div>
-              ))
-            ) : (
-              <span className="text-xs text-[var(--content-secondary)] py-1">
-                Awaiting proxy trajectory simulation...
-              </span>
-            )}
-          </div>
-        </div>
-
-        {/* Prediction Metrics Grid */}
-        <div className="grid grid-cols-2 gap-2 mb-3">
-          {/* Predicted Delta */}
-          <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-            <span className="text-[10px] text-[var(--content-secondary)] font-mono">Predicted Delta</span>
-            <span
-              className={`text-sm font-bold font-mono ${
-                delta >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"
-              }`}
-            >
-              {delta >= 0 ? `+${delta.toFixed(4)}` : delta.toFixed(4)}
-            </span>
-          </div>
-
-          {/* Proxy Stability */}
-          <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-            <span className="text-[10px] text-[var(--content-secondary)] font-mono">Stability Score</span>
-            <span className="text-sm font-bold font-mono text-[var(--accent)]">
-              {(stability * 100).toFixed(1)}%
-            </span>
-          </div>
-
-          {/* Uncertainty (Grad Var) */}
-          <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-            <span className="text-[10px] text-[var(--content-secondary)] font-mono">Uncertainty σ²</span>
-            <span className="text-sm font-mono text-[var(--content-primary)] font-semibold">
-              {gradVar.toExponential(2)}
-            </span>
-          </div>
-
-          {/* Quantum Circuit Evals */}
-          <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
-            <span className="text-[10px] text-[var(--content-secondary)] font-mono">Quantum Cost</span>
-            <span className="text-sm font-mono text-[var(--accent)] font-semibold">
-              {evals} <span className="text-[10px] font-normal text-[var(--content-secondary)]">evals</span>
-            </span>
-          </div>
-        </div>
-
-        {/* Sandbox Tester Control */}
-        {onSimulateTwin && (
-          <div className="p-2.5 rounded-xl bg-c-bg-surface/70 border border-[var(--border-subtle)] mb-3">
-            <div className="flex items-center justify-between gap-2">
-              <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--content-primary)]">
-                <FlaskConical className="w-3.5 h-3.5 text-[var(--accent)]" />
-                <span>Sandbox Test:</span>
-              </div>
-              <div className="flex items-center gap-1.5 flex-1 max-w-[220px]">
-                <select
-                  value={testArm}
-                  onChange={(e) => setTestArm(e.target.value)}
-                  className="w-full text-[10px] font-mono px-2 py-1 rounded bg-[var(--bg-primary)] border border-[var(--border-subtle)] text-[var(--content-primary)] focus:outline-none"
-                >
-                  {ARMS.map((a) => (
-                    <option key={a} value={a}>
-                      {a.replace(/_/g, " ")}
-                    </option>
-                  ))}
-                </select>
-                <button
-                  onClick={handleRunSimulation}
-                  disabled={isSimulating}
-                  className="apple-btn px-2.5 py-1 rounded text-[10px] font-medium bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white shrink-0 flex items-center gap-1 shadow-sm"
-                >
-                  <Play className="w-2.5 h-2.5" />
-                  <span>{isSimulating ? "Sim..." : "Run"}</span>
-                </button>
-              </div>
-            </div>
-          </div>
-        )}
+            {arm === a.id && <motion.span layoutId="twin-arm" className="absolute inset-0 rounded-full bg-[var(--content-primary)]" transition={{ type: "spring", bounce: 0, duration: 0.4 }} />}
+            <span className="relative">{a.label}</span>
+          </button>
+        ))}
+        <Btn variant="primary" onClick={run} disabled={running || !onSimulateTwin} icon={<FlaskConical className="w-4 h-4" />} className="ml-auto">
+          {running ? "Rehearsing…" : "Run rehearsal"}
+        </Btn>
       </div>
 
-      {/* Actual vs Predicted Fidelity Tracker */}
-      {evaluation && (
-        <div className="pt-2 border-t border-[var(--border-subtle)] font-mono text-xs">
-          <div className="flex justify-between text-[var(--content-secondary)] text-[10px] mb-1">
-            <span>PREDICTED VS ACTUAL REWARD FIDELITY</span>
+      <div className="grid lg:grid-cols-5 gap-8 mt-8">
+        <div className="lg:col-span-3">
+          <SubHead right={pred?.arm ? <span className="type-label text-[var(--content-tertiary)]">{fmt.human(pred.arm)}</span> : undefined}>
+            Rehearsed loss · 3 steps
+          </SubHead>
+          {pred ? (
+            <div className="rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] p-4">
+              <Trajectory values={pred.proxy_loss_trajectory ?? []} viable={viable} />
+              {!viable && pred.rejection_reason && <p className="text-sm text-[var(--status-danger)] mt-2 leading-relaxed">{pred.rejection_reason}</p>}
+            </div>
+          ) : (
+            <Empty title="No rehearsal yet">Pick a repair and run it, or wait for the pipeline to rehearse one after a fault.</Empty>
+          )}
+        </div>
+        <div className="lg:col-span-2 space-y-6">
+          <div>
+            <SubHead>Prediction</SubHead>
+            <div className="grid grid-cols-2 gap-3">
+              <Stat label="Loss change" value={pred ? `${(pred.predicted_loss_delta ?? 0) >= 0 ? "−" : "+"}${fmt.n(Math.abs(pred.predicted_loss_delta ?? 0))}` : "—"} tone={pred ? ((pred.predicted_loss_delta ?? 0) >= 0 ? "ok" : "bad") : "neutral"} hint="positive = improves" />
+              <Stat label="Stability" value={pred ? fmt.pct(pred.proxy_stability, 0) : "—"} />
+              <Stat label="Grad variance" value={pred ? fmt.n(pred.proxy_grad_variance, 4) : "—"} />
+              <Stat label="Circuit evals" value={pred?.circuit_evaluations ?? "—"} />
+            </div>
           </div>
-          <div className="flex justify-between items-center text-xs">
-            <span>
-              Pred:{" "}
-              <span className="text-[var(--accent)] font-semibold">
-                {evaluation.predicted_reward?.toFixed(4) ?? "N/A"}
-              </span>
-            </span>
-            <span>
-              Actual:{" "}
-              <span className="text-[var(--status-success)] font-semibold">
-                {evaluation.actual_reward?.toFixed(4) ?? "N/A"}
-              </span>
-            </span>
-            <span>
-              MAE:{" "}
-              <span className="text-[var(--status-warning)] font-bold">
-                {evaluation.prediction_error?.toFixed(4) ?? "0.0000"}
-              </span>
-            </span>
+          <div>
+            <SubHead>Prediction vs reality</SubHead>
+            {evaluation ? (
+              <div className="grid grid-cols-3 gap-3">
+                <Stat label="Predicted" value={fmt.n(evaluation.predicted_reward, 3)} />
+                <Stat label="Actual" value={fmt.n(evaluation.actual_reward, 3)} tone={(evaluation.actual_reward ?? 0) >= 0 ? "ok" : "bad"} />
+                <Stat label="Error" value={fmt.n(evaluation.prediction_error, 3)} />
+              </div>
+            ) : (
+              <p className="text-sm text-[var(--content-secondary)]">Appears after a repair finishes probation.</p>
+            )}
           </div>
         </div>
-      )}
-    </div>
+      </div>
+    </Panel>
   );
 };
+
+export default DigitalTwinPanel;

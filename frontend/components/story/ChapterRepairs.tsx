@@ -59,11 +59,11 @@ export const ChapterRepairs: React.FC = () => {
                 onClick={() => setOpen(isOpen ? null : a.key)}
                 onMouseEnter={() => window.matchMedia("(hover: hover)").matches && setOpen(a.key)}
                 aria-expanded={isOpen}
-                className="w-full grid grid-cols-[3rem_1fr_auto] sm:grid-cols-[5rem_1fr_auto] items-center gap-4 py-6 text-left group"
+                className="w-full grid grid-cols-[2.5rem_minmax(0,1fr)_auto] sm:grid-cols-[5rem_minmax(0,1fr)_auto] items-center gap-4 py-6 text-left group"
               >
                 <span className="type-label text-white/40 tabular">{String(i + 1).padStart(2, "0")}</span>
                 <span
-                  className={`type-condensed text-[clamp(2.6rem,6vw,5.5rem)] transition-colors duration-300 ${
+                  className={`min-w-0 break-words type-condensed text-[clamp(2.4rem,6vw,5.5rem)] transition-colors duration-300 ${
                     isOpen ? "text-white" : "text-white/35 group-hover:text-white/70"
                   }`}
                 >
@@ -72,7 +72,7 @@ export const ChapterRepairs: React.FC = () => {
                 <motion.span
                   animate={{ rotate: isOpen ? 45 : 0 }}
                   transition={{ type: "spring", bounce: 0, duration: 0.35 }}
-                  className={`w-10 h-10 rounded-full border flex items-center justify-center ${
+                  className={`shrink-0 w-10 h-10 rounded-full border flex items-center justify-center ${
                     isOpen ? "border-[var(--signal)] bg-[var(--signal)]" : "border-white/20"
                   }`}
                 >

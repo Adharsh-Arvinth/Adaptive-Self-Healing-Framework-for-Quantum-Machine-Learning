@@ -782,10 +782,10 @@ export default function Page() {
       {/* Confirmation Modal for Reset */}
       <ConfirmationModal
         isOpen={isResetModalOpen}
-        title="Reset Experiment and Model State?"
-        message="This action will reset the Variational Quantum Classifier weights, flush the optimizer momentum buffers, clear active anomalies, and re-initialize step telemetry to zero. Episodic memory will remain intact."
-        confirmLabel="Reset Everything"
-        cancelLabel="Keep Running"
+        title="Start over?"
+        message="This resets the classifier's weights, clears the optimizer state and any injected faults, and sets the step counter back to zero. The memory of past repair episodes is kept."
+        confirmLabel="Reset"
+        cancelLabel="Keep running"
         onConfirm={handleReset}
         onCancel={() => setIsResetModalOpen(false)}
       />

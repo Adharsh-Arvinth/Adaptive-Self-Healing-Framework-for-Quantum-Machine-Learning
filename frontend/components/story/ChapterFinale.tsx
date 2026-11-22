@@ -114,7 +114,7 @@ const useEmail = () => {
   return email;
 };
 
-const SOCIAL = {
+export const SOCIAL = {
   github: "https://github.com/Adharsh-Arvinth",
   linkedin: "https://www.linkedin.com/in/adharsh-arvinth",
 };

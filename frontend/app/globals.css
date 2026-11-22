@@ -494,3 +494,51 @@ html.lenis body {
   transition: background-color 420ms var(--ease-out), color 420ms var(--ease-out), border-color 420ms var(--ease-out),
     fill 420ms var(--ease-out), stroke 420ms var(--ease-out) !important;
 }
+
+/* Lab panel titles (design kit) */
+.lab-title {
+  font-family: var(--font-display), sans-serif;
+  font-variation-settings: "wdth" 108;
+  font-weight: 700;
+  letter-spacing: -0.025em;
+  font-size: clamp(1.35rem, 1.05rem + 0.8vw, 2.1rem);
+  line-height: 1.08;
+}
+
+/* Harmonise legacy lab panels (Settings, chart, Bloch sphere) with the design kit */
+#dashboard .glass-panel {
+  padding: clamp(1.25rem, 0.9rem + 1.1vw, 2rem) !important;
+  background: var(--bg-surface);
+}
+#dashboard .glass-panel .glass-panel {
+  padding: 1.25rem !important;
+  background: var(--bg-primary);
+  border-radius: 1.25rem;
+}
+#dashboard .glass-panel-subtle {
+  border-radius: 1rem;
+  background: var(--bg-primary);
+}
+#dashboard .text-\[10px\] { font-size: 0.72rem !important; }
+#dashboard .text-\[11px\] { font-size: 0.8rem !important; }
+#dashboard .glass-panel input:not([type="checkbox"]):not([type="radio"]):not([type="range"]),
+#dashboard .glass-panel select {
+  border-radius: 0.9rem;
+  min-height: 2.6rem;
+}
+#dashboard .glass-panel input:focus,
+#dashboard .glass-panel select:focus {
+  outline: none;
+  border-color: var(--accent) !important;
+}
+#dashboard input[type="range"] { accent-color: var(--accent); }
+
+/* Settings: legacy controls follow the kit (pill buttons, calm nav surface) */
+#dashboard .settings-legacy button.rounded-xl,
+#dashboard .settings-legacy button.rounded-lg {
+  border-radius: 999px;
+}
+#dashboard .settings-legacy .settings-nav-wrap {
+  padding: 0.5rem !important;
+}
+#dashboard .settings-legacy .shadow-sm { box-shadow: none; }
