@@ -76,11 +76,7 @@ export const Header: React.FC<HeaderProps> = ({
     else lenis?.start();
   }, [menuOpen]);
 
-  const cap = `transition-colors duration-500 ${
-    menuOpen
-      ? "bg-white/[0.06] backdrop-blur-xl border border-white/15 text-white shadow-none"
-      : "bg-c-paper/75 backdrop-blur-xl backdrop-saturate-150 border border-c-ink/10 text-[var(--ink)] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.5)]"
-  }`;
+  const cap = "hdr-cap";
 
   if (activeView === "dashboard") {
     return (
@@ -89,7 +85,7 @@ export const Header: React.FC<HeaderProps> = ({
           <button onClick={() => onToggleView("landing")} className="flex items-center gap-3 min-w-0 text-[var(--content-primary)]" aria-label="Back to the story">
             <Logo textClassName="hidden min-[400px]:block" />
           </button>
-          <div className="hidden md:flex items-center gap-3 type-label text-[var(--content-secondary)]">
+          <div className="hidden lg:flex items-center gap-3 whitespace-nowrap type-label text-[var(--content-secondary)]">
             <span className="text-[var(--accent)]">Research lab</span>
             <span className="h-3 w-px bg-[var(--border-highlight)]" />
             <span className="flex items-center gap-2">
@@ -105,7 +101,7 @@ export const Header: React.FC<HeaderProps> = ({
             {onStartTour && (
               <button
                 onClick={onStartTour}
-                className="apple-btn inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-sm font-semibold bg-[var(--accent-subtle)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
+                className="hdr-cap hdr-text inline-flex items-center gap-2 h-10 w-10 sm:w-auto justify-center sm:px-4 rounded-full !text-[var(--accent)]"
               >
                 <GraduationCap className="w-4 h-4" />
                 <span className="hidden sm:inline">Tutorial</span>
@@ -113,7 +109,7 @@ export const Header: React.FC<HeaderProps> = ({
             )}
             <button
               onClick={openSheet}
-              className="apple-btn h-9 w-9 rounded-full border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] flex items-center justify-center text-[var(--content-secondary)]"
+              className="hdr-cap h-10 w-10 rounded-full flex items-center justify-center"
               aria-label="Appearance: mode, palette and typeface"
               title="Appearance"
             >
@@ -121,14 +117,14 @@ export const Header: React.FC<HeaderProps> = ({
             </button>
             <button
               onClick={onToggleTheme}
-              className="apple-btn h-9 w-9 rounded-full border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] flex items-center justify-center text-[var(--content-secondary)]"
+              className="hdr-cap h-10 w-10 rounded-full flex items-center justify-center"
               aria-label={isDarkMode ? "Switch to light theme" : "Switch to dark theme"}
             >
               {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
             </button>
             <button
               onClick={() => onToggleView("landing")}
-              className="apple-btn inline-flex items-center gap-2 h-9 px-4 rounded-full text-sm font-semibold bg-[var(--content-primary)] text-[var(--bg-primary)]"
+              className="hdr-cta hdr-text inline-flex items-center justify-center gap-2 h-10 w-10 sm:w-auto sm:px-4 rounded-full"
             >
               <ArrowLeft className="w-4 h-4" />
               <span className="hidden sm:inline">Story</span>
@@ -147,7 +143,7 @@ export const Header: React.FC<HeaderProps> = ({
         transition={{ duration: reduce ? 0 : 0.45, ease: [0.23, 1, 0.32, 1] }}
       >
         <div className="flex items-center justify-between gap-2 px-3 min-[400px]:px-4 sm:px-8 lg:px-12 h-[4.5rem] sm:h-20">
-          <a href="#top" className={`pointer-events-auto shrink-0 h-11 pl-3 pr-4 sm:px-4 flex items-center rounded-full ${cap}`} aria-label="Top of page" onClick={() => setMenuOpen(false)}>
+          <a href="#top" data-on-carbon={menuOpen} className={`pointer-events-auto shrink-0 h-11 pl-3 pr-4 sm:px-4 flex items-center rounded-full ${cap}`} aria-label="Top of page" onClick={() => setMenuOpen(false)}>
             <Mark />
           </a>
           <div className="flex items-center gap-1.5 sm:gap-3 pointer-events-auto shrink-0">
@@ -155,7 +151,8 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={openSheet}
               aria-label="Appearance: mode, palette and typeface"
               title="Appearance"
-              className={`hidden sm:flex h-11 w-11 rounded-full ${cap} items-center justify-center apple-btn`}
+              data-on-carbon={menuOpen}
+              className={`hidden sm:flex h-11 w-11 rounded-full ${cap} items-center justify-center`}
             >
               <Type className="w-4 h-4" />
             </button>
@@ -163,7 +160,8 @@ export const Header: React.FC<HeaderProps> = ({
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}
               aria-label={menuOpen ? "Close chapters" : "Open chapters"}
-              className={`type-label h-11 w-11 sm:w-auto sm:px-4 flex items-center justify-center gap-3 rounded-full ${cap}`}
+              data-on-carbon={menuOpen}
+              className={`hdr-text h-11 w-11 sm:w-auto sm:pl-5 sm:pr-4 flex items-center justify-center gap-3 rounded-full ${cap}`}
             >
               <span className="hidden sm:inline">{menuOpen ? "Close" : "Chapters"}</span>
               <span className="relative w-5 sm:w-6 h-3">
@@ -176,7 +174,7 @@ export const Header: React.FC<HeaderProps> = ({
                 setMenuOpen(false);
                 onToggleView("dashboard");
               }}
-              className="btn-ink h-11 !py-0 !px-4 sm:!px-5 !gap-1.5 whitespace-nowrap text-sm bg-[var(--signal)] text-white hover:bg-[var(--ink)] shadow-[0_8px_24px_-12px_rgba(232,52,28,0.7)]"
+              className="hdr-cta hdr-text inline-flex items-center rounded-full h-11 px-4 sm:px-5 gap-1.5 whitespace-nowrap"
             >
               <span className="hidden min-[420px]:inline">Live lab</span><span className="min-[420px]:hidden">Lab</span> <ArrowUpRight className="w-4 h-4 hidden min-[375px]:block" />
             </button>
