@@ -114,8 +114,15 @@ class RepairLibrary:
         )
 
         # 4. Arm: Adjust Learning Rate
-        # Determine factor based on diagnosis
-        if primary_cause in ("lr_misconfiguration", "training_divergence", "optimizer_instability"):
+        # If the live step size has drifted far (> 4x) from the operator-configured reference,
+        # re-anchor it to the reference; otherwise apply a diagnosis-directed bounded scaling.
+        curr_lr = float(current_state.config.learning_rate)
+        ref_lr = getattr(current_state.config, "reference_learning_rate", None) or curr_lr
+        drift = curr_lr / max(ref_lr, 1e-12)
+        if drift > 4.0 or drift < 0.25:
+            factor = float(ref_lr / max(curr_lr, 1e-12))
+            rationale = f"Re-anchor learning rate from {curr_lr:.2e} to reference {ref_lr:.2e} (drift {drift:.2g}x)."
+        elif primary_cause in ("lr_misconfiguration", "training_divergence", "optimizer_instability"):
             factor = 0.2  # Decelerate runaway gradients
             rationale = f"Decelerate learning rate by 0.2x (from {current_state.config.learning_rate:.4f}) to stabilize divergence."
         else:
@@ -136,7 +143,11 @@ class RepairLibrary:
         )
 
         # 6. Arm: Perform Warm Restart
-        warm_mode = "identity" if (primary_cause == "training_divergence" or np.any(np.isnan(current_state.params))) else "perturbation"
+        warm_mode = (
+            "identity"
+            if (primary_cause in ("training_divergence", "barren_plateau") or np.any(~np.isfinite(current_state.params)))
+            else "perturbation"
+        )
         warm_repair = CandidateRepair(
             arm=RepairArm.PERFORM_WARM_RESTART,
             params={"mode": warm_mode, "sigma": self.default_sigma},
@@ -285,6 +296,9 @@ class RepairLibrary:
         # Truncate parameters
         state.config.n_layers = target_depth
         state.params = state.params[:target_depth].copy()
+        # Shallower circuits concentrate less: relieve the emulated concentration exponent.
+        if getattr(state, "bp_exponent", 0.0) > 0.0:
+            state.bp_exponent = float(max(0.0, state.bp_exponent - 3.0))
 
         # Resynchronize optimizer state with the new parameter shape
         fresh_optimizer = create_optimizer(state.config.optimizer_name, state.config.learning_rate)
@@ -434,9 +448,13 @@ class RepairLibrary:
         if has_nan or mode == "identity":
             # Mode A: Identity / near-zero block initialization
             # Eliminates NaN and avoids random Haar scrambling
-            rng = np.random.RandomState(42)
+            rng = np.random.RandomState(int(state.epoch * 13 + 42))
             state.params = rng.normal(0.0, 0.01, size=state.params.shape)
             actual_mode = "identity_initialization"
+            # Near-identity initialisation escapes the scrambled (concentrated) region
+            # (Grant et al., Quantum 3, 214, 2019).
+            if getattr(state, "bp_exponent", 0.0) > 0.0:
+                state.bp_exponent = 0.0
         else:
             # Mode B: Controlled Gaussian perturbation around current parameters
             rng = np.random.RandomState(int(state.epoch * 17 + 101))

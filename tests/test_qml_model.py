@@ -191,10 +191,14 @@ class TestControlledFailureInjections:
 
         grads_before = model.compute_parameter_shift_gradients(X, y)
         model.inject_failure(FailureType.BARREN_PLATEAU, mode="default")
-        grads_after = model.compute_parameter_shift_gradients(X, y)
+        draws = np.array([model.compute_parameter_shift_gradients(X, y) for _ in range(200)])
 
-        assert np.linalg.norm(grads_after) < 1e-5
-        assert np.linalg.norm(grads_after) < np.linalg.norm(grads_before) * 1e-4
+        # Emulated plateau = gradient SNR collapse: the estimate carries (almost) no signal ...
+        signal = np.mean(draws, axis=0)
+        assert np.linalg.norm(signal) < 0.1 * np.linalg.norm(grads_before)
+        # ... and is dominated by finite-shot estimation noise of fixed scale.
+        assert abs(np.std(draws) - VQCModel.BP_GRAD_SHOT_STD) < 0.005
+        assert abs(np.corrcoef(draws[0].ravel(), grads_before.ravel())[0, 1]) < 0.999
 
     def test_inject_barren_plateau_structural(self):
         model = VQCModel(CircuitConfig(n_qubits=2, n_layers=2, seed=42))

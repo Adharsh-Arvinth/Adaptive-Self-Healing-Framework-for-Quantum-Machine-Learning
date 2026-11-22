@@ -148,10 +148,16 @@ class SelfHealingPipeline:
         y_train: np.ndarray,
         X_val: np.ndarray,
         y_val: np.ndarray,
+        X_twin: Optional[np.ndarray] = None,
+        y_twin: Optional[np.ndarray] = None,
     ) -> PipelineStepResult:
         """
         Execute a single autonomous cycle of training, monitoring, failure detection,
         and (if required) recovery orchestration.
+
+        X_twin / y_twin: dedicated digital-twin proxy split. If omitted, the twin uses the
+        training data. It must NOT be the validation split, because validation telemetry is
+        what accepts or rolls back the deployed repair (using it in the twin leaks it).
         """
         self.step_count += 1
         step_events: List[PipelineEvent] = []
@@ -345,12 +351,15 @@ class SelfHealingPipeline:
 
         # 4. Digital Twin Short-Horizon Proxy Simulation (H = 3)
         self.state = PipelineState.DIGITAL_TWIN_SIMULATING
-        twin_predictions = self.digital_twin.simulate_all(self.model, safe_candidates, X_val, y_val)
+        X_tw = X_twin if X_twin is not None else X_train
+        y_tw = y_twin if y_twin is not None else y_train
+        twin_predictions = self.digital_twin.simulate_all(self.model, safe_candidates, X_tw, y_tw)
 
         # 5. Build 12D Context Vector
-        # Use top viable prediction for context feature x11 and x12
+        # x11/x12 summarise the BEST viable twin prediction (previously: whichever viable arm
+        # happened to be listed first, which made the feature depend on arm ordering).
         viable_preds = [p for p in twin_predictions.values() if p.is_viable]
-        best_twin_pred = viable_preds[0] if viable_preds else None
+        best_twin_pred = max(viable_preds, key=lambda p: p.normalized_predicted_delta) if viable_preds else None
         self._current_twin_pred = best_twin_pred
 
         ctx = build_context_vector(

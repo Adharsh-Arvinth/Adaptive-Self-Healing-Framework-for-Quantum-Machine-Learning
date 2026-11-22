@@ -31,6 +31,8 @@ class HealthObservation:
     n_qubits: int = 2
     is_valid: bool = True
     error_flags: List[str] = field(default_factory=list)
+    output_margin: float = float("nan")  # label-aligned measured margin (NaN if unavailable)
+    grad_cosine: float = float("nan")    # cos(g_t, g_{t-1})
 
 
 @dataclass
@@ -68,6 +70,9 @@ class TelemetrySummary:
     has_nan_or_inf: bool
     invalid_steps_count: int
     n_qubits: int = 2
+    margin_max: float = float("nan")   # max output margin over the window (reference level)
+    grad_cosine_recent: float = float("nan")  # mean cos(g_t, g_{t-1}) over the last 3 steps
+    loss_change_recent3: float = 0.0          # L_t - L_{t-3}
 
 
 class HealthMonitor:
@@ -147,6 +152,10 @@ class HealthMonitor:
             param_vel = float(max(0.0, param_vel))
 
         n_qubits = int(getattr(metrics, "n_qubits", 2))
+        gcos = float(getattr(metrics, "grad_cosine", float("nan")))
+        margin = float(getattr(metrics, "output_margin", float("nan")))
+        if np.isinf(margin):
+            margin = float("nan")
 
         obs = HealthObservation(
             step=metrics.epoch,
@@ -165,6 +174,8 @@ class HealthMonitor:
             n_qubits=n_qubits,
             is_valid=is_valid,
             error_flags=error_flags,
+            output_margin=margin,
+            grad_cosine=gcos if np.isfinite(gcos) else float("nan"),
         )
 
         self.history.append(obs)
@@ -230,6 +241,12 @@ class HealthMonitor:
                 if signs[i] * signs[i + 1] < 0 and abs(deltas[i]) > 0.02:
                     oscillation_count += 1
 
+        margins = np.array([getattr(o, "output_margin", float("nan")) for o in obs_list], dtype=float)
+        margin_max = float(np.nanmax(margins)) if np.any(np.isfinite(margins)) else float("nan")
+        cos_recent = np.array([getattr(o, "grad_cosine", float("nan")) for o in obs_list[-3:]], dtype=float)
+        grad_cosine_recent = float(np.nanmean(cos_recent)) if np.any(np.isfinite(cos_recent)) else float("nan")
+        loss_change_recent3 = float(losses[-1] - losses[-4]) if n >= 4 else 0.0
+
         loss_mean = float(np.mean(losses))
         loss_std = float(np.std(losses))
         loss_cv = float(loss_std / (loss_mean + 1e-8))
@@ -261,6 +278,9 @@ class HealthMonitor:
             has_nan_or_inf=has_nan_or_inf,
             invalid_steps_count=invalid_count,
             n_qubits=obs_list[-1].n_qubits if hasattr(obs_list[-1], "n_qubits") else 2,
+            margin_max=margin_max,
+            grad_cosine_recent=grad_cosine_recent,
+            loss_change_recent3=loss_change_recent3,
         )
 
     def export_history(self) -> List[Dict[str, Any]]:

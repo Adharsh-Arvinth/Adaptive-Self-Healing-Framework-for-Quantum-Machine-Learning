@@ -18,3 +18,8 @@ frontend/.next/standalone/
 
 # Local test artifacts
 artifacts/
+
+# Large downloaded raw files (provenance in research/external/README.md)
+research/external/pennylane/
+research/external/openml/_cache/
+research/__pycache__/

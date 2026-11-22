@@ -84,8 +84,13 @@ class DiagnosisEngine:
             if latest_obs.gradient_norm < 1e-4 and latest_obs.loss > 0.45:
                 if latest_obs.gradient_variance < 1e-6:
                     evidence_scores[FailureType.BARREN_PLATEAU] += 2.5
-            # Mutual Inhibition: if gradients are healthy, strongly suppress Barren Plateau
-            if latest_obs.gradient_norm > 0.08:
+            gcos = getattr(summary, "grad_cosine_recent", float("nan"))
+            snr_collapsed = (np.isfinite(gcos) and abs(gcos) < 0.30
+                             and getattr(summary, "loss_change_recent3", 0.0) > -0.05)
+            if snr_collapsed:
+                evidence_scores[FailureType.BARREN_PLATEAU] += 2.5
+            # Mutual Inhibition: if gradients are healthy (large AND coherent), suppress Barren Plateau
+            if latest_obs.gradient_norm > 0.08 and not snr_collapsed:
                 evidence_scores[FailureType.BARREN_PLATEAU] -= 3.5
 
             # C. Learning Rate: oscillation frequency
@@ -99,6 +104,12 @@ class DiagnosisEngine:
             # E. Noise Degradation: train-val divergence or accuracy collapse under noise
             if (latest_obs.val_loss - latest_obs.loss) > 0.08 or (latest_obs.step >= 4 and latest_obs.val_accuracy < 0.72 and summary.loss_std > 0.03):
                 evidence_scores[FailureType.NOISE_DEGRADATION] += 2.5
+            margin = getattr(latest_obs, "output_margin", float("nan"))
+            margin_ref = getattr(summary, "margin_max", float("nan"))
+            if (np.isfinite(margin) and np.isfinite(margin_ref) and margin_ref > 0.05 and margin < 0.80 * margin_ref
+                    and latest_obs.parameter_velocity < 0.5 and summary.loss_delta_recent >= -0.005):
+                evidence_scores[FailureType.NOISE_DEGRADATION] += 2.5
+                diagnostic_evidence.append("Measured expectation-value margin contraction (depolarizing signature).")
 
             # F. Persistent Plateau: flat loss with active non-vanishing gradients
             if (summary.loss_max - summary.loss_min) < 0.008 and latest_obs.loss > 0.40 and latest_obs.gradient_norm > 0.02:

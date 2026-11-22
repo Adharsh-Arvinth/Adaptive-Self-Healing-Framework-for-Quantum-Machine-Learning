@@ -129,20 +129,25 @@ class TestFailureDetectionCategories:
             m = nominal_model.train_step(X_train, y_train, X_val, y_val)
             monitor.record_step(m)
 
-        # Inject Barren Plateau
+        # Inject Barren Plateau (emulated gradient-SNR collapse). The scale-free signature
+        # (decorrelated consecutive gradients + no loss progress) needs a few post-onset steps.
         nominal_model.inject_failure(FailureType.BARREN_PLATEAU, mode="default")
 
-        for _ in range(2):
+        cleared_diag = None
+        for _ in range(8):
             m = nominal_model.train_step(X_train, y_train, X_val, y_val)
             obs = monitor.record_step(m)
             summary = monitor.get_summary()
             anomalies = detector.evaluate(summary, obs)
+            if any(a.failure_type == FailureType.BARREN_PLATEAU for a in anomalies):
+                diag = diagnosis_engine.diagnose(anomalies, summary, obs)
+                if diag.confidence_gate_cleared:
+                    cleared_diag = diag
+                    break
 
-        diag = diagnosis_engine.diagnose(anomalies, summary, obs)
-        assert any(a.failure_type == FailureType.BARREN_PLATEAU for a in anomalies)
-        assert diag.primary_cause == FailureType.BARREN_PLATEAU
-        assert diag.confidence >= 0.60
-        assert diag.confidence_gate_cleared is True
+        assert cleared_diag is not None, "Barren plateau was not detected with a cleared gate within 8 steps"
+        assert cleared_diag.primary_cause == FailureType.BARREN_PLATEAU
+        assert cleared_diag.confidence >= 0.60
 
     def test_detect_lr_misconfiguration(self, nominal_model, dataset):
         X_train, y_train, X_val, y_val = dataset
@@ -175,8 +180,9 @@ class TestFailureDetectionCategories:
         detector = FailureDetector()
         diagnosis_engine = DiagnosisEngine()
 
-        # Step normally
-        for _ in range(2):
+        # Step normally until a measurable decision margin has been learned (faults are injected
+        # into established training runs; at step 2 the model has learned nothing to degrade).
+        for _ in range(10):
             m = nominal_model.train_step(X_train, y_train, X_val, y_val)
             monitor.record_step(m)
 

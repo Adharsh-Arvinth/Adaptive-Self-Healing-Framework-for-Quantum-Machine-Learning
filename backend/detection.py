@@ -26,6 +26,8 @@ class DetectionThresholds:
     bp_param_vel_max: float = 1e-4
     bp_min_loss: float = 0.45  # Must not classify a well-converged model as barren plateau!
     bp_confirm_steps: int = 2
+    bp_cosine_abs_max: float = 0.30     # consecutive gradients decorrelated (noise-dominated estimates)
+    bp_min_progress: float = 0.05       # loss improved by less than this over the last 3 steps
 
     # Learning Rate Misconfiguration
     lr_oscillation_min_count: int = 1  # At least 1 reversal or large jump
@@ -54,6 +56,7 @@ class DetectionThresholds:
     noise_train_val_gap_min: float = 0.08
     noise_val_acc_max: float = 0.72
     noise_loss_std_min: float = 0.03
+    noise_margin_ratio_max: float = 0.80  # measured |<Z>| contracted to < 80% of the window maximum
     noise_confirm_steps: int = 2
 
 
@@ -179,7 +182,20 @@ class FailureDetector:
         is_grad_var_low = o.gradient_variance < var_bound or o.gradient_variance < 1e-7
         is_param_vel_low = o.parameter_velocity < self.thresholds.bp_param_vel_max
 
-        if is_loss_high and is_grad_norm_low and (is_grad_var_low or is_param_vel_low):
+        # Scale-free SNR signature (realistic plateaus yield noise-dominated, not zero, gradients).
+        gcos = getattr(s, "grad_cosine_recent", float("nan"))
+        is_snr_collapsed = (
+            np.isfinite(gcos) and abs(gcos) < self.thresholds.bp_cosine_abs_max
+            and getattr(s, "loss_change_recent3", 0.0) > -self.thresholds.bp_min_progress
+            and s.steps_observed >= 4 and o.loss > 0.30
+        )
+        if is_snr_collapsed:
+            is_triggered = True
+            evidence.append(
+                f"Consecutive gradient estimates are decorrelated (mean cosine {gcos:+.2f}) and loss has "
+                f"stopped improving: gradient signal is below estimation noise (plateau signature)."
+            )
+        elif is_loss_high and is_grad_norm_low and (is_grad_var_low or is_param_vel_low):
             is_triggered = True
             evidence.append(
                 f"Gradient norm ({o.gradient_norm:.2e}) below BP threshold ({self.thresholds.bp_grad_norm_max:.2e}) "
@@ -356,7 +372,25 @@ class FailureDetector:
             and o.loss > 0.45
         )
 
-        if is_gap_high:
+        # Physically grounded signal: depolarizing noise contracts measured expectation values,
+        # so the mean output margin |<Z_0>| drops sharply relative to its recent maximum while the
+        # loss rises. (Learning-rate blow-ups move parameters, not the overall margin scale.)
+        margin = getattr(o, "output_margin", float("nan"))
+        margin_ref = getattr(s, "margin_max", float("nan"))
+        is_margin_contracted = (
+            np.isfinite(margin) and np.isfinite(margin_ref) and margin_ref > 0.05
+            and margin < self.thresholds.noise_margin_ratio_max * margin_ref
+            and o.parameter_velocity < 0.5
+            and s.loss_delta_recent >= -0.005
+        )
+
+        if is_margin_contracted:
+            is_triggered = True
+            evidence.append(
+                f"Measured output margin contracted to {margin / margin_ref:.0%} of its window maximum "
+                f"({margin:.3f} vs {margin_ref:.3f}), consistent with depolarizing expectation-value damping."
+            )
+        elif is_gap_high:
             is_triggered = True
             evidence.append(
                 f"Train-validation loss divergence ({gap:.3f} > {self.thresholds.noise_train_val_gap_min}) "

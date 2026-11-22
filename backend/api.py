@@ -269,7 +269,17 @@ class GlobalStateManager:
     async def run_training_loop(self) -> None:
         """Asynchronous autonomous training worker."""
         try:
-            while self.is_running and self.pipeline and self.pipeline.step_count < self.max_steps:
+            def _validating() -> bool:
+                dep = self.pipeline.deployment_mgr.active_deployment if self.pipeline else None
+                return dep is not None and getattr(dep.status, "value", str(dep.status)) == "VALIDATING"
+
+            # Finish an in-flight validation window before stopping, so a run never ends with a
+            # dangling, never-committed/never-rolled-back deployment (bounded overrun).
+            hard_cap = self.max_steps + 10
+            while self.is_running and self.pipeline and (
+                self.pipeline.step_count < self.max_steps
+                or (_validating() and self.pipeline.step_count < hard_cap)
+            ):
                 payload = self.execute_single_step()
                 await self.broadcast({"type": "step_telemetry", "payload": payload})
                 if self.step_delay_ms > 0:
