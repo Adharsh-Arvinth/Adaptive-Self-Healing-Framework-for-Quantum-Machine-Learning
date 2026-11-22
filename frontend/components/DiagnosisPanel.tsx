@@ -68,9 +68,9 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
                 <Meter value={primary ? confidence : 0} tone={gate ? "warn" : "info"} label="Diagnosis confidence" />
                 <span className="absolute -top-1 h-4 w-px bg-[var(--content-primary)]" style={{ left: `${GATE * 100}%` }} aria-hidden="true" />
               </div>
-              <div className="flex justify-between text-xs text-[var(--content-tertiary)] mt-1.5">
+              <div className="relative flex justify-between text-xs text-[var(--content-tertiary)] mt-1.5">
                 <span>0%</span>
-                <span style={{ marginLeft: `${GATE * 100 - 12}%` }}>gate 60%</span>
+                <span className="absolute -translate-x-1/2 whitespace-nowrap" style={{ left: `${GATE * 100}%` }}>gate 60%</span>
                 <span>100%</span>
               </div>
             </div>
@@ -85,7 +85,13 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({ diagnosis, activ
                 ))}
               </div>
             ) : (
-              <p className="text-sm text-[var(--content-secondary)]">None. All telemetry is within its normal range.</p>
+              <p className="text-sm text-[var(--content-secondary)]">
+                {primary && gate
+                  ? "No new anomaly since this diagnosis. The chosen repair is on probation; see Deployment for the outcome."
+                  : primary
+                  ? "Nothing confirmed yet; evidence is still being collected."
+                  : "None. All telemetry is within its normal range."}
+              </p>
             )}
           </div>
         </div>

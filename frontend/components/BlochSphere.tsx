@@ -130,7 +130,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
         </div>
         <div className="flex items-center gap-2">
           <span
-            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border type-label tabular ${
+            className={`inline-flex items-center gap-1.5 h-7 px-2.5 rounded-full border type-label !normal-case tabular ${
               purityPhysical >= 0.95
                 ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-c-status-success/20"
                 : "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-c-status-warning/20"
