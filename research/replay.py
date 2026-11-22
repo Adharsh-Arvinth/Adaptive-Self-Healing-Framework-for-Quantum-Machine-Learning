@@ -21,6 +21,8 @@ import numpy as np
 ARMS = ["change_optimizer", "reduce_circuit_depth", "modify_feature_map",
         "adjust_learning_rate", "apply_noise_mitigation", "perform_warm_restart"]
 EXT_ARMS = ARMS + ["rollback_healthy"]          # extended library with checkpoint restore
+EXT2_ARMS = ARMS + ["rollback_healthy", "rollback_clean"]  # latent regime: recent (maybe faulty) and older clean checkpoint
+RESTORES = ("rollback_healthy", "rollback_clean")
 HEURISTIC_MAP = {                                # AUTOTRAINER-style fixed diagnosis -> fix map
     "barren_plateau": "reduce_circuit_depth",
     "persistent_plateau": "adjust_learning_rate",
@@ -54,8 +56,9 @@ def outcome(ep: dict, action: str, guarded: bool = True) -> dict:
 def eligible(ep: dict, arms: List[str], use_safety: bool = True, use_twin_gate: bool = True) -> List[str]:
     el = []
     for a in arms:
-        if a == "rollback_healthy":
-            el.append(a)
+        if a in RESTORES:
+            if a in ep["outcomes"]:
+                el.append(a)
             continue
         if use_safety and not ep["safety"][a]["safe"]:
             continue
@@ -63,7 +66,7 @@ def eligible(ep: dict, arms: List[str], use_safety: bool = True, use_twin_gate: 
             continue
         el.append(a)
     if use_twin_gate:
-        twin_ok = [a for a in el if a == "rollback_healthy" or ep["twin"][a]["viable"]]
+        twin_ok = [a for a in el if a in RESTORES or ep["twin"][a]["viable"]]
         if twin_ok:
             el = twin_ok
     return el or ["perform_warm_restart"]
@@ -209,7 +212,7 @@ def run_policy(spec: PolicySpec, episodes: List[dict], order: np.ndarray, seed: 
             if spec.kind == "hybrid" and c not in spec.adaptive_classes:
                 a = "rollback_healthy"
             else:
-                cand = [k for k in el if not (spec.kind == "hybrid" and k == "rollback_healthy")] or el
+                cand = [k for k in el if not (spec.kind == "hybrid" and k in RESTORES)] or el
                 draws = {}
                 for k in cand:
                     n, sm = cls_n[(c, k)], cls_s[(c, k)]
@@ -285,6 +288,23 @@ def default_policies() -> List[PolicySpec]:
         PolicySpec("Oracle (6 arms)", "oracle"),
         PolicySpec("Oracle (extended library)", "oracle", arms=EXT_ARMS),
         PolicySpec("Oracle (ext. library, learned gate)", "oracle", arms=EXT_ARMS, gate_source="learned"),
+    ]
+
+
+def latent_policies() -> List[PolicySpec]:
+    """Latent-fault regime: the most recent checkpoint may itself carry the fault."""
+    L = dict(diag_source="learned", gate_source="learned")
+    return [
+        PolicySpec("No repair (continue)", "noop"),
+        PolicySpec("Restore latest checkpoint", "rollback", **L),
+        PolicySpec("Restore older clean checkpoint", "fixed", arms=EXT2_ARMS, fixed_arm="rollback_clean", **L),
+        PolicySpec("Random action", "random", arms=EXT2_ARMS, **L),
+        PolicySpec("Rule map + learned diagnosis", "heuristic", **L),
+        PolicySpec("Thompson Sampling (6 arms)", "ts", **L),
+        PolicySpec("TS + learned diagnosis, checkpoints", "ts", arms=EXT2_ARMS, add_diag=True, **L),
+        PolicySpec("Diagnosis-conditioned TS, checkpoints", "class_ts", arms=EXT2_ARMS, **L),
+        PolicySpec("Oracle (6 arms)", "oracle", **L),
+        PolicySpec("Oracle (arms + checkpoints)", "oracle", arms=EXT2_ARMS, **L),
     ]
 
 

@@ -54,7 +54,7 @@ def fig_landscape(S):
     A = S["A_landscape"]
     rows = ["nominal", "barren_plateau", "lr_misconfiguration", "optimizer_instability",
             "training_divergence", "persistent_plateau", "noise_degradation"]
-    cols = list(ACTION_LABEL)
+    cols = [a for a in ACTION_LABEL if a in A["nominal"]]
     M = np.array([[A[r][c]["recovery"] * 100 for c in cols] for r in rows])
     fig, ax = plt.subplots(figsize=(7.0, 3.1))
     im = ax.imshow(M, cmap=SEQ, vmin=0, vmax=100, aspect="auto")
@@ -82,7 +82,12 @@ def fig_regret(S):
     show = [("Random arm", MUTED, "--"), ("Fixed rule map (AutoTrainer-style)", INK2, ":"),
             ("LinUCB", AQUA, "-"), ("Thompson Sampling (proposed)", BLUE, "-")]
     fig, ax = plt.subplots(figsize=(3.5, 2.6))
+    if "Random arm" not in C:  # latent regime uses different policy names
+        show = [("Random action", MUTED, "--"), ("Rule map + learned diagnosis", INK2, ":"),
+                ("Diagnosis-conditioned TS, checkpoints", BLUE, "-")]
     for name, col, ls in show:
+        if name not in C:
+            continue
         c = C[name]
         x = np.arange(len(c["mean"])) * 10
         ax.plot(x, c["mean"], color=col, ls=ls, lw=2 if "proposed" in name else 1.4)
@@ -108,7 +113,9 @@ def fig_policies(S):
     cols = [BLUE if "proposed" in n or n.startswith("TS") else "#b9c7d8" for n in names]
     ax.barh(y, vals, color=cols, height=0.62)
     ax.errorbar(vals, y, xerr=[vals - lo, hi - vals], fmt="none", ecolor=INK2, elinewidth=0.9, capsize=2)
-    for n, ref in (("Oracle (6 arms)", ORANGE), ("Oracle (extended library)", ORANGE)):
+    for n, ref in (("Oracle (6 arms)", ORANGE), ("Oracle (extended library)", ORANGE), ("Oracle (arms + checkpoints)", ORANGE)):
+        if n not in P:
+            continue
         v = P[n]["recovered"] * 100
         ax.axvline(v, color=ref, lw=1, ls="--" if "6 arms" in n else ":")
         ax.text(v, -1.15, "oracle" + (" (6 arms)" if "6 arms" in n else " (ext.)"), color=INK2, fontsize=6.5, ha="center", va="top", bbox=dict(facecolor="white", edgecolor="none", pad=1.5))

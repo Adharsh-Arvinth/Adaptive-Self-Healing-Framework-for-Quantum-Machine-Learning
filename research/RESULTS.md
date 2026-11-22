@@ -170,3 +170,76 @@ Friedman test across the six learning/heuristic policies (reward): chi2 = 321.5,
 - Twin veto: precision 90.5% (vetoed repairs that were indeed bad), recall 34.1% (bad repairs caught).
 - Short-window reward vs eventual accuracy gap: Spearman 0.459; point-biserial vs recovery 0.387 (n = 4620).
 
+## Latent faults (fault starts 4 steps before the latest checkpoint)
+
+1540 episodes. Recovery = mean test accuracy over the last 3 steps within 5 points of the fault-free run at the same step.
+
+### Counterfactual recovery (%) by fault and action
+
+| Condition | n | No repair | Restore ckpt | Optimizer | Depth | Feat. map | LR | Mitigation | Warm restart | Restore clean ckpt | Best arm (6) |
+|---|---|---|---|---|---|---|---|---|---|---|---|
+| Nominal | 220 | 100 | 90 | 92 | 26 | 15 | 85 | 100 | 90 | 80 | 100 |
+| Barren plateau (emul.) | 220 | 19 | 20 | 11 | 10 | 7 | 14 | 19 | 45 | 85 | 56 |
+| LR too large | 220 | 52 | 49 | 5 | 27 | 14 | 54 | 52 | 43 | 86 | 78 |
+| Optimizer corrupted | 220 | 5 | 5 | 84 | 24 | 5 | 7 | 5 | 61 | 85 | 89 |
+| Divergence (NaN) | 220 | 0 | 0 | 0 | 0 | 0 | 0 | 0 | 56 | 89 | 56 |
+| Step-size collapse | 220 | 28 | 28 | 28 | 6 | 6 | 86 | 28 | 29 | 85 | 89 |
+| Noise degradation | 220 | 70 | 62 | 73 | 19 | 9 | 67 | 71 | 70 | 58 | 82 |
+
+### Diagnosis
+
+| Diagnoser | Macro-F1 | Notes |
+|---|---|---|
+| Expert rules (online, gated) | 0.473 | false gate on healthy runs 16.8%, coverage 92.1%, admitted precision 49.6% |
+| Learned, leave-one-dataset-out | 0.975 | ECE 0.021, false alarms 6.4%, detection recall 98.6% |
+| Learned, seed-disjoint | 0.976 | train seeds < 9, test seeds >= |
+
+Per-dataset macro-F1 (LODO): banknote 1.00, breast_cancer 0.98, circles 0.95, digits 0.94, hidden_manifold 0.98, iris 0.99, linearly_separable 0.97, moons 0.99, pima_diabetes 0.97, two_curves 0.99, wine 0.98
+
+### Repair policies (faulty episodes; mean over random episode orders; 95% cluster-bootstrap CI)
+
+| Policy | Recovery % | 95% CI | Acc. gap (pp) | Harmful commits % | Healthy-run interventions % |
+|---|---|---|---|---|---|
+| No repair (continue) | 28.9 | 26.2-31.5 | -25.3 | 0.0 | 0.0 |
+| Restore latest checkpoint | 27.9 | 25.2-30.8 | -25.6 | 8.7 | 6.4 |
+| Restore older clean checkpoint | 81.4 | 77.3-85.2 | -1.6 | 4.8 | 6.4 |
+| Random action | 44.1 | 41.4-46.8 | -15.2 | 9.8 | 6.4 |
+| Rule map + learned diagnosis | 59.5 | 56.1-62.7 | -8.4 | 6.5 | 6.4 |
+| Thompson Sampling (6 arms) | 44.1 | 41.0-47.1 | -12.8 | 9.6 | 6.4 |
+| TS + learned diagnosis, checkpoints | 54.1 | 51.4-56.8 | -10.6 | 7.9 | 6.4 |
+| Diagnosis-conditioned TS, checkpoints | 55.4 | 52.6-58.0 | -10.2 | 7.6 | 6.4 |
+| Oracle (6 arms) | 56.8 | 53.5-60.2 | -8.7 | 9.2 | 6.4 |
+| Oracle (arms + checkpoints) | 76.4 | 72.9-79.5 | -2.7 | 6.1 | 6.4 |
+
+Paired Wilcoxon on per-run means vs. the diagnosis-conditioned TS policy (recovery), Holm-corrected:
+
+| Comparator | Diff (pp) | p (Holm) | Cohen's d_z |
+|---|---|---|---|
+| Random action | +11.3 | <1e-6 | 1.78 |
+| Rule map + learned diagnosis | -4.2 | 7.5e-06 | -0.29 |
+| Thompson Sampling (6 arms) | +11.3 | <1e-6 | 0.99 |
+| TS + learned diagnosis, checkpoints | +1.3 | 4.24e-05 | 0.29 |
+| Restore latest checkpoint | +27.5 | <1e-6 | 2.08 |
+| Restore older clean checkpoint | -26.0 | <1e-6 | -1.36 |
+
+Friedman test across the six learning/heuristic policies (reward): chi2 = 818.6, p = <1e-6, 220 blocks.
+
+### Ablation of the Thompson-sampling pipeline
+
+| Variant | Recovery % | Harmful % | p (Holm, recovery) |
+|---|---|---|---|
+| TS full | 44.2 | 9.4 | - |
+| TS - digital-twin features | 44.2 | 9.7 | 1 |
+| TS - twin viability gate | 37.7 | 9.7 | <1e-6 |
+| TS - twin (features + gate) | 37.3 | 10.1 | <1e-6 |
+| TS - episodic memory | 44.3 | 9.3 | 1 |
+| TS - safety filter | 44.2 | 9.4 | 1 |
+| TS - deployment guard | 44.3 | 16.8 | 1 |
+| TS - confidence gate (always act) | 44.3 | 9.9 | 1 |
+
+### Digital twin and reward signal
+
+- Twin prediction vs realised test accuracy: Spearman 0.524 (within-episode rank correlation 0.427, n = 7920).
+- Twin veto: precision 90.2% (vetoed repairs that were indeed bad), recall 34.3% (bad repairs caught).
+- Short-window reward vs eventual accuracy gap: Spearman 0.443; point-biserial vs recovery 0.309 (n = 10560).
+

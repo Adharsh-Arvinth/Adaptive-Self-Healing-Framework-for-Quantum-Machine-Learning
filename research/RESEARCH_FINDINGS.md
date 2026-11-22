@@ -153,11 +153,23 @@ qualitative conclusion.
   accuracy as no repair** (70% vs 70% on noise episodes). For a sign-based classifier under global depolarizing
   noise it cannot flip a prediction, and Adam is invariant to the gradient rescaling it causes.
 
+### 4.8 Latent faults: when the latest checkpoint is already broken
+Regime `latent4` (1,540 episodes, 220 runs): the fault starts 4 steps **before** the periodic checkpoint, so the
+most recent checkpoint carries it. A second restore action, the older clean checkpoint, is evaluated.
+- Restoring the **latest** checkpoint recovers only **27.9%** (no better than no repair, 28.9%).
+- Restoring the **older clean** checkpoint recovers **81.4%** (77.3-85.2): checkpoint history depth, not repair
+  selection, decides the outcome.
+- Diagnosis-matched repairs are competitive fault by fault (optimizer change 84% on corrupted optimizer state,
+  LR re-anchoring 86% on step-size collapse) and win for device noise (73% vs 58%), where rollback cannot help.
+- The learned diagnoser transfers again (LODO macro-F1 0.975; rules 0.47).
+- Learning policies over arms + checkpoints reach 54-55%; the reward-optimal oracle (76.4%) is again below the
+  clean restore (81.4%): the short-window reward remains misaligned with recovery.
+
 ---
 
 ## Part 5 - Implications for the paper
 
-What the evidence **supports**:
+What the evidence **supports** (updated with the latent-fault regime):
 1. A released, counterfactual benchmark of VQC training faults (QFaultBench-VQC) that allows exact regret
    evaluation of any repair policy: a dataset contribution reviewers can reuse.
 2. A learned, scale-free telemetry diagnoser that transfers to unseen datasets (0.98 vs 0.40 macro-F1) and to
@@ -169,6 +181,11 @@ What the evidence **supports**:
 
 What it **does not support**: the original headline that contextual Thompson sampling is the core contribution or
 that it outperforms simpler baselines.
+
+5. **Fault-onset localisation is the missing capability.** Under latent faults the right action is "restore the
+   newest checkpoint that predates the fault", so a practical self-healing system must estimate *when* a fault
+   began, not only *what* it is. This is a concrete, novel problem the benchmark exposes, and a natural extension
+   of the learned telemetry diagnoser.
 
 Framing options (decision for the author):
 - **A. Benchmark + diagnosis paper.** "QFaultBench-VQC: a counterfactual benchmark for training-fault diagnosis and

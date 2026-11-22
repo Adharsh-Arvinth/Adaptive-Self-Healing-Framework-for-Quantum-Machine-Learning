@@ -22,7 +22,7 @@ from typing import Dict, List
 import numpy as np
 from scipy import stats
 
-from research.replay import ARMS, EXT_ARMS, ablation_policies, default_policies, outcome, run_policy
+from research.replay import ARMS, EXT_ARMS, ablation_policies, default_policies, latent_policies, outcome, run_policy
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW = os.path.join(ROOT, "research", "data", "raw")
@@ -84,6 +84,8 @@ def boot_ci(x: np.ndarray, groups: np.ndarray, n_boot: int = 2000, seed: int = 0
 # ----------------------------------------------------------------------------------------------
 
 def section_a(eps):
+    global ACTIONS
+    ACTIONS = eps[0].get("actions", ACTIONS) if eps else ACTIONS
     res = {}
     for cond in ["nominal"] + FAULTS:
         E = [e for e in eps if e["condition"] == cond]
@@ -412,7 +414,7 @@ def write_web_summary(eps, S):
         "reward_alignment": round(S["D_reward_alignment"]["spearman_reward_vs_acc_gap"], 3),
     }
     paths = [os.path.join(OUT, "web_summary.json")]
-    if REGIME == "ideal":
+    if REGIME == "ideal" and not os.environ.get("NO_WEB"):
         paths.append(os.path.join(ROOT, "frontend", "public", "data", "qfaultbench_results.json"))
     for path in paths:
         os.makedirs(os.path.dirname(path), exist_ok=True)
@@ -428,20 +430,31 @@ def main():
     B = section_b(eps)
     C = section_c(eps)
     F = section_f(eps)
-    pol, per_ep, curves = replay(eps, default_policies())
+    latent = REGIME.startswith("latent")
+    pol, per_ep, curves = replay(eps, latent_policies() if latent else default_policies())
     abl, per_ep_abl, curves_abl = replay(eps, ablation_policies())
-    learners = ["Random arm", "Fixed rule map (AutoTrainer-style)", "Greedy linear", "epsilon-greedy linear",
-                "LinUCB", "Thompson Sampling (proposed)"]
-    tests_reward = paired_tests(eps, {k: per_ep[k] for k in per_ep if k in learners}, "Thompson Sampling (proposed)", "reward")
-    tests_recov = paired_tests(eps, {k: per_ep[k] for k in per_ep if k in learners}, "Thompson Sampling (proposed)", "recovered")
     tests_abl = paired_tests(eps, per_ep_abl, "TS full", "reward")
     tests_abl_rec = paired_tests(eps, per_ep_abl, "TS full", "recovered")
-    fr = friedman(eps, per_ep, learners, "reward")
+    if not latent:
+        learners = ["Random arm", "Fixed rule map (AutoTrainer-style)", "Greedy linear", "epsilon-greedy linear",
+                    "LinUCB", "Thompson Sampling (proposed)"]
+        tests_reward = paired_tests(eps, {k: per_ep[k] for k in per_ep if k in learners}, "Thompson Sampling (proposed)", "reward")
+        tests_recov = paired_tests(eps, {k: per_ep[k] for k in per_ep if k in learners}, "Thompson Sampling (proposed)", "recovered")
+        fr = friedman(eps, per_ep, learners, "reward")
+    else:
+        learners = [n for n in ["Random action", "Rule map + learned diagnosis", "Thompson Sampling (6 arms)",
+                                "TS + learned diagnosis, checkpoints", "Diagnosis-conditioned TS, checkpoints",
+                                "Restore latest checkpoint", "Restore older clean checkpoint"] if n in per_ep]
+        tests_reward = paired_tests(eps, {k: per_ep[k] for k in learners}, "Diagnosis-conditioned TS, checkpoints", "reward")
+        tests_recov = paired_tests(eps, {k: per_ep[k] for k in learners}, "Diagnosis-conditioned TS, checkpoints", "recovered")
+        fr = friedman(eps, per_ep, learners, "reward")
     integ = ["Hybrid: restore + TS for environmental faults", "Restore checkpoint, learned gate",
              "TS + learned diagnosis, ext. library", "Class-conditioned TS, ext. library", "Rule map + learned diagnosis",
              "TS + learned diagnosis (6 arms)", "Thompson Sampling (proposed)", "Restore last healthy checkpoint", "Random arm"]
-    tests_integ_rec = paired_tests(eps, {k: per_ep[k] for k in integ}, integ[0], "recovered")
-    tests_integ_gap = paired_tests(eps, {k: per_ep[k] for k in integ}, integ[0], "acc_gap")
+    if latent:
+        integ = ["Diagnosis-conditioned TS, checkpoints"] + [n for n in learners if n != "Diagnosis-conditioned TS, checkpoints"]
+    tests_integ_rec = paired_tests(eps, {k: per_ep[k] for k in integ if k in per_ep}, integ[0], "recovered")
+    tests_integ_gap = paired_tests(eps, {k: per_ep[k] for k in integ if k in per_ep}, integ[0], "acc_gap")
     # Reward alignment: does the W_val=3 multi-objective reward track the eventual outcome?
     rw, ac, rc = [], [], []
     for e in eps:

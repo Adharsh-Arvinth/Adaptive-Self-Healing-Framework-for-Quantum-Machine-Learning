@@ -33,7 +33,7 @@ TEL = ["loss", "val_loss", "acc", "val_acc", "grad_norm", "grad_var", "velocity"
 
 def main():
     os.makedirs(OUT, exist_ok=True)
-    eps = load_episodes("ideal") + load_episodes("hw_torino")
+    eps = load_episodes("ideal") + load_episodes("hw_torino") + load_episodes("latent4")
     reg = lambda e: e.get("regime", "ideal")
     warm = {(e["dataset"], e["seed"], reg(e)): e["warm_telemetry"] for e in eps if e.get("warm_telemetry")}
 
@@ -65,7 +65,7 @@ def main():
         w.writerow(["episode_id", "action", "applied", "accepted", "reject_reason", "reward", "test_acc3",
                     "ref_test_acc3", "acc_gap", "recovered", "test_loss3", "final_finite"])
         for e in eps:
-            for a in ACTIONS:
+            for a in e.get("actions", ACTIONS):
                 o = e["outcomes"][a]
                 w.writerow([e["episode_id"], a, int(o["applied"]), int(o["accepted"]), o["reject_reason"] or "",
                             round(o["reward"], 5), round(o["test_acc3"], 5), round(o["ref_test_acc3"], 5),
@@ -109,6 +109,8 @@ Splits per seed: train 55% / twin 10% / val 15% / test 20%.
 
 ## Regimes
 - `ideal`: noiseless statevector training ({len(eps) - n_hw} episodes); the noise fault is an emulated degradation.
+- `latent4`: the fault starts 4 steps before the periodic checkpoint, so the latest checkpoint already
+  carries it; outcomes include an extra action, `rollback_clean` (restore the older clean checkpoint).
 - `hw_torino`: training under an IBM Torino (Heron) calibration-derived noise baseline - per-layer depolarizing
   p from median gate errors, median readout error, 1,024-shot sampling noise - where the noise fault is a
   calibration-drift event multiplying error rates by 3-5x ({n_hw} episodes). See `research/external/README.md`.

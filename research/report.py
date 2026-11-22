@@ -10,10 +10,11 @@ import os
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RES = os.path.join(ROOT, "research", "results")
 REGIMES = [("ideal", "Ideal (noiseless statevector)", os.path.join(RES, "summary.json")),
-           ("hw_torino", "Hardware-calibrated (IBM Torino noise baseline)", os.path.join(RES, "hw_torino", "summary.json"))]
+           ("hw_torino", "Hardware-calibrated (IBM Torino noise baseline)", os.path.join(RES, "hw_torino", "summary.json")),
+           ("latent4", "Latent faults (fault starts 4 steps before the latest checkpoint)", os.path.join(RES, "latent4", "summary.json"))]
 ACTIONS = ["noop", "rollback_healthy", "change_optimizer", "reduce_circuit_depth", "modify_feature_map",
            "adjust_learning_rate", "apply_noise_mitigation", "perform_warm_restart"]
-ACT = {"noop": "No repair", "rollback_healthy": "Restore ckpt", "change_optimizer": "Optimizer", "reduce_circuit_depth": "Depth",
+ACT = {"noop": "No repair", "rollback_healthy": "Restore ckpt", "rollback_clean": "Restore clean ckpt", "change_optimizer": "Optimizer", "reduce_circuit_depth": "Depth",
        "modify_feature_map": "Feat. map", "adjust_learning_rate": "LR", "apply_noise_mitigation": "Mitigation",
        "perform_warm_restart": "Warm restart"}
 CONDS = ["nominal", "barren_plateau", "lr_misconfiguration", "optimizer_instability", "training_divergence",
@@ -36,11 +37,12 @@ def section(key, title, S):
     n_base = len({k for k in S["A_landscape"]["_healthy_reference_by_dataset"]})
     L = [f"## {title}", "", f"{S['n_episodes']} episodes. Recovery = mean test accuracy over the last 3 steps within 5 points of the fault-free run at the same step.", ""]
 
+    acts = ACTIONS + (["rollback_clean"] if "rollback_clean" in A["nominal"] else [])
     L += ["### Counterfactual recovery (%) by fault and action", "",
-          "| Condition | n | " + " | ".join(ACT[a] for a in ACTIONS) + " | Best arm (6) |",
-          "|---|---|" + "---|" * (len(ACTIONS) + 1)]
+          "| Condition | n | " + " | ".join(ACT[a] for a in acts) + " | Best arm (6) |",
+          "|---|---|" + "---|" * (len(acts) + 1)]
     for c in CONDS:
-        L.append(f"| {COND[c]} | {A[c]['n']} | " + " | ".join(f"{100 * A[c][a]['recovery']:.0f}" for a in ACTIONS)
+        L.append(f"| {COND[c]} | {A[c]['n']} | " + " | ".join(f"{100 * A[c][a]['recovery']:.0f}" for a in acts)
                  + f" | {100 * A[c]['any_arm_recovers']:.0f} |")
     L.append("")
 
@@ -57,7 +59,8 @@ def section(key, title, S):
     for n, r in S["D_policies"].items():
         L.append(f"| {n} | {pct(r['recovered'])} | {pct(r['recovered_ci'][0])}-{pct(r['recovered_ci'][1])} | {100 * r['acc_gap']:+.1f} | {pct(r['harmful'])} | {pct(r['nominal_intervention_rate'])} |")
     L.append("")
-    L += ["Paired Wilcoxon on per-run means vs. the hybrid policy (recovery), Holm-corrected:", "",
+    ref = "the diagnosis-conditioned TS policy" if key.startswith("latent") else "the hybrid policy"
+    L += [f"Paired Wilcoxon on per-run means vs. {ref} (recovery), Holm-corrected:", "",
           "| Comparator | Diff (pp) | p (Holm) | Cohen's d_z |", "|---|---|---|---|"]
     for n, t in S["D_tests_integrated_recovery"].items():
         L.append(f"| {n} | {100 * t['mean_diff']:+.1f} | {p_fmt(t['p_holm'])} | {t['cohens_dz']:.2f} |")
