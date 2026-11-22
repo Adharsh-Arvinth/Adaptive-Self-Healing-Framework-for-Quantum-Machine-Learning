@@ -179,10 +179,15 @@ export const SiteFooter: React.FC<{ isConnected: boolean }> = ({ isConnected }) 
           </div>
         </div>
 
-        <div className="lg:col-span-6 lg:pl-8 flex flex-col justify-end">
+        <div className="lg:col-span-6 lg:pl-8 flex flex-col justify-end min-w-0" style={{ containerType: "inline-size" }}>
           <div className="type-label text-white/45">Email</div>
           {email ? (
-            <a href={`mailto:${email}`} className="group mt-3 type-wide text-[clamp(1.3rem,2.6vw,2.6rem)] break-all hover:text-[var(--signal-2)] transition-colors duration-200">
+            // Sized to its column (container units) so the address always stays on one line, on every screen.
+            <a
+              href={`mailto:${email}`}
+              className="group mt-3 type-wide text-[clamp(0.9rem,2.2vw,2.4rem)] whitespace-nowrap leading-tight hover:text-[var(--signal-2)] transition-colors duration-200"
+              style={{ fontSize: "min(4.4cqw, 2.6rem)" }}
+            >
               {email}
               <ArrowUpRight className="inline w-[0.8em] h-[0.8em] ml-2 transition-transform duration-300 group-hover:translate-x-1 group-hover:-translate-y-1" />
             </a>
