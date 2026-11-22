@@ -12,44 +12,44 @@ const FAILURE_OPTIONS = [
   {
     type: "lr_misconfiguration",
     label: "LR Misconfig (50x)",
-    desc: "Explodes learning rate causing oscillatory divergence",
+    desc: "Learning rate x50: the loss starts to bounce",
     icon: Zap,
-    color: "text-[var(--status-warning)] hover:border-[var(--status-warning)]/40",
+    color: "text-[var(--status-warning)] hover:border-c-status-warning/40",
   },
   {
     type: "barren_plateau",
     label: "Barren Plateau",
-    desc: "Exponential gradient attenuation surrogate (< 1e-6)",
+    desc: "Gradient signal drops below shot noise (SNR collapse)",
     icon: Compass,
-    color: "text-[var(--status-ansatz)] hover:border-[var(--status-ansatz)]/40",
+    color: "text-[var(--status-ansatz)] hover:border-c-status-ansatz/40",
   },
   {
     type: "optimizer_instability",
     label: "Optimizer Instability",
     desc: "Inverts and corrupts classical momentum buffers",
     icon: Sliders,
-    color: "text-[var(--status-info)] hover:border-[var(--status-info)]/40",
+    color: "text-[var(--status-info)] hover:border-c-status-info/40",
   },
   {
     type: "training_divergence",
     label: "Training Divergence",
     desc: "Injects non-finite parameter tensor triggering divergence",
     icon: Flame,
-    color: "text-[var(--status-danger)] hover:border-[var(--status-danger)]/40",
+    color: "text-[var(--status-danger)] hover:border-c-status-danger/40",
   },
   {
     type: "persistent_plateau",
-    label: "Persistent Plateau",
-    desc: "Pins parameter trajectory to zero-curvature saddle",
+    label: "Step-Size Collapse",
+    desc: "Learning rate collapses 1000x: live gradients, no motion",
     icon: ShieldX,
-    color: "text-[var(--accent)] hover:border-[var(--accent)]/40",
+    color: "text-[var(--accent)] hover:border-c-accent/40",
   },
   {
     type: "noise_degradation",
     label: "Noise Degradation",
-    desc: "Radial contraction decoherence & readout noise channel",
+    desc: "Per-layer depolarizing contraction plus shot noise",
     icon: Radio,
-    color: "text-[var(--status-purity)] hover:border-[var(--status-purity)]/40",
+    color: "text-[var(--status-purity)] hover:border-c-status-purity/40",
   },
 ];
 
@@ -104,7 +104,7 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
                 onClick={() => setSeverity(s)}
                 className={`px-2.5 py-1 rounded-lg text-[10px] font-mono font-medium transition-all ${
                   severity === s
-                    ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-[var(--status-danger)]/40 shadow-sm"
+                    ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border border-c-status-danger/40 shadow-sm"
                     : "glass-panel-subtle text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                 }`}
               >

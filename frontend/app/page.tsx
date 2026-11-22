@@ -2,18 +2,8 @@
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Header } from "@/components/Header";
-import { HeroSection } from "@/components/HeroSection";
-import { StoryChapter1Challenge } from "@/components/StoryChapter1Challenge";
-import { StoryChapter2Breakthrough } from "@/components/StoryChapter2Breakthrough";
-import { StoryChapter3Intelligence } from "@/components/StoryChapter3Intelligence";
-import { StoryChapter4RepairArms } from "@/components/StoryChapter4RepairArms";
-import { StoryChapter5AdaptiveBandit } from "@/components/StoryChapter5AdaptiveBandit";
-import { StoryChapter6DigitalTwinSafety } from "@/components/StoryChapter6DigitalTwinSafety";
-import { StoryChapter7Evidence } from "@/components/StoryChapter7Evidence";
-import { StoryChapter8Limitations } from "@/components/StoryChapter8Limitations";
-import { FinalCtaSection } from "@/components/FinalCtaSection";
+import { Story } from "@/components/story/Story";
 import { DashboardView } from "@/components/DashboardView";
-import { Footer } from "@/components/Footer";
 import { ToastContainer } from "@/components/Toast";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
 import { ErrorBoundary } from "@/components/ErrorBoundary";
@@ -47,6 +37,12 @@ const WS_URL =
 export default function Page() {
   // Primary View Mode: "landing" (Cinematic Editorial Experience) | "dashboard" (Interactive Research Lab)
   const [activeView, setActiveView] = useState<"landing" | "dashboard">("landing");
+  const [tourSignal, setTourSignal] = useState(0);
+
+  // Every view switch starts at the top of the page.
+  useEffect(() => {
+    window.scrollTo({ top: 0, behavior: "auto" });
+  }, [activeView]);
   const [isDarkMode, setIsDarkMode] = useState(true);
 
   // Notifications & Modals
@@ -832,61 +828,14 @@ export default function Page() {
         onResetPrompt={() => setIsResetModalOpen(true)}
         activeView={activeView}
         onToggleView={(view) => setActiveView(view)}
+        onStartTour={() => setTourSignal((n) => n + 1)}
       />
 
-      {/* VIEW CONDITIONAL: LANDING VS DASHBOARD */}
+      {/* VIEW CONDITIONAL: STORY VS LAB */}
       {activeView === "landing" ? (
-        <main className="flex-1 w-full animate-fade-in">
-          {/* Section 1: Hero */}
-          <div id="hero">
-            <HeroSection
-              isConnected={isConnected}
-              pipelineState={pipelineState}
-              stepCount={stepCount}
-              onExploreClick={() => {
-                const el = document.getElementById("the-challenge");
-                if (el) el.scrollIntoView({ behavior: "smooth" });
-              }}
-              onLaunchLabClick={() => setActiveView("dashboard")}
-            />
-          </div>
-
-          {/* Chapter 1: The Challenge */}
-          <StoryChapter1Challenge />
-
-          {/* Chapter 2: The Breakthrough */}
-          <StoryChapter2Breakthrough />
-
-          {/* Chapter 3: The Architecture */}
-          <StoryChapter3Intelligence />
-
-          {/* Chapter 4: Six Repair Mechanisms */}
-          <StoryChapter4RepairArms />
-
-          {/* Chapter 5: Adaptive Intelligence */}
-          <StoryChapter5AdaptiveBandit />
-
-          {/* Chapter 6: Digital Twin and Safety */}
-          <StoryChapter6DigitalTwinSafety />
-
-          {/* Chapter 7: Experimental Evidence */}
-          <StoryChapter7Evidence />
-
-          {/* Chapter 8: Limitations and Research */}
-          <StoryChapter8Limitations />
-
-          {/* Section 12: Final Call to Action */}
-          <div id="cockpit-cta">
-            <FinalCtaSection onLaunchLabClick={() => setActiveView("dashboard")} />
-          </div>
-
-          {/* Section 13: Editorial Brand Footer */}
-          <div id="footer">
-            <Footer />
-          </div>
-        </main>
+        <Story isConnected={isConnected} onLaunchLab={() => setActiveView("dashboard")} />
       ) : (
-        <main className="flex-1 w-full animate-fade-in py-6">
+        <main className="flex-1 w-full animate-fade-in py-6 px-3 sm:px-6 max-w-[1600px] mx-auto bg-grid-theme">
           <ErrorBoundary
             fallbackTitle="Interactive Research Laboratory Interrupted"
             onReturnToOverview={() => setActiveView("landing")}
@@ -932,6 +881,7 @@ export default function Page() {
             stepDelayMs={stepDelayMs}
             onApplyConfig={handleApplyConfig}
             onStartExperimentWithConfig={handleStartExperimentWithConfig}
+            tourSignal={tourSignal}
           />
           </ErrorBoundary>
         </main>

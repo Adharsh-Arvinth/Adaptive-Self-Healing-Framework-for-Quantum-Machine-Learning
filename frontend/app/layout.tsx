@@ -1,29 +1,42 @@
 import type { Metadata, Viewport } from "next";
+import { Archivo, Manrope, DM_Mono } from "next/font/google";
 import "./globals.css";
 
+/* Archivo is variable on weight AND width, so one family gives both the ultra-condensed
+   display cuts and the wide headline cuts. */
+const display = Archivo({
+  subsets: ["latin"],
+  axes: ["wdth"],
+  variable: "--font-display",
+  display: "swap",
+});
+const sans = Manrope({ subsets: ["latin"], variable: "--font-sans", display: "swap" });
+const mono = DM_Mono({ subsets: ["latin"], weight: ["400", "500"], variable: "--font-mono", display: "swap" });
+
 export const metadata: Metadata = {
-  title: "Adaptive Self-Healing Quantum ML | Autonomous VQC Research Platform",
+  title: "Self-Healing Quantum ML",
   description:
-    "Autonomous closed-loop runtime self-healing architecture for Variational Quantum Classifiers (VQCs). Real-time telemetry, Bayesian root-cause diagnosis, Contextual Thompson Sampling, digital-twin validation, and atomic rollback recovery.",
+    "A closed-loop framework that detects, diagnoses and repairs training faults in variational quantum classifiers, with an open counterfactual benchmark across 11 datasets.",
 };
 
 export const viewport: Viewport = {
   width: "device-width",
   initialScale: 1,
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#f2efe8" },
+    { media: "(prefers-color-scheme: dark)", color: "#0a0a0b" },
+  ],
 };
 
-export default function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
+export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   return (
-    <html lang="en" className="dark" style={{ colorScheme: "dark" }} suppressHydrationWarning>
-      <body
-        className="antialiased min-h-screen bg-bg-primary text-content-primary selection:bg-accent/20 selection:text-content-primary"
-      >
-        {children}
-      </body>
+    <html
+      lang="en"
+      className={`dark ${display.variable} ${sans.variable} ${mono.variable}`}
+      style={{ colorScheme: "dark" }}
+      suppressHydrationWarning
+    >
+      <body className="antialiased min-h-screen">{children}</body>
     </html>
   );
 }

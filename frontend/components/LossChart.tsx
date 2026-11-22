@@ -315,7 +315,7 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
         {/* Meaningful Idle State Notice Overlay if No Data */}
         {!hasData && (
           <div className="absolute inset-0 flex flex-col items-center justify-center pointer-events-none p-4">
-            <div className="max-w-md bg-[var(--bg-surface)]/95 backdrop-blur-sm border border-[var(--border-subtle)] p-4 rounded-xl shadow-sm text-center">
+            <div className="max-w-md bg-c-bg-surface/95 backdrop-blur-sm border border-[var(--border-subtle)] p-4 rounded-xl shadow-sm text-center">
               <div className="flex items-center justify-center gap-1.5 text-xs font-semibold text-[var(--content-primary)]">
                 <Sparkles className="w-3.5 h-3.5 text-[var(--accent)]" />
                 <span>Simulation Ready for Execution</span>

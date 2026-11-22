@@ -379,7 +379,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       </div>
 
       {/* Purity Formula Note */}
-      <div className="w-full mt-2 pt-1 text-[9px] font-mono text-[var(--content-secondary)] flex items-center justify-between border-t border-[var(--border-subtle)]/50">
+      <div className="w-full mt-2 pt-1 text-[9px] font-mono text-[var(--content-secondary)] flex items-center justify-between border-t border-[var(--border-subtle)]">
         <span className="flex items-center gap-1">
           <Info className="w-2.5 h-2.5 text-[var(--accent)]" />
           <span>Physical γ = (1 + ||r||²)/2</span>

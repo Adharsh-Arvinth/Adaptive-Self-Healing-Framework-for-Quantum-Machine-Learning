@@ -55,7 +55,7 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 01",
     name: "Change Optimizer",
     domain: "Classical Optimization",
-    domainColor: "border-blue-500/30 text-blue-400 bg-blue-500/10",
+    domainColor: "border-c-accent/40 text-[var(--accent)] bg-[var(--accent-subtle)]",
     oneLiner: "Cycles classical optimizer (Adam ↔ RMSprop ↔ SGD) and purges corrupted momentum buffers.",
     mechanism: "Adam ↔ RMSprop ↔ SGD cycling with momentum vector zeroing m_t = 0, v_t = 0.",
     transformation: "θ_{t+1} = θ_t - η · [α·m_t / (√v_t + ε)] → clean classical descent",
@@ -75,15 +75,15 @@ const LOCKED_ARMS: ArmSpec[] = [
     transformation: "U(θ) = ∏_{l=1}^{L-1} W_l(θ_l) V_l(x) — truncates layer L",
     icon: Layers,
     targetParameter: "Ansatz Depth Capacity L",
-    safetyRule: "Hard boundary constraint: ansatz depth cannot be reduced below minimum limit L_min = 2.",
-    boundConstraint: "Boundary Clamp: L ≥ 2 (preserves 2-qubit entanglement expressibility)",
+    safetyRule: "Hard boundary constraint: ansatz depth cannot be reduced below the minimum limit L_min = 1.",
+    boundConstraint: "Boundary Clamp: L ≥ 1 (at least one variational layer is always retained)",
   },
   {
     id: "modify_feature_map",
     number: "ARM 03",
     name: "Modify Feature Map",
     domain: "Quantum Embedding",
-    domainColor: "border-sky-500/30 text-sky-400 bg-sky-500/10",
+    domainColor: "border-c-accent/40 text-[var(--accent)] bg-[var(--accent-subtle)]",
     oneLiner: "Toggles classical data embedding between separable Angle encoding and entangling IQP Hilbert space.",
     mechanism: "Mutates quantum data encoding unitary U_Φ(x) between separable rotations and non-linear entangling Ising gates.",
     transformation: "Angle: ⊗_j R_y(x_j)|0⟩  ⟷  IQP: exp(i ∑_{j,k} x_j x_k Z_j Z_k) ⊗_j H|0⟩",
@@ -196,7 +196,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
             <h3 className="text-sm sm:text-base font-semibold text-[var(--content-primary)] tracking-tight">
               Six-Arm Adaptive Repair Matrix
             </h3>
-            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent)]/30 font-semibold">
+            <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/30 font-semibold">
               Contextual Thompson Sampling
             </span>
             <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--content-secondary)] border border-[var(--border-subtle)]">
@@ -209,7 +209,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
         </div>
 
         <div className="flex items-center gap-2 text-xs shrink-0">
-          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--status-success)]/20 font-medium">
+          <div className="flex items-center gap-1.5 px-3 py-1 rounded-full bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-c-status-success/20 font-medium">
             <Shield className="w-3.5 h-3.5" />
             <span>Safety Filter Active (W_osc = 4)</span>
           </div>
@@ -281,7 +281,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                   : isSelected
                   ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-[0_0_24px_rgba(56,189,248,0.2)]"
                   : isInspected
-                  ? "bg-[var(--bg-surface)] border-[var(--accent)]/60 ring-1 ring-[var(--accent)]/30 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
+                  ? "bg-[var(--bg-surface)] border-c-accent/60 ring-1 ring-c-accent/30 shadow-[0_4px_20px_rgba(0,0,0,0.4)]"
                   : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
               }`}
             >
@@ -317,7 +317,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                         MIN L=2
                       </span>
                     ) : isEligible ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-[var(--status-success)]/30">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-medium bg-[var(--status-success-subtle)] text-[var(--status-success)] border border-c-status-success/30">
                         ELIGIBLE
                       </span>
                     ) : (

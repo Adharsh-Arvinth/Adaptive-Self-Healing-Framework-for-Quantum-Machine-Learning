@@ -154,7 +154,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
           </div>
           <div className="flex items-center gap-2 text-[11px] font-mono text-[var(--content-secondary)]">
             <span>Algorithm:</span>
-            <span className="px-2 py-0.5 rounded bg-[var(--accent-subtle)] text-[var(--accent)] border border-[var(--accent)]/30 font-semibold">
+            <span className="px-2 py-0.5 rounded bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/30 font-semibold">
               Contextual Thompson Sampling
             </span>
           </div>
@@ -196,7 +196,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
                     key={armName}
                     className={`p-2.5 rounded-xl border flex flex-col justify-between transition-all ${
                       isSelected
-                        ? "bg-[var(--accent-subtle)] border-[var(--accent)]/40 shadow-sm"
+                        ? "bg-[var(--accent-subtle)] border-c-accent/40 shadow-sm"
                         : "bg-[var(--bg-surface)] border-[var(--border-subtle)]"
                     }`}
                   >

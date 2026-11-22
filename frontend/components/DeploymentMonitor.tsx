@@ -82,11 +82,11 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
           <div
             className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 shrink-0 ${
               isCommitted
-                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold"
+                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-c-status-success/30 font-semibold"
                 : isRolledBack
-                ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border-[var(--status-danger)]/30 font-semibold"
+                ? "bg-[var(--status-danger-subtle)] text-[var(--status-danger)] border-c-status-danger/30 font-semibold"
                 : isValidating
-                ? "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-[var(--status-warning)]/30 font-semibold"
+                ? "bg-[var(--status-warning-subtle)] text-[var(--status-warning)] border-c-status-warning/30 font-semibold"
                 : "bg-[var(--bg-subtle)] text-[var(--content-secondary)] border-[var(--border-subtle)]"
             }`}
           >
@@ -264,7 +264,7 @@ export const DeploymentMonitor: React.FC<DeploymentMonitorProps> = ({
 
         {/* Interactive Manual Override Controls if Validating */}
         {isValidating && (onCommit || onRollback) && (
-          <div className="mt-3 p-3 rounded-xl bg-[var(--status-info-subtle)] border border-[var(--status-info)]/30 space-y-2">
+          <div className="mt-3 p-3 rounded-xl bg-[var(--status-info-subtle)] border border-c-status-info/30 space-y-2">
             <div className="flex items-center justify-between text-xs text-[var(--status-info)] font-medium">
               <span>Candidate Under Validation</span>
               <span className="font-mono text-[11px]">Validation Window W_val=3</span>

@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   Activity,
   ShieldAlert,
@@ -16,6 +16,7 @@ import {
   ShieldCheck,
   History,
   Search,
+  BarChart3,
 } from "lucide-react";
 import { MetricsRow } from "./MetricsRow";
 import { LossChart } from "./LossChart";
@@ -29,6 +30,7 @@ import { BanditMonitor } from "./BanditMonitor";
 import { SettingsPanel } from "./SettingsPanel";
 import { BenchmarksPanel } from "./BenchmarksPanel";
 import { ErrorBoundary } from "./ErrorBoundary";
+import { LabTour, TourTab } from "./LabTour";
 import {
   TelemetryPoint,
   DiagnosisData,
@@ -51,6 +53,7 @@ export type DashboardTab =
   | "bandit"
   | "memory"
   | "audit"
+  | "evidence"
   | "settings";
 
 interface DashboardViewProps {
@@ -113,7 +116,11 @@ interface DashboardViewProps {
   stepDelayMs?: number;
   onApplyConfig?: (cfg: any) => void;
   onStartExperimentWithConfig?: (cfg: any) => void;
+  /** Incrementing this number (from the header's Tour button) opens the guided tour. */
+  tourSignal?: number;
 }
+
+const TOUR_KEY = "shqml-lab-tour-v1";
 
 export const DashboardView: React.FC<DashboardViewProps> = ({
   isConnected,
@@ -156,8 +163,31 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   stepDelayMs = 250,
   onApplyConfig,
   onStartExperimentWithConfig,
+  tourSignal = 0,
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
+  const [tourOpen, setTourOpen] = useState(false);
+
+  // First visit: open the guided tour automatically (remembered per browser).
+  useEffect(() => {
+    try {
+      if (!window.localStorage.getItem(TOUR_KEY)) setTourOpen(true);
+    } catch {
+      /* storage unavailable: skip auto-open */
+    }
+  }, []);
+  useEffect(() => {
+    if (tourSignal > 0) setTourOpen(true);
+  }, [tourSignal]);
+  const closeTour = useCallback(() => {
+    setTourOpen(false);
+    try {
+      window.localStorage.setItem(TOUR_KEY, "done");
+    } catch {
+      /* ignore */
+    }
+  }, []);
+  const onTourTab = useCallback((t: TourTab) => setActiveTab(t as DashboardTab), []);
   const [memorySearch, setMemorySearch] = useState("");
   const [memoryFilter, setMemoryFilter] = useState("all");
 
@@ -203,6 +233,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
     { id: "bandit" as DashboardTab, label: "Bandit Intelligence", icon: Cpu },
     { id: "memory" as DashboardTab, label: "Persistent Memory", icon: Database },
     { id: "audit" as DashboardTab, label: "Audit History", icon: History },
+    { id: "evidence" as DashboardTab, label: "Evidence", icon: BarChart3 },
     { id: "settings" as DashboardTab, label: "Settings", icon: Settings },
   ];
 
@@ -221,7 +252,8 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
   return (
     <div id="dashboard" className="space-y-6 animate-fade-in pb-16 font-sans">
       {/* Top Laboratory Control Strip */}
-      <div className="glass-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
+      <LabTour open={tourOpen} onClose={closeTour} onTab={onTourTab} />
+      <div data-tour="controls" className="glass-panel p-4 flex flex-col md:flex-row md:items-center justify-between gap-3">
         {/* Left: Decoupled Independent Status Badges */}
         <div className="flex items-center flex-wrap gap-2 sm:gap-3 text-xs">
           <div className="flex items-center gap-2">
@@ -234,7 +266,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           <div className="text-[var(--content-secondary)]">
             Training: <span className={`font-mono font-bold ${
               trainingStateDisplay === "COMPLETED"
-                ? "text-blue-400"
+                ? "text-[var(--accent)]"
                 : trainingStateDisplay === "RUNNING"
                 ? "text-emerald-400"
                 : "text-[var(--content-primary)]"
@@ -310,7 +342,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       </div>
 
       {/* Primary Dashboard Navigation Dock */}
-      <div className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[var(--border-subtle)] scrollbar-none">
+      <div data-tour="tabs" className="flex items-center gap-1.5 overflow-x-auto pb-1 border-b border-[var(--border-subtle)] scrollbar-none">
         {tabs.map((tab) => {
           const TabIcon = tab.icon;
           const isActive = activeTab === tab.id;
@@ -338,7 +370,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           {/* Active Model Topology Strip */}
           <div className="p-3 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] flex flex-wrap items-center justify-between gap-3 text-xs">
             <div className="flex flex-wrap items-center gap-x-4 gap-y-1.5 text-[var(--content-secondary)]">
-              <span>Dataset: <strong className="text-[var(--content-primary)] font-mono">{dataset.toUpperCase()} (Seed 42)</strong></span>
+              <span>Dataset: <strong className="text-[var(--content-primary)] font-mono">{dataset.toUpperCase()} (Seed {seed})</strong></span>
               <span>•</span>
               <span>Topology: <strong className="text-[var(--content-primary)] font-mono">{nQbits} Qubits • {nLayers} Layers</strong></span>
               <span>•</span>
@@ -352,6 +384,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
           </div>
 
           {/* Synchronized Primary Metrics Row */}
+          <div data-tour="metrics">
           <MetricsRow
             loss={stepCount > 0 ? metrics.loss : 0}
             valLoss={stepCount > 0 ? metrics.valLoss : 0}
@@ -364,6 +397,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
             circuitDepth={metrics.circuitDepth}
             purity={physicalPurity}
           />
+          </div>
 
           {/* 2-Column: Training Curve (2/3 width) + Bloch Sphere (1/3 width) */}
           <section className="grid grid-cols-1 lg:grid-cols-3 gap-6">
@@ -385,17 +419,21 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
           {/* 2-Column: Diagnostic Engine + Transactional Deployment Monitor */}
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+            <div data-tour="diagnosis">
+              <DiagnosisPanel diagnosis={diagnosis} activeAnomalies={activeAnomalies} />
+            </div>
+            <div data-tour="deployment">
             <DeploymentMonitor
               deployment={deployment}
               pipelineState={pipelineState}
               onCommit={onCommit}
               onRollback={onRollback}
             />
+            </div>
           </section>
 
           {/* Full-Width 6-Arm Adaptive Repair Matrix */}
-          <section>
+          <section data-tour="repairs">
             <ErrorBoundary fallbackTitle="Repair Actuator Matrix Interrupted">
               <RepairCockpit
                 selectedArm={selectedArm}
@@ -418,7 +456,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       {/* VIEW 2: LIVE EXPERIMENTS & FAULT INJECTION */}
       {activeTab === "experiment" && (
         <div className="space-y-6 animate-fade-in">
-          <section>
+          <section data-tour="inject">
             <FailureInjectionPanel onInject={onInjectFailure} isRunning={isRunning} />
           </section>
           <section className="grid grid-cols-1 lg:grid-cols-2 gap-6">
@@ -429,7 +467,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               <div className="grid grid-cols-2 gap-3 text-xs">
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
                   <span className="text-[11px] text-[var(--content-tertiary)] block">DATASET SEED</span>
-                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{dataset.toUpperCase()} (Seed 42)</span>
+                  <span className="text-[var(--content-primary)] font-semibold mt-0.5 block">{dataset.toUpperCase()} (Seed {seed})</span>
                 </div>
                 <div className="p-3 rounded-lg bg-[var(--bg-subtle)] border border-[var(--border-subtle)]">
                   <span className="text-[11px] text-[var(--content-tertiary)] block">CIRCUIT TOPOLOGY</span>
@@ -588,7 +626,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                     </tr>
                   ) : (
                     filteredEpisodes.map((ep) => (
-                      <tr key={ep.episode_id} className="hover:bg-[var(--bg-subtle)]/50 transition-colors">
+                      <tr key={ep.episode_id} className="hover:bg-c-bg-subtle/50 transition-colors">
                         <td className="p-3 font-semibold text-[var(--content-primary)]">{ep.episode_id.slice(0, 12)}...</td>
                         <td className="p-3 text-[var(--accent)] font-semibold font-sans">{ep.diagnosed_cause}</td>
                         <td className="p-3 text-[var(--content-secondary)] font-sans">{ep.selected_repair}</td>
@@ -698,9 +736,13 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
               onResetToDefaults={onResetPrompt}
             />
           </section>
-          <section>
-            <BenchmarksPanel apiBase={API_BASE} />
-          </section>
+        </div>
+      )}
+
+      {/* VIEW 11: BENCHMARK EVIDENCE */}
+      {activeTab === "evidence" && (
+        <div className="animate-fade-in">
+          <BenchmarksPanel apiBase={API_BASE} />
         </div>
       )}
     </div>

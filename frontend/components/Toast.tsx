@@ -48,7 +48,7 @@ function humanizeToastMessage(title: string, rawMessage: any): {
   if (text.includes("minimum limit") || text.includes("L_min") || text.includes("depth")) {
     return {
       cleanTitle: "Minimum Depth Bound Active",
-      cleanSummary: "Ansatz depth cannot be reduced below L_min = 2 to preserve quantum Hilbert state expressibility.",
+      cleanSummary: "Ansatz depth cannot be reduced below L_min = 1.",
       technicalDetail: text,
     };
   }
@@ -142,10 +142,10 @@ const ToastCard: React.FC<{
         };
       default:
         return {
-          icon: <Info className="w-4 h-4 text-sky-400 shrink-0" />,
-          border: "border-sky-500/30",
+          icon: <Info className="w-4 h-4 text-[var(--accent)] shrink-0" />,
+          border: "border-c-accent/40",
           glow: "shadow-[0_8px_32px_rgba(14,165,233,0.15)]",
-          badgeBg: "bg-sky-500/10 text-sky-300",
+          badgeBg: "bg-[var(--accent-subtle)] text-[var(--accent)]",
         };
     }
   };
@@ -155,7 +155,7 @@ const ToastCard: React.FC<{
   return (
     <div
       role="status"
-      className={`pointer-events-auto flex flex-col p-4 rounded-2xl backdrop-blur-2xl bg-slate-950/95 text-slate-100 border ${theme.border} ${theme.glow} transition-all duration-300 animate-slide-down max-w-full`}
+      className={`pointer-events-auto flex flex-col p-4 rounded-2xl backdrop-blur-2xl bg-c-bg-surface-elevated/95 text-[var(--content-primary)] border ${theme.border} ${theme.glow} transition-all duration-300 animate-slide-down max-w-full`}
     >
       <div className="flex items-start gap-3">
         <div className="mt-0.5">{theme.icon}</div>
@@ -165,13 +165,13 @@ const ToastCard: React.FC<{
               {cleanTitle}
             </h4>
           </div>
-          <p className="text-[12px] text-slate-300 mt-1 leading-relaxed font-sans">
+          <p className="text-[12px] text-[var(--content-primary)] mt-1 leading-relaxed font-sans">
             {cleanSummary}
           </p>
         </div>
         <button
           onClick={onDismiss}
-          className="text-slate-400 hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
+          className="text-[var(--content-secondary)] hover:text-white p-1 rounded-lg hover:bg-white/10 transition-colors shrink-0"
           aria-label="Dismiss notification"
         >
           <X className="w-3.5 h-3.5" />
@@ -183,13 +183,13 @@ const ToastCard: React.FC<{
           <button
             type="button"
             onClick={() => setShowTechnical(!showTechnical)}
-            className="flex items-center gap-1 text-slate-400 hover:text-slate-200 transition-colors font-mono"
+            className="flex items-center gap-1 text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors font-mono"
           >
             <span>{showTechnical ? "Hide technical diagnostic" : "View technical diagnostic"}</span>
             {showTechnical ? <ChevronUp className="w-3 h-3" /> : <ChevronDown className="w-3 h-3" />}
           </button>
           {showTechnical && (
-            <pre className="mt-1.5 p-2 rounded-lg bg-black/60 border border-white/5 font-mono text-slate-300 whitespace-pre-wrap break-all max-h-28 overflow-y-auto">
+            <pre className="mt-1.5 p-2 rounded-lg bg-black/60 border border-white/5 font-mono text-[var(--content-primary)] whitespace-pre-wrap break-all max-h-28 overflow-y-auto">
               {technicalDetail}
             </pre>
           )}

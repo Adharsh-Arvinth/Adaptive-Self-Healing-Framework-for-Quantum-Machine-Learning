@@ -477,7 +477,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       provenance: {
         baseline_commit_full: "7d37201aead20c7e5678585c998b51206bc49339",
         baseline_commit_short: "7d37201",
-        verified_campaign: "Stage 8 Empirical Benchmark (3,000 executed episodes across 900 unique initialisations)",
+        verified_campaign: "QFaultBench-VQC v1 counterfactual campaign (see research/ and /data/qfaultbench_results.json)",
         calibration: {
           episodes_calibration: 150,
           episodes_test_heldout: 150,
@@ -532,7 +532,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <h1 className="text-base font-bold text-[var(--content-primary)] tracking-tight">
               Control Centre &amp; Experiment Configuration
             </h1>
-            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-blue-500/10 text-blue-400 border border-blue-500/20">
+            <span className="px-2 py-0.5 rounded-full text-[10px] font-mono font-semibold bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/40">
               VQC ARCHITECTURE
             </span>
           </div>
@@ -654,7 +654,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         }}
                         className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           themePreference === t.id
-                            ? "bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent)] font-semibold shadow-sm"
+                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold shadow-sm"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -685,7 +685,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         }}
                         className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           densityPreference === d.id
-                            ? "bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
+                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -714,7 +714,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setAnimationSpeed(a.id as "cinematic" | "subtle" | "reduced")}
                         className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           animationSpeed === a.id
-                            ? "bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
+                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -739,7 +739,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setNumericPrecision(p.val)}
                         className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           numericPrecision === p.val
-                            ? "bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
+                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -765,7 +765,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setDefaultChartDisplay(c.id as "dual" | "loss" | "accuracy")}
                         className={`p-2.5 rounded-xl text-xs font-medium border text-center transition-all ${
                           defaultChartDisplay === c.id
-                            ? "bg-[var(--accent)]/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
+                            ? "bg-c-accent/15 border-[var(--accent)] text-[var(--accent)] font-semibold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -860,7 +860,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       <div>
                         <div className="flex items-center justify-between">
                           <h4 className="text-xs font-bold text-[var(--content-primary)]">{p.title}</h4>
-                          <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-[var(--accent)]/10 text-[var(--accent)] border border-[var(--accent)]/20">
+                          <span className="text-[9px] font-mono font-semibold px-1.5 py-0.5 rounded bg-c-accent/10 text-[var(--accent)] border border-c-accent/20">
                             {p.badge}
                           </span>
                         </div>
@@ -911,7 +911,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       onClick={() => setDraftDataset(ds.id)}
                       className={`p-4 rounded-xl border cursor-pointer transition-all flex flex-col justify-between space-y-3 ${
                         draftDataset === ds.id
-                          ? "bg-[var(--accent)]/10 border-[var(--accent)] shadow-sm"
+                          ? "bg-c-accent/10 border-[var(--accent)] shadow-sm"
                           : "bg-[var(--bg-surface)] border-[var(--border-subtle)] hover:border-[var(--border-highlight)]"
                       }`}
                     >
@@ -995,7 +995,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="glass-panel p-6 space-y-6 animate-fade-in">
               <div className="border-b border-[var(--border-subtle)] pb-4">
                 <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                  <Cpu className="w-4 h-4 text-cyan-400" />
+                  <Cpu className="w-4 h-4 text-[var(--accent)]" />
                   Quantum Circuit Architecture &amp; Hilbert Space Mapping
                 </h2>
                 <p className="text-xs text-[var(--content-secondary)] mt-1">
@@ -1010,7 +1010,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <label className="text-xs font-medium text-[var(--content-primary)]">
                       Quantum Register Qubits (n_qubits)
                     </label>
-                    <span className="text-xs font-mono font-bold text-cyan-400">{draftNQbits} Qubits</span>
+                    <span className="text-xs font-mono font-bold text-[var(--accent)]">{draftNQbits} Qubits</span>
                   </div>
                   <div className="grid grid-cols-2 gap-2">
                     {[2, 4].map((q) => (
@@ -1019,7 +1019,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setDraftNQbits(q)}
                         className={`p-3 rounded-xl text-xs font-medium border text-center transition-all ${
                           draftNQbits === q
-                            ? "bg-cyan-500/15 border-cyan-500 text-cyan-400 font-bold"
+                            ? "bg-[var(--accent-subtle)] border-[var(--accent)] text-[var(--accent)] font-bold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -1038,7 +1038,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <label className="text-xs font-medium text-[var(--content-primary)]">
                       Parameterized Ansatz Depth L (Layers)
                     </label>
-                    <span className="text-xs font-mono font-bold text-cyan-400">L = {draftNLayers}</span>
+                    <span className="text-xs font-mono font-bold text-[var(--accent)]">L = {draftNLayers}</span>
                   </div>
                   <input
                     type="range"
@@ -1050,7 +1050,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     className="w-full accent-cyan-400 cursor-pointer"
                   />
                   <div className="flex justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
-                    <span>L = 2 (Min Bound L_min)</span>
+                    <span>L_min = 1 (depth floor)</span>
                     <span>L = 4 (Recommended)</span>
                     <span>L = 6 (Max Depth)</span>
                   </div>
@@ -1074,7 +1074,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setDraftFeatureMap(fm.id)}
                         className={`p-3 rounded-xl text-left border transition-all ${
                           draftFeatureMap.toLowerCase() === fm.id.toLowerCase()
-                            ? "bg-cyan-500/15 border-cyan-500 text-cyan-300 font-semibold"
+                            ? "bg-[var(--accent-subtle)] border-[var(--accent)] text-[var(--accent)] font-semibold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -1089,7 +1089,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 <div className="p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2 flex flex-col justify-between">
                   <div>
                     <span className="text-xs font-bold text-[var(--content-primary)] flex items-center gap-1.5">
-                      <Terminal className="w-3.5 h-3.5 text-cyan-400" />
+                      <Terminal className="w-3.5 h-3.5 text-[var(--accent)]" />
                       Variational Parameter Equation
                     </span>
                     <p className="text-[11px] text-[var(--content-secondary)] mt-1">
@@ -1098,7 +1098,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   </div>
                   <div className="p-3 rounded-lg bg-[var(--bg-primary)] border border-[var(--border-subtle)] font-mono text-xs flex justify-between items-center">
                     <span className="text-[var(--content-secondary)]">Total Variational Weights (&theta;):</span>
-                    <span className="text-cyan-400 font-bold text-sm">
+                    <span className="text-[var(--accent)] font-bold text-sm">
                       {circuitParamCount} parameters
                     </span>
                   </div>
@@ -1420,7 +1420,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <Lock className="w-3.5 h-3.5 text-neutral-500" />
                       </div>
                       <h4 className="text-xs font-bold text-[var(--content-primary)]">{inv.title}</h4>
-                      <div className="font-mono text-[11px] text-cyan-400 my-1 bg-[var(--bg-primary)] px-2 py-1 rounded border border-[var(--border-subtle)]">
+                      <div className="font-mono text-[11px] text-[var(--accent)] my-1 bg-[var(--bg-primary)] px-2 py-1 rounded border border-[var(--border-subtle)]">
                         {inv.formula}
                       </div>
                       <p className="text-[11px] text-[var(--content-secondary)] leading-relaxed">{inv.desc}</p>
@@ -1520,7 +1520,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     Quantum Simulator Engine
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-cyan-400" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
                     <span className="text-xs font-bold text-[var(--content-primary)]">
                       {frameworkVersion || "PennyLane 0.45.1"}
                     </span>
@@ -1536,7 +1536,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     Training Pipeline State
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-blue-400" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--accent)]" />
                     <span className="text-xs font-bold text-[var(--content-primary)] font-mono">
                       {trainingState}
                     </span>
@@ -1630,7 +1630,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 {/* Export 2: JSON */}
                 <div className="p-5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between space-y-4">
                   <div>
-                    <div className="flex items-center gap-2 text-cyan-400 mb-2">
+                    <div className="flex items-center gap-2 text-[var(--accent)] mb-2">
                       <FileCode className="w-5 h-5" />
                       <h4 className="text-xs font-bold text-[var(--content-primary)]">Structured JSON Run</h4>
                     </div>
@@ -1644,7 +1644,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <button
                     onClick={handleExportJSON}
                     disabled={history.length === 0}
-                    className="apple-btn w-full py-2 rounded-xl text-xs font-semibold bg-cyan-500/15 hover:bg-cyan-500/25 text-cyan-400 border border-cyan-500/30 flex items-center justify-center gap-1.5 disabled:opacity-40"
+                    className="apple-btn w-full py-2 rounded-xl text-xs font-semibold bg-[var(--accent-subtle)] hover:bg-[var(--accent-subtle)] text-[var(--accent)] border border-c-accent/40 flex items-center justify-center gap-1.5 disabled:opacity-40"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Export Run Record (.JSON)</span>
@@ -1759,7 +1759,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2.5 font-mono text-xs">
               <div className="flex justify-between items-center">
                 <span className="text-[var(--content-secondary)]">Benchmark Dataset:</span>
-                <span className="font-bold text-cyan-400">{draftDataset.toUpperCase()}</span>
+                <span className="font-bold text-[var(--accent)]">{draftDataset.toUpperCase()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--content-secondary)]">Qubits Register:</span>

@@ -1,21 +1,8 @@
 "use client";
 
-import React, { useState } from "react";
-import {
-  Sun,
-  Moon,
-  ExternalLink,
-  Menu,
-  X,
-  FlaskConical,
-  ArrowLeft,
-} from "lucide-react";
-
-const GithubIcon: React.FC<{ className?: string }> = ({ className = "w-4 h-4" }) => (
-  <svg className={className} fill="currentColor" viewBox="0 0 24 24" aria-hidden="true">
-    <path fillRule="evenodd" d="M12 2C6.477 2 2 6.484 2 12.017c0 4.425 2.865 8.18 6.839 9.504.5.092.682-.217.682-.483 0-.237-.008-.868-.013-1.703-2.782.605-3.369-1.343-3.369-1.343-.454-1.158-1.11-1.466-1.11-1.466-.908-.62.069-.608.069-.608 1.003.07 1.53 1.032 1.53 1.032.892 1.53 2.341 1.088 2.91.832.092-.647.35-1.088.636-1.338-2.22-.253-4.555-1.113-4.555-4.951 0-1.093.39-1.988 1.029-2.688-.103-.253-.446-1.272.098-2.65 0 0 .84-.27 2.75 1.026A9.564 9.564 0 0112 6.844c.85.004 1.705.115 2.504.337 1.909-1.296 2.747-1.027 2.747-1.027.546 1.379.202 2.398.1 2.651.64.7 1.028 1.595 1.028 2.688 0 3.848-2.339 4.695-4.566 4.943.359.309.678.92.678 1.855 0 1.338-.012 2.419-.012 2.747 0 .268.18.58.688.482A10.019 10.019 0 0022 12.017C22 6.484 17.522 2 12 2z" clipRule="evenodd" />
-  </svg>
-);
+import React, { useEffect, useState } from "react";
+import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
+import { ArrowLeft, ArrowUpRight, Compass, Moon, Sun } from "lucide-react";
 
 interface HeaderProps {
   isConnected: boolean;
@@ -32,7 +19,25 @@ interface HeaderProps {
   onResetPrompt: () => void;
   activeView: "landing" | "dashboard";
   onToggleView: (view: "landing" | "dashboard") => void;
+  onStartTour?: () => void;
 }
+
+const CHAPTERS = [
+  { n: "01", label: "The problem", href: "#faults" },
+  { n: "02", label: "The loop", href: "#loop" },
+  { n: "03", label: "The actuators", href: "#repairs" },
+  { n: "04", label: "The evidence", href: "#evidence" },
+  { n: "05", label: "The boundaries", href: "#limits" },
+  { n: "06", label: "Enter the lab", href: "#lab-cta" },
+];
+
+const Mark: React.FC = () => (
+  <span className="flex items-center gap-2.5 select-none">
+    <span className="type-condensed text-[1.9rem] leading-none tracking-tight">SH</span>
+    <span className="w-1.5 h-1.5 rounded-full bg-[var(--signal)]" />
+    <span className="type-label hidden sm:inline opacity-80">Quantum ML</span>
+  </span>
+);
 
 export const Header: React.FC<HeaderProps> = ({
   isConnected,
@@ -40,169 +45,156 @@ export const Header: React.FC<HeaderProps> = ({
   onToggleTheme,
   activeView,
   onToggleView,
+  onStartTour,
+  stepCount,
+  maxSteps,
 }) => {
-  const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [hidden, setHidden] = useState(false);
+  const [menuOpen, setMenuOpen] = useState(false);
+  const reduce = useReducedMotion();
+  const { scrollY } = useScroll();
 
-  const navLinks = [
-    { label: "Challenge", href: "#the-challenge" },
-    { label: "Breakthrough", href: "#the-breakthrough" },
-    { label: "Architecture", href: "#the-framework" },
-    { label: "Repair Arms", href: "#repair-mechanisms" },
-    { label: "Intelligence", href: "#adaptive-intelligence" },
-    { label: "Digital Twin", href: "#digital-twin-safety" },
-    { label: "Evidence", href: "#research" },
-    { label: "Limitations", href: "#limitations" },
-  ];
+  useMotionValueEvent(scrollY, "change", (y) => {
+    const prev = scrollY.getPrevious() ?? 0;
+    setHidden(activeView === "landing" && y > 160 && y > prev && !menuOpen);
+  });
+
+  useEffect(() => {
+    document.documentElement.style.overflow = menuOpen ? "hidden" : "";
+    const lenis = (window as unknown as { __lenis?: { stop: () => void; start: () => void } }).__lenis;
+    if (menuOpen) lenis?.stop();
+    else lenis?.start();
+  }, [menuOpen]);
+
+  if (activeView === "dashboard") {
+    return (
+      <header className="sticky top-0 z-50 w-full border-b border-[var(--border-subtle)] bg-c-bg-primary/80 backdrop-blur-xl">
+        <div className="max-w-[1600px] mx-auto h-16 px-4 sm:px-6 flex items-center justify-between gap-3">
+          <button onClick={() => onToggleView("landing")} className="flex items-center gap-3 text-[var(--content-primary)]" aria-label="Back to the story">
+            <Mark />
+          </button>
+          <div className="hidden md:flex items-center gap-3 type-label text-[var(--content-secondary)]">
+            <span className="text-[var(--accent)]">Research lab</span>
+            <span className="h-3 w-px bg-[var(--border-highlight)]" />
+            <span className="flex items-center gap-2">
+              <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? "bg-[var(--status-success)] animate-pulse-dot" : "bg-[var(--status-warning)]"}`} />
+              {isConnected ? "Backend live" : "Connecting…"}
+            </span>
+            <span className="h-3 w-px bg-[var(--border-highlight)]" />
+            <span className="tabular">
+              Step {stepCount}/{maxSteps}
+            </span>
+          </div>
+          <div className="flex items-center gap-2">
+            {onStartTour && (
+              <button
+                onClick={onStartTour}
+                className="apple-btn inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-sm font-medium border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] text-[var(--content-primary)]"
+              >
+                <Compass className="w-4 h-4" />
+                <span className="hidden sm:inline">Tour</span>
+              </button>
+            )}
+            <button
+              onClick={onToggleTheme}
+              className="apple-btn h-9 w-9 rounded-full border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] flex items-center justify-center text-[var(--content-secondary)]"
+              aria-label={isDarkMode ? "Switch to light theme" : "Switch to dark theme"}
+            >
+              {isDarkMode ? <Sun className="w-4 h-4" /> : <Moon className="w-4 h-4" />}
+            </button>
+            <button
+              onClick={() => onToggleView("landing")}
+              className="apple-btn inline-flex items-center gap-2 h-9 px-4 rounded-full text-sm font-semibold bg-[var(--content-primary)] text-[var(--bg-primary)]"
+            >
+              <ArrowLeft className="w-4 h-4" />
+              <span className="hidden sm:inline">Story</span>
+            </button>
+          </div>
+        </div>
+      </header>
+    );
+  }
 
   return (
-    <header className="sticky top-0 z-50 backdrop-blur-md bg-[var(--bg-surface)]/90 border-b border-[var(--border-subtle)] transition-colors h-14 w-full max-w-full">
-      <div className="max-w-7xl mx-auto px-3 sm:px-6 lg:px-8 h-full flex items-center justify-between gap-2 sm:gap-4">
-        {/* Brand Lockup */}
-        <div
-          onClick={() => onToggleView("landing")}
-          className="flex items-center gap-2 cursor-pointer select-none shrink-0 group min-w-0"
-          role="button"
-          tabIndex={0}
-          aria-label="Navigate to Home"
-        >
-          <div className="w-7 h-7 rounded-lg bg-[var(--accent)] flex items-center justify-center text-white font-mono font-bold text-xs shadow-sm group-hover:opacity-90 transition-opacity shrink-0">
-            QML
-          </div>
-          <div className="flex flex-col justify-center leading-tight min-w-0">
-            <span className="hidden sm:inline font-sans font-semibold text-xs sm:text-sm text-[var(--content-primary)] tracking-tight whitespace-nowrap">
-              Adaptive Self-Healing VQC
-            </span>
-            <span className="sm:hidden font-sans font-semibold text-xs text-[var(--content-primary)] tracking-tight whitespace-nowrap">
-              Adaptive VQC
-            </span>
-            <span className="hidden sm:inline text-[11px] text-[var(--content-secondary)] whitespace-nowrap font-sans">
-              Autonomous Quantum Closed-Loop Framework
-            </span>
-          </div>
-        </div>
-
-        {/* Public Desktop Navigation */}
-        {activeView === "landing" ? (
-          <nav className="hidden xl:flex items-center gap-3 2xl:gap-5 font-sans text-xs 2xl:text-sm whitespace-nowrap">
-            {navLinks.map((link) => (
-              <a
-                key={link.label}
-                href={link.href}
-                className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 font-medium"
-              >
-                {link.label}
-              </a>
-            ))}
-
-            <a
-              href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors py-1 flex items-center gap-1 font-medium"
-            >
-              <GithubIcon className="w-3.5 h-3.5" />
-              <span>GitHub</span>
-            </a>
-          </nav>
-        ) : (
-          <div className="hidden md:flex items-center gap-2 text-xs font-mono text-[var(--content-secondary)]">
-            <span className="text-[var(--accent)] font-semibold">INTERACTIVE RESEARCH LAB</span>
-            <span>&bull;</span>
-            <span>Closed-Loop Telemetry &amp; Control</span>
-          </div>
-        )}
-
-        {/* Header Right Actions */}
-        <div className="flex items-center gap-1.5 sm:gap-2 shrink-0 font-sans">
-          {/* Subtle Simulator Status Pill */}
-          <div className="hidden lg:flex items-center gap-1.5 px-2.5 py-1 rounded-full text-xs border border-[var(--border-subtle)] bg-[var(--bg-subtle)]">
-            <span className={`w-2 h-2 rounded-full ${isConnected ? "bg-emerald-500 shadow-[0_0_6px_rgba(16,185,129,0.5)]" : "bg-amber-500"}`} />
-            <span className="text-[var(--content-secondary)] font-medium">
-              {isConnected ? "Simulator Live" : "Standby"}
-            </span>
-          </div>
-
-          {/* Primary View Toggle Button */}
-          <button
-            onClick={() => onToggleView(activeView === "dashboard" ? "landing" : "dashboard")}
-            className={`px-2.5 sm:px-4 py-1.5 rounded-xl text-xs font-semibold flex items-center gap-1 sm:gap-1.5 transition-all shadow-sm whitespace-nowrap active:scale-95 ${
-              activeView === "dashboard"
-                ? "bg-[var(--bg-subtle)] text-[var(--content-primary)] hover:bg-[var(--border-subtle)] border border-[var(--border-subtle)]"
-                : "bg-[var(--accent)] text-white hover:bg-[var(--accent-hover)]"
-            }`}
-          >
-            {activeView === "dashboard" ? (
-              <>
-                <ArrowLeft className="w-3.5 h-3.5" />
-                <span className="hidden sm:inline">Return to Story</span>
-                <span className="sm:hidden">Story</span>
-              </>
-            ) : (
-              <>
-                <FlaskConical className="w-3.5 h-3.5 text-cyan-200" />
-                <span className="hidden sm:inline">Enter Research Lab</span>
-                <span className="sm:hidden">Lab</span>
-              </>
-            )}
-          </button>
-
-          {/* Theme Toggle */}
-          <button
-            onClick={onToggleTheme}
-            className="p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] hover:border-[var(--border-highlight)] transition-colors shrink-0"
-            aria-label="Toggle theme"
-          >
-            {isDarkMode ? <Sun className="w-4 h-4 text-amber-500" /> : <Moon className="w-4 h-4" />}
-          </button>
-
-          {/* Mobile Menu Toggle Button */}
-          {activeView === "landing" && (
+    <>
+      <motion.header
+        className="fixed top-0 inset-x-0 z-50 pointer-events-none"
+        animate={{ y: hidden ? "-110%" : "0%" }}
+        transition={{ duration: reduce ? 0 : 0.45, ease: [0.23, 1, 0.32, 1] }}
+      >
+        <div className="flex items-center justify-between px-4 sm:px-8 lg:px-12 h-20">
+          <a href="#top" className="pointer-events-auto h-11 px-4 flex items-center rounded-full bg-c-paper/75 backdrop-blur-xl backdrop-saturate-150 border border-c-ink/10 text-[var(--ink)] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.5)]" aria-label="Top of page">
+            <Mark />
+          </a>
+          <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
             <button
-              onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-              className="xl:hidden p-1.5 rounded-xl border border-[var(--border-subtle)] bg-[var(--bg-surface)] text-[var(--content-secondary)] hover:text-[var(--content-primary)] transition-colors shrink-0"
-              aria-label="Open mobile navigation"
+              onClick={() => setMenuOpen((v) => !v)}
+              aria-expanded={menuOpen}
+              className="type-label h-11 px-4 flex items-center gap-3 rounded-full bg-c-paper/75 backdrop-blur-xl backdrop-saturate-150 border border-c-ink/10 text-[var(--ink)] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.5)]"
             >
-              {mobileMenuOpen ? <X className="w-4 h-4" /> : <Menu className="w-4 h-4" />}
+              <span>{menuOpen ? "Close" : "Chapters"}</span>
+              <span className="relative w-6 h-3">
+                <motion.span className="absolute left-0 right-0 h-[1.5px] bg-current" animate={{ top: menuOpen ? 5 : 0, rotate: menuOpen ? 45 : 0 }} />
+                <motion.span className="absolute left-0 right-0 h-[1.5px] bg-current" animate={{ top: menuOpen ? 5 : 10, rotate: menuOpen ? -45 : 0 }} />
+              </span>
             </button>
-          )}
-        </div>
-      </div>
-
-      {/* Mobile Menu Drawer */}
-      {mobileMenuOpen && activeView === "landing" && (
-        <div className="xl:hidden border-b border-[var(--border-subtle)] bg-[var(--bg-surface)]/95 backdrop-blur-xl px-4 py-3 space-y-2">
-          {navLinks.map((link) => (
-            <a
-              key={link.label}
-              href={link.href}
-              onClick={() => setMobileMenuOpen(false)}
-              className="block text-sm text-[var(--content-secondary)] hover:text-[var(--content-primary)] py-1.5 font-medium"
+            <button
+              onClick={() => onToggleView("dashboard")}
+              className="btn-ink h-11 !py-0 !px-5 text-sm bg-[var(--signal)] text-white hover:bg-[var(--ink)] shadow-[0_8px_24px_-12px_rgba(232,52,28,0.7)]"
             >
-              {link.label}
-            </a>
-          ))}
-          <div className="pt-2 border-t border-[var(--border-subtle)] flex items-center justify-between text-xs">
-            <a
-              href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning.git"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] flex items-center gap-1.5"
-            >
-              <GithubIcon className="w-4 h-4" />
-              <span>GitHub Repository</span>
-            </a>
-            <a
-              href="https://qml-backend-nczx.onrender.com/docs"
-              target="_blank"
-              rel="noreferrer"
-              className="text-[var(--content-secondary)] hover:text-[var(--content-primary)] flex items-center gap-1"
-            >
-              <span>API Docs</span>
-              <ExternalLink className="w-3 h-3" />
-            </a>
+              Live lab <ArrowUpRight className="w-4 h-4" />
+            </button>
           </div>
         </div>
-      )}
-    </header>
+      </motion.header>
+
+      <AnimatePresence>
+        {menuOpen && (
+          <motion.nav
+            className="fixed inset-0 z-40 bg-[var(--carbon)] text-white flex flex-col justify-end px-4 sm:px-8 lg:px-12 pb-10 pt-28"
+            initial={{ clipPath: reduce ? "inset(0 0 0 0)" : "inset(0 0 100% 0)", opacity: reduce ? 0 : 1 }}
+            animate={{ clipPath: "inset(0 0 0% 0)", opacity: 1 }}
+            exit={{ clipPath: reduce ? "inset(0 0 0 0)" : "inset(0 0 100% 0)", opacity: reduce ? 0 : 1 }}
+            transition={{ duration: reduce ? 0.2 : 0.7, ease: [0.77, 0, 0.175, 1] }}
+            aria-label="Chapters"
+          >
+            <div className="absolute inset-0 bg-grid-carbon opacity-70 pointer-events-none" />
+            <ul className="relative">
+              {CHAPTERS.map((c, i) => (
+                <li key={c.href} className="border-t border-white/10 overflow-hidden">
+                  <motion.a
+                    href={c.href}
+                    onClick={() => setMenuOpen(false)}
+                    className="group flex items-baseline gap-6 py-3 sm:py-4"
+                    initial={{ y: reduce ? 0 : "100%" }}
+                    animate={{ y: "0%" }}
+                    transition={{ duration: 0.7, ease: [0.23, 1, 0.32, 1], delay: reduce ? 0 : 0.18 + i * 0.05 }}
+                  >
+                    <span className="type-label text-white/40 tabular w-8">{c.n}</span>
+                    <span className="type-condensed text-[clamp(2.8rem,8.5vw,7rem)] text-white/80 group-hover:text-[var(--signal-2)] transition-colors duration-200">
+                      {c.label}
+                    </span>
+                  </motion.a>
+                </li>
+              ))}
+            </ul>
+            <div className="relative flex items-center justify-between border-t border-white/10 pt-6 type-label text-white/50">
+              <span className="flex items-center gap-2">
+                <span className={`w-1.5 h-1.5 rounded-full ${isConnected ? "bg-[var(--heal)]" : "bg-white/30"}`} />
+                {isConnected ? "Backend live" : "Backend waking up"}
+              </span>
+              <a
+                href="https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning"
+                target="_blank"
+                rel="noreferrer"
+                className="hover:text-white"
+              >
+                Source on GitHub ↗
+              </a>
+            </div>
+          </motion.nav>
+        )}
+      </AnimatePresence>
+    </>
   );
 };

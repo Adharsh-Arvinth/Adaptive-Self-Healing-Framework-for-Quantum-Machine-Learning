@@ -95,7 +95,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
           <div
             className={`px-3 py-1 rounded-full text-xs font-medium border flex items-center gap-1.5 shrink-0 ${
               gateCleared
-                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-[var(--status-success)]/30 font-semibold"
+                ? "bg-[var(--status-success-subtle)] text-[var(--status-success)] border-c-status-success/30 font-semibold"
                 : "bg-[var(--bg-subtle)] text-[var(--content-secondary)] border-[var(--border-subtle)]"
             }`}
           >
@@ -151,7 +151,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
           </div>
         ) : (
           /* Active Failure Alert Stage */
-          <div className="p-4 rounded-xl bg-[var(--status-danger-subtle)] border border-[var(--status-danger)]/30 space-y-3">
+          <div className="p-4 rounded-xl bg-[var(--status-danger-subtle)] border border-c-status-danger/30 space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
                 <Activity className="w-4 h-4 text-[var(--status-danger)]" />
@@ -168,7 +168,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
               {CANONICAL_FAILURES[primaryCause || ""]?.mechanism || "Invariant violation observed in telemetry."}
             </p>
 
-            <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-[var(--status-danger)]/20">
+            <div className="flex items-center justify-between text-xs font-mono pt-2 border-t border-c-status-danger/20">
               <span className="text-[var(--content-secondary)]">Confidence Gate τ = 0.60</span>
               <span className={gateCleared ? "text-[var(--status-success)] font-semibold" : "text-[var(--status-warning)] font-semibold"}>
                 {gateCleared ? "Cleared: Interventions Permitted" : "Held: Confidence Insufficient"}

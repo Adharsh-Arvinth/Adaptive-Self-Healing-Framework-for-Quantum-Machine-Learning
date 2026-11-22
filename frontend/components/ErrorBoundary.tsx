@@ -117,12 +117,12 @@ export class ErrorBoundary extends Component<Props, State> {
 
               {/* Collapsible Diagnostics */}
               {this.state.showDetails && (
-                <div className="mt-4 p-3.5 rounded-xl bg-black/80 border border-white/10 font-mono text-[11px] text-slate-300 space-y-2 animate-fade-in overflow-hidden">
+                <div className="mt-4 p-3.5 rounded-xl bg-black/80 border border-white/10 font-mono text-[11px] text-[var(--content-primary)] space-y-2 animate-fade-in overflow-hidden">
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
                     <span className="text-amber-400 font-semibold">Error Diagnostic Log</span>
                     <button
                       onClick={this.handleCopy}
-                      className="flex items-center gap-1 text-[10px] text-slate-400 hover:text-white px-2 py-0.5 rounded bg-white/10 transition-colors"
+                      className="flex items-center gap-1 text-[10px] text-[var(--content-secondary)] hover:text-white px-2 py-0.5 rounded bg-white/10 transition-colors"
                     >
                       {this.state.copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
                       <span>{this.state.copied ? "Copied" : "Copy Log"}</span>
@@ -132,7 +132,7 @@ export class ErrorBoundary extends Component<Props, State> {
                     {this.state.error?.name}: {this.state.error?.message}
                   </div>
                   {this.state.errorInfo?.componentStack && (
-                    <pre className="text-[10px] text-slate-400 max-h-40 overflow-y-auto whitespace-pre-wrap leading-tight mt-1">
+                    <pre className="text-[10px] text-[var(--content-secondary)] max-h-40 overflow-y-auto whitespace-pre-wrap leading-tight mt-1">
                       {this.state.errorInfo.componentStack}
                     </pre>
                   )}

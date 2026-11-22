@@ -143,7 +143,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
           {/* Quantum Circuit Evals */}
           <div className="p-2.5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between">
             <span className="text-[10px] text-[var(--content-secondary)] font-mono">Quantum Cost</span>
-            <span className="text-sm font-mono text-cyan-400 font-semibold">
+            <span className="text-sm font-mono text-[var(--accent)] font-semibold">
               {evals} <span className="text-[10px] font-normal text-[var(--content-secondary)]">evals</span>
             </span>
           </div>
@@ -151,7 +151,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
 
         {/* Sandbox Tester Control */}
         {onSimulateTwin && (
-          <div className="p-2.5 rounded-xl bg-[var(--bg-surface)]/70 border border-[var(--border-subtle)] mb-3">
+          <div className="p-2.5 rounded-xl bg-c-bg-surface/70 border border-[var(--border-subtle)] mb-3">
             <div className="flex items-center justify-between gap-2">
               <div className="flex items-center gap-1.5 text-[11px] font-medium text-[var(--content-primary)]">
                 <FlaskConical className="w-3.5 h-3.5 text-[var(--accent)]" />
