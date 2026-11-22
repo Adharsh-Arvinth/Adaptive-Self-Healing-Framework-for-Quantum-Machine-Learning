@@ -343,7 +343,7 @@ export const BlochSphere: React.FC<BlochSphereProps> = ({
       <div className="w-full flex items-center justify-center gap-4 py-1 text-[10px] font-mono border-t border-[var(--border-subtle)] text-[var(--content-secondary)]">
         <div className="flex items-center gap-1.5">
           <span className="w-2.5 h-0.5 bg-[var(--accent)] rounded-full" />
-          <span className="text-[var(--content-primary)]">Physical State r⃗</span>
+          <span className="text-[var(--content-primary)]">Physical State r</span>
         </div>
         {hasMitigated && (
           <div className="flex items-center gap-1.5">

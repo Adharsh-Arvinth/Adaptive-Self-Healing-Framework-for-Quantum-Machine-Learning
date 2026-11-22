@@ -23,10 +23,12 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
   const innerWidth = width - padding.left - padding.right;
   const innerHeight = height - padding.top - padding.bottom;
 
-  // Extents
+  // Extents (non-finite points, e.g. after a divergence fault, are skipped rather than plotted at zero)
+  const fin = (v: unknown): v is number => typeof v === "number" && Number.isFinite(v);
   const maxStep = hasData ? Math.max(10, ...history.map((d) => d.step)) : 60;
   const minStep = 0;
-  const maxLoss = hasData ? Math.min(3.0, Math.max(1.0, ...history.map((d) => Math.max(d.loss, d.val_loss)))) : 1.2;
+  const lossVals = history.flatMap((d) => [d.loss, d.val_loss]).filter(fin);
+  const maxLoss = lossVals.length ? Math.min(3.0, Math.max(1.0, ...lossVals)) : 1.2;
 
   // Coordinate scales
   const getX = (step: number) => padding.left + ((step - minStep) / (maxStep - minStep)) * innerWidth;
@@ -35,22 +37,27 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
   const getYAcc = (accVal: number) =>
     padding.top + innerHeight - Math.min(1.0, Math.max(0.0, accVal)) * innerHeight;
 
-  // SVG Paths
-  const trainLossPath = hasData
-    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.loss).toFixed(1)}`).join(" ")
-    : "";
-
-  const valLossPath = hasData
-    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYLoss(d.val_loss).toFixed(1)}`).join(" ")
-    : "";
-
-  const trainAccPath = hasData
-    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.accuracy).toFixed(1)}`).join(" ")
-    : "";
-
-  const valAccPath = hasData
-    ? history.map((d, i) => `${i === 0 ? "M" : "L"} ${getX(d.step).toFixed(1)} ${getYAcc(d.val_accuracy).toFixed(1)}`).join(" ")
-    : "";
+  // SVG paths: a gap in the data starts a new sub-path ("M") instead of drawing through it
+  const pathOf = (pick: (d: TelemetryPoint) => unknown, y: (v: number) => number) => {
+    let out = "";
+    let pen = false;
+    for (const d of history) {
+      const v = pick(d);
+      if (!fin(v)) {
+        pen = false;
+        continue;
+      }
+      out += `${pen ? "L" : "M"} ${getX(d.step).toFixed(1)} ${y(v).toFixed(1)} `;
+      pen = true;
+    }
+    return out.trim();
+  };
+  const trainLossPath = hasData ? pathOf((d) => d.loss, getYLoss) : "";
+  const valLossPath = hasData ? pathOf((d) => d.val_loss, getYLoss) : "";
+  const trainAccPath = hasData ? pathOf((d) => d.accuracy, getYAcc) : "";
+  const valAccPath = hasData ? pathOf((d) => d.val_accuracy, getYAcc) : "";
+  const f4 = (v: unknown) => (fin(v) ? v.toFixed(4) : "—");
+  const fp = (v: unknown) => (fin(v) ? `${(v * 100).toFixed(1)}%` : "—");
 
   const activePoint = hoveredIdx !== null && history[hoveredIdx] ? history[hoveredIdx] : (hasData ? history[history.length - 1] : null);
 
@@ -333,17 +340,17 @@ export const LossChart: React.FC<LossChartProps> = ({ history }) => {
       <div className="pt-2.5 border-t border-[var(--border-subtle)] flex flex-wrap items-center justify-between text-xs text-[var(--content-secondary)]">
         <div className="flex items-center gap-4">
           <span>
-            Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? activePoint.loss.toFixed(4) : "0.6931"}</strong>
+            Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? f4(activePoint.loss) : "0.6931"}</strong>
           </span>
           <span>
-            Val Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? activePoint.val_loss.toFixed(4) : "0.6931"}</strong>
+            Val Loss: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? f4(activePoint.val_loss) : "0.6931"}</strong>
           </span>
           <span>
-            Accuracy: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? `${(activePoint.accuracy * 100).toFixed(1)}%` : "50.0%"}</strong>
+            Accuracy: <strong className="text-[var(--content-primary)] font-mono">{activePoint ? fp(activePoint.accuracy) : "50.0%"}</strong>
           </span>
         </div>
         <div className="text-[11px] text-[var(--content-tertiary)] font-mono">
-          Loss Function: BCE • Ansatz: Hardware-Efficient $R_y(\theta)$-$R_z(\theta)$
+          Loss: binary cross-entropy · Ansatz: RY layers + CNOT ring
         </div>
       </div>
     </div>

@@ -121,24 +121,24 @@ const ToastCard: React.FC<{
     switch (toast.type) {
       case "success":
         return {
-          icon: <CheckCircle2 className="w-4 h-4 text-emerald-400 shrink-0" />,
-          border: "border-emerald-500/30",
+          icon: <CheckCircle2 className="w-4 h-4 text-[var(--status-success)] shrink-0" />,
+          border: "border-c-status-success/30",
           glow: "shadow-[0_8px_32px_rgba(16,185,129,0.15)]",
-          badgeBg: "bg-emerald-500/10 text-emerald-300",
+          badgeBg: "bg-c-status-success/10 text-[var(--status-success)]",
         };
       case "warning":
         return {
-          icon: <AlertTriangle className="w-4 h-4 text-amber-400 shrink-0" />,
-          border: "border-amber-500/30",
+          icon: <AlertTriangle className="w-4 h-4 text-[var(--status-warning)] shrink-0" />,
+          border: "border-c-status-warning/30",
           glow: "shadow-[0_8px_32px_rgba(245,158,11,0.15)]",
-          badgeBg: "bg-amber-500/10 text-amber-300",
+          badgeBg: "bg-c-status-warning/10 text-[var(--status-warning)]",
         };
       case "error":
         return {
-          icon: <AlertCircle className="w-4 h-4 text-rose-400 shrink-0" />,
-          border: "border-rose-500/30",
+          icon: <AlertCircle className="w-4 h-4 text-[var(--status-danger)] shrink-0" />,
+          border: "border-c-status-danger/30",
           glow: "shadow-[0_8px_32px_rgba(244,63,94,0.18)]",
-          badgeBg: "bg-rose-500/10 text-rose-300",
+          badgeBg: "bg-c-status-danger/10 text-[var(--status-danger)]",
         };
       default:
         return {

@@ -12,7 +12,7 @@ import { ArrowLeft, ArrowRight, X } from "lucide-react";
    Auto-starts on the first visit; reopen from the header's Tour button.
    -------------------------------------------------------------------------- */
 
-export type TourTab = "overview" | "experiment" | "diagnosis" | "repairs" | "evidence";
+export type TourTab = "overview" | "experiment" | "diagnosis" | "repairs" | "safety" | "evidence";
 
 export interface TourStep {
   target?: string; // data-tour id; omitted = centred card
@@ -39,7 +39,7 @@ export const LAB_TOUR: TourStep[] = [
     title: "1 · Start training",
     body: (
       <>
-        Press <b>Start</b> (or <b>New Experiment</b> if a previous run has finished). The model trains continuously;{" "}
+        Press <b>Start training</b> (or <b>New experiment</b> if a previous run has finished). The model trains continuously;{" "}
         <b>Step</b> advances one step at a time. Let it run for about <b>10 healthy steps</b> so the detector learns
         what normal looks like for this run.
       </>
@@ -64,13 +64,13 @@ export const LAB_TOUR: TourStep[] = [
     body: (
       <>
         Pick a severity, then click a fault card to inject it. Start with <b>LR Misconfig</b> at <b>1.0x</b>: its
-        signature is the clearest. Then go back to <b>Overview</b> while training keeps running.
+        signature is the clearest. Then go back to the <b>Dashboard</b> while training keeps running.
       </>
     ),
   },
   {
     target: "diagnosis",
-    tab: "overview",
+    tab: "diagnosis",
     title: "4 · Watch the diagnosis",
     body: (
       <>
@@ -81,7 +81,7 @@ export const LAB_TOUR: TourStep[] = [
   },
   {
     target: "repairs",
-    tab: "overview",
+    tab: "repairs",
     title: "5 · The repair decision",
     body: (
       <>
@@ -92,7 +92,7 @@ export const LAB_TOUR: TourStep[] = [
   },
   {
     target: "deployment",
-    tab: "overview",
+    tab: "safety",
     title: "6 · Probation, then commit or rollback",
     body: (
       <>
@@ -106,11 +106,11 @@ export const LAB_TOUR: TourStep[] = [
     title: "7 · Go deeper",
     body: (
       <>
-        Explore the digital twin, the bandit&apos;s learned beliefs, the failure memory, and <b>Evidence</b>: the full
-        benchmark results. Press <b>Reset</b> to start a fresh experiment any time.
+        Sections are grouped by purpose: <b>Run</b> (dashboard, faults, settings), <b>Understand</b> (diagnosis,
+        repairs, twin, deployment, bandit) and <b>Records</b> (memory, audit log, evidence). Appearance lives in Settings.
       </>
     ),
-    hint: "Reopen this tour from the Tour button in the top bar.",
+    hint: "Reopen this tutorial any time from the Tutorial button in the top bar.",
   },
 ];
 

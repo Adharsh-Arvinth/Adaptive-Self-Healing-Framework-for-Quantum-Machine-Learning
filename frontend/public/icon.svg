@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none">
+  <style>
+    .ink{stroke:#0e0e0e} .ink-f{fill:#0e0e0e}
+    @media (prefers-color-scheme: dark){ .ink{stroke:#f2efe8} .ink-f{fill:#f2efe8} }
+  </style>
+  <ellipse class="ink" cx="16" cy="16" rx="12" ry="4.2" stroke-width="1.2" opacity="0.35"/>
+  <path class="ink" d="M27.28 11.9 A12 12 0 1 1 20.1 4.72" stroke-width="2.8" stroke-linecap="round"/>
+  <line class="ink" x1="16" y1="16" x2="24.49" y2="7.51" stroke-width="1.8" stroke-linecap="round"/>
+  <circle class="ink-f" cx="16" cy="16" r="1.4"/>
+  <circle cx="24.49" cy="7.51" r="3" fill="#da291c"/>
+</svg>

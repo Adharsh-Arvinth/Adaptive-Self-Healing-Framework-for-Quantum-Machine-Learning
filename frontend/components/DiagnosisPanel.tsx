@@ -81,14 +81,14 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
           <div>
             <div className="flex items-center gap-2">
               <h3 className="text-sm font-semibold text-[var(--content-primary)]">
-                Root-Cause Diagnosis & Bayesian Gate
+                Root-cause diagnosis
               </h3>
               <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-[var(--bg-subtle)] text-[var(--content-secondary)] border border-[var(--border-subtle)]">
                 Threshold τ = 0.60
               </span>
             </div>
             <p className="text-xs text-[var(--content-secondary)] mt-0.5">
-              Bayesian categorical posterior evaluation over 6 canonical quantum failure modes
+              Evidence-scored probabilities over six fault classes, with a 60% confidence gate
             </p>
           </div>
 
@@ -119,7 +119,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
           <div className="p-4 rounded-xl bg-[var(--bg-subtle)] border border-[var(--border-subtle)] space-y-3">
             <div className="flex items-center justify-between">
               <div className="flex items-center gap-2">
-                <div className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                <div className="w-2.5 h-2.5 rounded-full bg-[var(--status-success)] animate-pulse" />
                 <span className="text-xs font-semibold text-[var(--content-primary)]">
                   Nominal Regime — Zero Active Anomalies
                 </span>
@@ -253,7 +253,7 @@ export const DiagnosisPanel: React.FC<DiagnosisPanelProps> = ({
 
       {/* Symmetrical Panel Footer */}
       <div className="pt-3 mt-3 border-t border-[var(--border-subtle)] flex items-center justify-between text-[11px] text-[var(--content-tertiary)] font-mono">
-        <span>Deterministic Rule + Bayesian Categorical Posterior</span>
+        <span>Expert evidence rules + temperature-scaled softmax</span>
         <span>Decision: {gateCleared ? "Intervene" : "Hold"}</span>
       </div>
     </div>

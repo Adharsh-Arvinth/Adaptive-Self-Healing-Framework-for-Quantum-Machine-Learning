@@ -66,8 +66,8 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
           <span
             className={`px-2 py-0.5 rounded-full text-[11px] font-mono border flex items-center gap-1 ${
               isViable
-                ? "bg-emerald-500/15 text-emerald-400 border-emerald-500/30"
-                : "bg-rose-500/15 text-rose-400 border-rose-500/30"
+                ? "bg-c-status-success/15 text-[var(--status-success)] border-c-status-success/30"
+                : "bg-c-status-danger/15 text-[var(--status-danger)] border-c-status-danger/30"
             }`}
           >
             {isViable ? (
@@ -99,7 +99,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
               trajectory.map((val, idx) => (
                 <div key={idx} className="flex flex-col items-center">
                   <span className="text-[10px] text-[var(--content-secondary)]">h = {idx}</span>
-                  <span className="text-[var(--content-primary)] font-semibold">{val.toFixed(4)}</span>
+                  <span className="text-[var(--content-primary)] font-semibold">{typeof val === "number" && Number.isFinite(val) ? val.toFixed(4) : "—"}</span>
                 </div>
               ))
             ) : (
@@ -117,7 +117,7 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
             <span className="text-[10px] text-[var(--content-secondary)] font-mono">Predicted Delta</span>
             <span
               className={`text-sm font-bold font-mono ${
-                delta >= 0 ? "text-emerald-400" : "text-rose-400"
+                delta >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"
               }`}
             >
               {delta >= 0 ? `+${delta.toFixed(4)}` : delta.toFixed(4)}
@@ -198,13 +198,13 @@ export const DigitalTwinPanel: React.FC<DigitalTwinPanelProps> = ({
             </span>
             <span>
               Actual:{" "}
-              <span className="text-emerald-400 font-semibold">
+              <span className="text-[var(--status-success)] font-semibold">
                 {evaluation.actual_reward?.toFixed(4) ?? "N/A"}
               </span>
             </span>
             <span>
               MAE:{" "}
-              <span className="text-amber-400 font-bold">
+              <span className="text-[var(--status-warning)] font-bold">
                 {evaluation.prediction_error?.toFixed(4) ?? "0.0000"}
               </span>
             </span>

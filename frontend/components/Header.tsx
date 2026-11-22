@@ -2,7 +2,9 @@
 
 import React, { useEffect, useState } from "react";
 import { AnimatePresence, motion, useMotionValueEvent, useReducedMotion, useScroll } from "motion/react";
-import { ArrowLeft, ArrowUpRight, Compass, Moon, Sun } from "lucide-react";
+import { ArrowLeft, ArrowUpRight, GraduationCap, Moon, Sun, Type } from "lucide-react";
+import { Logo } from "./Logo";
+import { useAppearance } from "./appearance/AppearanceProvider";
 
 interface HeaderProps {
   isConnected: boolean;
@@ -28,16 +30,13 @@ const CHAPTERS = [
   { n: "03", label: "The actuators", href: "#repairs" },
   { n: "04", label: "The evidence", href: "#evidence" },
   { n: "05", label: "The boundaries", href: "#limits" },
-  { n: "06", label: "Enter the lab", href: "#lab-cta" },
+  { n: "06", label: "Use the research", href: "#resources" },
+  { n: "07", label: "FAQ", href: "#faq" },
+  { n: "08", label: "Enter the lab", href: "#lab-cta" },
+  { n: "09", label: "Contact", href: "#contact" },
 ];
 
-const Mark: React.FC = () => (
-  <span className="flex items-center gap-2.5 select-none">
-    <span className="type-condensed text-[1.9rem] leading-none tracking-tight">SH</span>
-    <span className="w-1.5 h-1.5 rounded-full bg-[var(--signal)]" />
-    <span className="type-label hidden sm:inline opacity-80">Quantum ML</span>
-  </span>
-);
+const Mark: React.FC = () => <Logo />;
 
 export const Header: React.FC<HeaderProps> = ({
   isConnected,
@@ -49,6 +48,7 @@ export const Header: React.FC<HeaderProps> = ({
   stepCount,
   maxSteps,
 }) => {
+  const { openSheet } = useAppearance();
   const [hidden, setHidden] = useState(false);
   const [menuOpen, setMenuOpen] = useState(false);
   const reduce = useReducedMotion();
@@ -89,12 +89,20 @@ export const Header: React.FC<HeaderProps> = ({
             {onStartTour && (
               <button
                 onClick={onStartTour}
-                className="apple-btn inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-sm font-medium border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] text-[var(--content-primary)]"
+                className="apple-btn inline-flex items-center gap-2 h-9 px-3.5 rounded-full text-sm font-semibold bg-[var(--accent-subtle)] text-[var(--accent)] hover:bg-[var(--accent)] hover:text-white"
               >
-                <Compass className="w-4 h-4" />
-                <span className="hidden sm:inline">Tour</span>
+                <GraduationCap className="w-4 h-4" />
+                <span className="hidden sm:inline">Tutorial</span>
               </button>
             )}
+            <button
+              onClick={openSheet}
+              className="apple-btn h-9 w-9 rounded-full border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] flex items-center justify-center text-[var(--content-secondary)]"
+              aria-label="Appearance: mode, palette and typeface"
+              title="Appearance"
+            >
+              <Type className="w-4 h-4" />
+            </button>
             <button
               onClick={onToggleTheme}
               className="apple-btn h-9 w-9 rounded-full border border-[var(--border-subtle)] hover:border-[var(--border-highlight)] flex items-center justify-center text-[var(--content-secondary)]"
@@ -127,6 +135,14 @@ export const Header: React.FC<HeaderProps> = ({
             <Mark />
           </a>
           <div className="flex items-center gap-2 sm:gap-3 pointer-events-auto">
+            <button
+              onClick={openSheet}
+              aria-label="Appearance: mode, palette and typeface"
+              title="Appearance"
+              className="h-11 w-11 rounded-full bg-c-paper/75 backdrop-blur-xl backdrop-saturate-150 border border-c-ink/10 text-[var(--ink)] shadow-[0_8px_24px_-16px_rgba(0,0,0,0.5)] flex items-center justify-center apple-btn"
+            >
+              <Type className="w-4 h-4" />
+            </button>
             <button
               onClick={() => setMenuOpen((v) => !v)}
               aria-expanded={menuOpen}

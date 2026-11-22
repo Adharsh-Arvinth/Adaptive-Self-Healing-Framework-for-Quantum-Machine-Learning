@@ -58,9 +58,9 @@ export class ErrorBoundary extends Component<Props, State> {
   public render() {
     if (this.state.hasError) {
       return (
-        <div className="glass-panel p-6 sm:p-8 border border-amber-500/30 bg-[var(--bg-surface)] text-[var(--content-primary)] font-sans my-4 shadow-xl rounded-2xl max-w-3xl mx-auto animate-fade-in">
+        <div className="glass-panel p-6 sm:p-8 border border-c-status-warning/30 bg-[var(--bg-surface)] text-[var(--content-primary)] font-sans my-4 shadow-xl rounded-2xl max-w-3xl mx-auto animate-fade-in">
           <div className="flex items-start gap-4">
-            <div className="w-10 h-10 rounded-xl bg-amber-500/10 border border-amber-500/30 flex items-center justify-center text-amber-500 shrink-0">
+            <div className="w-10 h-10 rounded-xl bg-c-status-warning/10 border border-c-status-warning/30 flex items-center justify-center text-[var(--status-warning)] shrink-0">
               <AlertTriangle className="w-5 h-5" />
             </div>
 
@@ -69,7 +69,7 @@ export class ErrorBoundary extends Component<Props, State> {
                 <h3 className="text-base font-semibold text-[var(--content-primary)] tracking-tight">
                   {this.props.fallbackTitle || "Interactive Research Module Interrupted"}
                 </h3>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-amber-500/10 text-amber-500 border border-amber-500/20 font-medium">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded-full bg-c-status-warning/10 text-[var(--status-warning)] border border-c-status-warning/20 font-medium">
                   Protected Safe State
                 </span>
               </div>
@@ -119,16 +119,16 @@ export class ErrorBoundary extends Component<Props, State> {
               {this.state.showDetails && (
                 <div className="mt-4 p-3.5 rounded-xl bg-black/80 border border-white/10 font-mono text-[11px] text-[var(--content-primary)] space-y-2 animate-fade-in overflow-hidden">
                   <div className="flex items-center justify-between pb-2 border-b border-white/10">
-                    <span className="text-amber-400 font-semibold">Error Diagnostic Log</span>
+                    <span className="text-[var(--status-warning)] font-semibold">Error Diagnostic Log</span>
                     <button
                       onClick={this.handleCopy}
                       className="flex items-center gap-1 text-[10px] text-[var(--content-secondary)] hover:text-white px-2 py-0.5 rounded bg-white/10 transition-colors"
                     >
-                      {this.state.copied ? <Check className="w-3 h-3 text-emerald-400" /> : <Copy className="w-3 h-3" />}
+                      {this.state.copied ? <Check className="w-3 h-3 text-[var(--status-success)]" /> : <Copy className="w-3 h-3" />}
                       <span>{this.state.copied ? "Copied" : "Copy Log"}</span>
                     </button>
                   </div>
-                  <div className="text-rose-400 font-semibold break-words">
+                  <div className="text-[var(--status-danger)] font-semibold break-words">
                     {this.state.error?.name}: {this.state.error?.message}
                   </div>
                   {this.state.errorInfo?.componentStack && (

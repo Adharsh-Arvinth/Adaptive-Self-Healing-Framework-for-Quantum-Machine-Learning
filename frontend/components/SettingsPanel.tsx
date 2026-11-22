@@ -295,7 +295,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       setDraftStepDelayMs(250);
       setEnableOverrides(false);
       setDraftConfidenceThreshold(0.60);
-      setSaveBanner("Applied preset: Stage 8 Benchmark Reproduction (Frozen Commit 7d37201)");
+      setSaveBanner("Applied preset: default research configuration");
     }
     setTimeout(() => setSaveBanner(null), 4000);
   };
@@ -438,7 +438,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       experiment_id: `exp_${draftDataset}_${Date.now()}`,
       exported_at: new Date().toISOString(),
       provenance: {
-        baseline_commit: "7d37201aead20c7e5678585c998b51206bc49339",
+        evidence: "QFaultBench-VQC v1",
         framework: "PennyLane 0.45.1",
         engine: "CPU Statevector Default.Qubit",
       },
@@ -471,49 +471,40 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
   };
 
   // Export 3: Complete Audit Package Dossier
-  const handleExportAuditDossier = () => {
+  const handleExportAuditDossier = async () => {
+    let results: unknown = null;
+    try {
+      const r = await fetch("/data/qfaultbench_results.json");
+      if (r.ok) results = await r.json();
+    } catch {
+      /* offline: export the configuration only */
+    }
     const auditPackage = {
       framework_title: "Adaptive Self-Healing Framework for Quantum Machine Learning",
-      provenance: {
-        baseline_commit_full: "7d37201aead20c7e5678585c998b51206bc49339",
-        baseline_commit_short: "7d37201",
-        verified_campaign: "QFaultBench-VQC v1 counterfactual campaign (see research/ and /data/qfaultbench_results.json)",
-        calibration: {
-          episodes_calibration: 150,
-          episodes_test_heldout: 150,
-          production_gate: { threshold: 0.60, temperature: 0.50, ece: 0.4295, brier: 0.8645, fpr: 0.9583, coverage: 0.96 },
-          calibrated_analysis: { threshold: 0.84, temperature: 1.70, ece: 0.1939, brier: 0.5768, fpr_observed: 0.0, fpr_95_upper_bound: 0.0499, fdr_95_upper_bound: 0.1372, coverage: 0.1667, tpr: 0.3205 },
-        },
-        policy_regret_10seeds: {
-          thompson_sampling: { reward: "-4.94 ± 0.28", rollback_rate: "10.7 ± 2.8%" },
-          greedy: { reward: "-4.75 ± 0.76", rollback_rate: "17.3 ± 4.3%" },
-          heuristic: { reward: "-5.45 ± 0.78", rollback_rate: "23.0 ± 3.7%" },
-          random: { reward: "-5.01 ± 0.64", rollback_rate: "16.3 ± 3.7%" },
-          p_values: { vs_heuristic: 0.0559, vs_greedy: 0.3282, vs_random: 0.6746 },
-        },
+      exported_at: new Date().toISOString(),
+      evidence: {
+        benchmark: "QFaultBench-VQC v1 (counterfactual fault-injection campaign)",
+        repository: "https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning",
+        findings: "research/RESEARCH_FINDINGS.md",
+        results_tables: "research/RESULTS.md",
+        summary: results,
       },
-      current_session: {
-        active_config: {
-          dataset: draftDataset,
-          n_qubits: draftNQbits,
-          n_layers: draftNLayers,
-          feature_map: draftFeatureMap,
-          optimizer_name: draftOptimizerName,
-          learning_rate: draftLearningRate,
-          max_steps: draftMaxSteps,
-          seed: draftSeed,
-        },
-        episodes_recorded_count: episodes.length,
-        telemetry_samples_recorded: history.length,
+      current_configuration: {
+        optimizer: optimizerName,
+        feature_map: featureMap,
+        n_layers: nLayers,
+        n_qubits: nQbits,
+        dataset,
+        seed,
+        max_steps: maxSteps,
       },
-      episodes_sample: episodes.slice(-20),
+      session: { telemetry_steps: history.length, memory_episodes: episodes.length },
     };
-
     const blob = new Blob([JSON.stringify(auditPackage, null, 2)], { type: "application/json" });
     const url = URL.createObjectURL(blob);
     const link = document.createElement("a");
     link.href = url;
-    link.download = `qml_complete_audit_dossier_stage8.json`;
+    link.download = `qfaultbench_lab_export.json`;
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -559,7 +550,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
           </button>
           <button
             onClick={() => setIsPreviewOpen(true)}
-            className="apple-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-emerald-400 bg-emerald-500/10 hover:bg-emerald-500/20 border border-emerald-500/30 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
+            className="apple-btn px-3.5 py-1.5 rounded-xl text-xs font-semibold text-[var(--status-success)] bg-c-status-success/10 hover:bg-c-status-success/20 border border-c-status-success/30 flex items-center gap-1.5 shadow-sm active:scale-95 transition-all"
           >
             <Eye className="w-3.5 h-3.5" />
             <span>Preview &amp; Run</span>
@@ -568,7 +559,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
       </div>
 
       {saveBanner && (
-        <div className="p-3 rounded-xl bg-emerald-500/10 border border-emerald-500/30 text-emerald-400 text-xs font-medium flex items-center gap-2 animate-fade-in">
+        <div className="p-3 rounded-xl bg-c-status-success/10 border border-c-status-success/30 text-[var(--status-success)] text-xs font-medium flex items-center gap-2 animate-fade-in">
           <CheckCircle2 className="w-4 h-4 shrink-0" />
           <span>{saveBanner}</span>
         </div>
@@ -587,7 +578,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             { id: "invariants", label: "Locked Invariants (C)", icon: Lock },
             { id: "connectivity", label: "Connectivity Monitor", icon: Radio, badge: latency && latency > 0 ? `${latency}ms` : undefined },
             { id: "export", label: "Data Management & Export", icon: Download },
-            { id: "about", label: "Scientific Provenance", icon: ShieldCheck },
+            { id: "about", label: "About", icon: ShieldCheck },
           ].map((item) => {
             const Icon = item.icon;
             const isActive = activeSection === item.id;
@@ -608,7 +599,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 {item.badge && (
                   <span
                     className={`px-1.5 py-0.5 rounded text-[10px] font-mono uppercase ${
-                      isActive ? "bg-white/20 text-white" : "bg-amber-500/10 text-amber-400 border border-amber-500/20"
+                      isActive ? "bg-white/20 text-white" : "bg-c-status-warning/10 text-[var(--status-warning)] border border-c-status-warning/20"
                     }`}
                   >
                     {item.badge}
@@ -790,7 +781,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       onClick={() => setConfirmDestructive(!confirmDestructive)}
                       className={`px-3 py-1.5 rounded-lg text-xs font-semibold transition-all ${
                         confirmDestructive
-                          ? "bg-emerald-500/20 text-emerald-400 border border-emerald-500/30"
+                          ? "bg-c-status-success/20 text-[var(--status-success)] border border-c-status-success/30"
                           : "bg-neutral-800 text-neutral-400 border border-neutral-700"
                       }`}
                     >
@@ -847,9 +838,9 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     },
                     {
                       id: "benchmark",
-                      title: "Stage 8 Baseline",
-                      desc: "Moons • Commit 7d37201",
-                      badge: "Frozen Record",
+                      title: "Default baseline",
+                      desc: "Moons • default configuration",
+                      badge: "Default",
                       action: () => applyPreset("benchmark"),
                     },
                   ].map((p) => (
@@ -1112,7 +1103,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="glass-panel p-6 space-y-6 animate-fade-in">
               <div className="border-b border-[var(--border-subtle)] pb-4">
                 <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                  <Zap className="w-4 h-4 text-emerald-400" />
+                  <Zap className="w-4 h-4 text-[var(--status-success)]" />
                   Classical Optimizer &amp; Learning Rate Dynamics
                 </h2>
                 <p className="text-xs text-[var(--content-secondary)] mt-1">
@@ -1137,7 +1128,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         onClick={() => setDraftOptimizerName(opt.id)}
                         className={`p-3 rounded-xl text-center border transition-all ${
                           draftOptimizerName.toLowerCase() === opt.id.toLowerCase()
-                            ? "bg-emerald-500/15 border-emerald-500 text-emerald-400 font-bold"
+                            ? "bg-c-status-success/15 border-[var(--status-success)] text-[var(--status-success)] font-bold"
                             : "bg-[var(--bg-surface)] border-[var(--border-subtle)] text-[var(--content-secondary)] hover:text-[var(--content-primary)]"
                         }`}
                       >
@@ -1158,7 +1149,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       Descent Step Size &eta; (Learning Rate)
                     </label>
                     <div className="flex items-center gap-2">
-                      <span className="text-xs font-mono font-bold text-emerald-400">
+                      <span className="text-xs font-mono font-bold text-[var(--status-success)]">
                         {draftLearningRate.toFixed(4)}
                       </span>
                       <button
@@ -1185,7 +1176,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     <span>0.250 (Aggressive)</span>
                   </div>
                   <span className="text-[11px] text-[var(--content-tertiary)] block">
-                    Strict bounds clamp: $[10^{-4}, 1.0]$. Values $\ge 0.15$ may induce parameter-shift oscillations.
+                    Bounded to 1e-4 to 1.0. Values above about 0.15 can make the loss oscillate.
                   </span>
                 </div>
               </div>
@@ -1194,17 +1185,17 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
 
           {/* TAB 5: CATEGORY B — ADVANCED RESEARCH OVERRIDES */}
           {activeSection === "overrides" && (
-            <div className="glass-panel p-6 space-y-6 animate-fade-in border-amber-500/30">
+            <div className="glass-panel p-6 space-y-6 animate-fade-in border-c-status-warning/30">
               {/* Caution Banner */}
-              <div className="p-4 rounded-xl bg-amber-500/10 border border-amber-500/30 text-amber-300 space-y-2">
+              <div className="p-4 rounded-xl bg-c-status-warning/10 border border-c-status-warning/30 text-[var(--status-warning)] space-y-2">
                 <div className="flex items-center gap-2">
-                  <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0" />
+                  <AlertTriangle className="w-5 h-5 text-[var(--status-warning)] shrink-0" />
                   <h3 className="text-xs font-bold uppercase tracking-wider">
                     Advanced Research Overrides — Caution
                   </h3>
                 </div>
-                <p className="text-xs leading-relaxed text-amber-200/90">
-                  These parameters govern the autonomous Bayesian inference and digital twin evaluation gates. Modifying them alters the frozen Stage 8 production baseline (&tau; = 0.60, H = 3, W_osc = 4). Overrides must remain explicit, traceable, and require affirmative confirmation.
+                <p className="text-xs leading-relaxed text-c-status-warning/90">
+                  These parameters govern the diagnosis confidence gate and the digital twin evaluation. Changing them alters the default baseline (&tau; = 0.60, H = 3, W_osc = 4). Overrides must remain explicit, traceable, and require affirmative confirmation.
                 </p>
                 <div className="pt-2 flex items-center gap-2">
                   <input
@@ -1232,7 +1223,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <label className="text-xs font-semibold text-[var(--content-primary)]">
                           Diagnostic Gate Threshold &tau;
                         </label>
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-[var(--status-warning)]">
                           &tau; = {draftConfidenceThreshold.toFixed(2)}
                         </span>
                       </div>
@@ -1241,27 +1232,27 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                           onClick={() => setDraftConfidenceThreshold(0.60)}
                           className={`p-2.5 rounded-lg text-xs font-medium border text-left transition-all ${
                             draftConfidenceThreshold === 0.60
-                              ? "bg-amber-500/15 border-amber-500 text-amber-300 font-semibold"
+                              ? "bg-c-status-warning/15 border-[var(--status-warning)] text-[var(--status-warning)] font-semibold"
                               : "bg-[var(--bg-primary)] border-[var(--border-subtle)] text-[var(--content-secondary)]"
                           }`}
                         >
-                          <div className="font-bold">Production: &tau; = 0.60</div>
-                          <div className="text-[10px] text-[var(--content-secondary)]">96% coverage, baseline</div>
+                          <div className="font-bold">Default: &tau; = 0.60</div>
+                          <div className="text-[10px] text-[var(--content-secondary)]">Acts on most detected faults</div>
                         </button>
                         <button
-                          onClick={() => setDraftConfidenceThreshold(0.84)}
+                          onClick={() => setDraftConfidenceThreshold(0.8)}
                           className={`p-2.5 rounded-lg text-xs font-medium border text-left transition-all ${
-                            draftConfidenceThreshold === 0.84
-                              ? "bg-amber-500/15 border-amber-500 text-amber-300 font-semibold"
+                            draftConfidenceThreshold === 0.8
+                              ? "bg-c-status-warning/15 border-[var(--status-warning)] text-[var(--status-warning)] font-semibold"
                               : "bg-[var(--bg-primary)] border-[var(--border-subtle)] text-[var(--content-secondary)]"
                           }`}
                         >
-                          <div className="font-bold">Calibrated: &tau;* = 0.84</div>
-                          <div className="text-[10px] text-[var(--content-secondary)]">0% FPR, 16.7% coverage</div>
+                          <div className="font-bold">Cautious: &tau; = 0.80</div>
+                          <div className="text-[10px] text-[var(--content-secondary)]">Fewer, surer repairs</div>
                         </button>
                       </div>
                       <p className="text-[11px] text-[var(--content-tertiary)] pt-1 leading-relaxed">
-                        Setting &tau; = 0.84 reduces observed false positive admissions to 0.0%, but abstains on 83.33% of episodes. Production runtime remains frozen at &tau; = 0.60.
+                        A higher threshold makes the system act less often: fewer unnecessary repairs on healthy runs, but more real faults left waiting for stronger evidence.
                       </p>
                     </div>
 
@@ -1271,7 +1262,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <label className="text-xs font-semibold text-[var(--content-primary)]">
                           Digital Twin Lookahead Horizon H
                         </label>
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-[var(--status-warning)]">
                           H = {draftValidationWindow} steps
                         </span>
                       </div>
@@ -1286,7 +1277,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       />
                       <div className="flex justify-between text-[10px] font-mono text-[var(--content-tertiary)]">
                         <span>H = 1 (Fast)</span>
-                        <span>H = 3 (Frozen Baseline)</span>
+                        <span>H = 3 (default)</span>
                         <span>H = 5 (Deep Lookahead)</span>
                       </div>
                       <p className="text-[11px] text-[var(--content-tertiary)] pt-1 leading-relaxed">
@@ -1300,7 +1291,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                         <label className="text-xs font-semibold text-[var(--content-primary)]">
                           Anti-Oscillation Window W_osc
                         </label>
-                        <span className="text-xs font-mono font-bold text-amber-400">
+                        <span className="text-xs font-mono font-bold text-[var(--status-warning)]">
                           W_osc = {draftOscillationWindow} steps
                         </span>
                       </div>
@@ -1321,7 +1312,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 </div>
               ) : (
                 <div className="p-8 text-center text-xs font-mono text-[var(--content-secondary)] rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)]">
-                  Research overrides are locked to prevent accidental modification of the Stage 8 baseline. Check the box above to unlock experimental parameters.
+                  Research overrides are locked to prevent accidental modification of the default baseline. Check the box above to unlock experimental parameters.
                 </div>
               )}
             </div>
@@ -1333,14 +1324,14 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <div className="border-b border-[var(--border-subtle)] pb-4 flex items-center justify-between">
                 <div>
                   <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                    <Lock className="w-4 h-4 text-emerald-400" />
+                    <Lock className="w-4 h-4 text-[var(--status-success)]" />
                     Locked Framework Invariants (Protected Architecture)
                   </h2>
                   <p className="text-xs text-[var(--content-secondary)] mt-1">
                     These 10 core theoretical and architectural invariants define the published research framework and cannot be modified by user settings.
                   </p>
                 </div>
-                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 font-bold">
+                <span className="text-[10px] font-mono px-2 py-0.5 rounded bg-c-status-success/10 text-[var(--status-success)] border border-c-status-success/20 font-bold">
                   IMMUTABLE
                 </span>
               </div>
@@ -1363,13 +1354,13 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     num: "03",
                     title: "Contextual Thompson Sampling",
                     formula: "r_t \\sim \\mathcal{N}(\\mu_a^T s_t, \\sigma_a^2)",
-                    desc: "Bayesian linear bandit with Normal-Gamma prior distributions maintaining conjugate posterior parameter distributions per arm.",
+                    desc: "Per-arm Bayesian linear regression with a Gaussian prior; Thompson sampling draws weights from N(μ, v²B⁻¹).",
                   },
                   {
                     num: "04",
                     title: "Production Confidence Threshold",
-                    formula: "\\tau = 0.60 \\text{ (Frozen Baseline)}",
-                    desc: "Diagnoses with Bayesian posterior confidence below 0.60 are held, preventing ungrounded destructive interventions.",
+                    formula: "\\tau = 0.60 \\text{ (default)}",
+                    desc: "Diagnoses with confidence below 0.60 are held, preventing ungrounded destructive interventions.",
                   },
                   {
                     num: "05",
@@ -1437,7 +1428,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <div className="border-b border-[var(--border-subtle)] pb-4 flex flex-col sm:flex-row sm:items-center justify-between gap-3">
                 <div>
                   <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                    <Radio className="w-4 h-4 text-emerald-400" />
+                    <Radio className="w-4 h-4 text-[var(--status-success)]" />
                     Backend REST &amp; WebSocket Connectivity Monitor
                   </h2>
                   <p className="text-xs text-[var(--content-secondary)] mt-1">
@@ -1462,11 +1453,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     Frontend Application
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500 animate-pulse" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--status-success)] animate-pulse" />
                     <span className="text-xs font-bold text-[var(--content-primary)]">Online (Next.js 14)</span>
                   </div>
                   <span className="text-[10px] text-[var(--content-secondary)] block">
-                    React 19 • Browser Localhost / Vercel Edge
+                    React 18 • Vercel
                   </span>
                 </div>
 
@@ -1478,7 +1469,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
-                        latency !== null && latency >= 0 ? "bg-emerald-500" : "bg-rose-500"
+                        latency !== null && latency >= 0 ? "bg-[var(--status-success)]" : "bg-[var(--status-danger)]"
                       }`}
                     />
                     <span className="text-xs font-bold text-[var(--content-primary)]">
@@ -1502,7 +1493,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <div className="flex items-center gap-2">
                     <span
                       className={`w-2.5 h-2.5 rounded-full ${
-                        isBackendConnected ? "bg-emerald-500 animate-pulse" : "bg-amber-500"
+                        isBackendConnected ? "bg-[var(--status-success)] animate-pulse" : "bg-[var(--status-warning)]"
                       }`}
                     />
                     <span className="text-xs font-bold text-[var(--content-primary)]">
@@ -1552,7 +1543,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                     SQLite Episode Memory
                   </span>
                   <div className="flex items-center gap-2">
-                    <span className="w-2.5 h-2.5 rounded-full bg-emerald-500" />
+                    <span className="w-2.5 h-2.5 rounded-full bg-[var(--status-success)]" />
                     <span className="text-xs font-bold text-[var(--content-primary)]">
                       WAL Mode Active
                     </span>
@@ -1571,7 +1562,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 </div>
                 <div className="flex items-center justify-between border-b border-[var(--border-subtle)] pb-2">
                   <span className="text-[var(--content-secondary)]">HTTP Response Status:</span>
-                  <span className={`font-bold ${latency !== null && latency >= 0 ? "text-emerald-400" : "text-rose-400"}`}>
+                  <span className={`font-bold ${latency !== null && latency >= 0 ? "text-[var(--status-success)]" : "text-[var(--status-danger)]"}`}>
                     {httpStatus || "Untested"}
                   </span>
                 </div>
@@ -1594,7 +1585,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
             <div className="glass-panel p-6 space-y-6 animate-fade-in">
               <div className="border-b border-[var(--border-subtle)] pb-4">
                 <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
-                  <HardDrive className="w-4 h-4 text-emerald-400" />
+                  <HardDrive className="w-4 h-4 text-[var(--status-success)]" />
                   Telemetry Data Management &amp; Multi-Format Export
                 </h2>
                 <p className="text-xs text-[var(--content-secondary)] mt-1">
@@ -1606,7 +1597,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                 {/* Export 1: CSV */}
                 <div className="p-5 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] flex flex-col justify-between space-y-4">
                   <div>
-                    <div className="flex items-center gap-2 text-emerald-400 mb-2">
+                    <div className="flex items-center gap-2 text-[var(--status-success)] mb-2">
                       <FileSpreadsheet className="w-5 h-5" />
                       <h4 className="text-xs font-bold text-[var(--content-primary)]">Tabular CSV Telemetry</h4>
                     </div>
@@ -1620,7 +1611,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <button
                     onClick={handleExportCSV}
                     disabled={history.length === 0}
-                    className="apple-btn w-full py-2 rounded-xl text-xs font-semibold bg-emerald-500/15 hover:bg-emerald-500/25 text-emerald-400 border border-emerald-500/30 flex items-center justify-center gap-1.5 disabled:opacity-40"
+                    className="apple-btn w-full py-2 rounded-xl text-xs font-semibold bg-c-status-success/15 hover:bg-c-status-success/25 text-[var(--status-success)] border border-c-status-success/30 flex items-center justify-center gap-1.5 disabled:opacity-40"
                   >
                     <Download className="w-3.5 h-3.5" />
                     <span>Export Telemetry (.CSV)</span>
@@ -1656,21 +1647,19 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                   <div>
                     <div className="flex items-center gap-2 text-[var(--accent)] mb-2">
                       <ShieldCheck className="w-5 h-5" />
-                      <h4 className="text-xs font-bold text-[var(--content-primary)]">Complete Research Dossier</h4>
+                      <h4 className="text-xs font-bold text-[var(--content-primary)]">Research summary export</h4>
                     </div>
                     <p className="text-[11px] text-[var(--content-secondary)] leading-relaxed">
-                      Full audit package combining frozen baseline commit hash <code className="font-bold">7d37201</code>, calibration bounds, SQLite episodes, and multi-seed bandit distributions.
+                      Exports the current benchmark summary (QFaultBench-VQC v1), your lab configuration and session counts as one JSON file.
                     </p>
-                    <div className="mt-3 text-[10px] font-mono text-[var(--content-tertiary)]">
-                      Audit Hash: 7d37201aead20c7e5678585c998b51206bc49339
-                    </div>
+
                   </div>
                   <button
                     onClick={handleExportAuditDossier}
                     className="apple-btn w-full py-2 rounded-xl text-xs font-semibold bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white flex items-center justify-center gap-1.5 shadow-sm"
                   >
                     <Download className="w-3.5 h-3.5" />
-                    <span>Export Audit Dossier (.JSON)</span>
+                    <span>Export research summary (.json)</span>
                   </button>
                 </div>
               </div>
@@ -1683,26 +1672,20 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               <div className="border-b border-[var(--border-subtle)] pb-4">
                 <h2 className="text-sm font-semibold text-[var(--content-primary)] flex items-center gap-2">
                   <ShieldCheck className="w-4 h-4 text-[var(--accent)]" />
-                  Scientific Baseline Provenance &amp; Attribution
+                  About this build
                 </h2>
                 <p className="text-xs text-[var(--content-secondary)] mt-1">
-                  Cryptographic commit verification, frozen benchmark provenance, and framework citations.
+                  Where the evidence comes from and what the system is built with.
                 </p>
               </div>
 
               <div className="space-y-4 font-mono text-xs">
                 <div className="p-4 rounded-xl bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-2">
-                  <div className="flex justify-between items-center text-[var(--accent)] font-bold">
-                    <span>FROZEN EXPERIMENTAL RECORD</span>
-                    <span className="px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20 text-[10px]">
-                      VERIFIED
-                    </span>
-                  </div>
-                  <div className="text-[var(--content-primary)] text-sm font-bold">
-                    Commit: 7d37201aead20c7e5678585c998b51206bc49339
-                  </div>
+                  <div className="text-[var(--accent)] font-bold">CURRENT EVIDENCE</div>
+                  <div className="text-[var(--content-primary)] text-sm font-bold">QFaultBench-VQC v1: counterfactual fault-injection benchmark</div>
                   <div className="text-[11px] text-[var(--content-secondary)]">
-                    Short Hash: <code>7d37201</code> • Tree clean • Frozen baseline reference
+                    11 datasets, ideal and IBM-calibrated noise regimes. Findings in <code>research/RESEARCH_FINDINGS.md</code>; every number in{" "}
+                    <code>research/RESULTS.md</code>. The earlier Stage 8 benchmark is superseded.
                   </div>
                 </div>
 
@@ -1714,16 +1697,16 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
                       <strong>PennyLane 0.45.1</strong>
                     </div>
                     <div>
-                      <span className="text-[var(--content-tertiary)] block">Autograd Framework</span>
-                      <strong>PyTorch 2.x Autograd</strong>
+                      <span className="text-[var(--content-tertiary)] block">Gradients</span>
+                      <strong>NumPy parameter-shift</strong>
                     </div>
                     <div>
                       <span className="text-[var(--content-tertiary)] block">Front-End Interface</span>
-                      <strong>Next.js 14 / React 19</strong>
+                      <strong>Next.js 14 / React 18</strong>
                     </div>
                     <div>
                       <span className="text-[var(--content-tertiary)] block">Memory Subsystem</span>
-                      <strong>SQLite 3 (WAL Mode)</strong>
+                      <strong>SQLite 3 (episodic memory)</strong>
                     </div>
                   </div>
                 </div>
@@ -1775,11 +1758,11 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--content-secondary)]">Classical Optimizer:</span>
-                <span className="font-bold text-emerald-400">{draftOptimizerName.toUpperCase()}</span>
+                <span className="font-bold text-[var(--status-success)]">{draftOptimizerName.toUpperCase()}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--content-secondary)]">Learning Rate &eta;:</span>
-                <span className="font-bold text-emerald-400">{draftLearningRate.toFixed(4)}</span>
+                <span className="font-bold text-[var(--status-success)]">{draftLearningRate.toFixed(4)}</span>
               </div>
               <div className="flex justify-between items-center">
                 <span className="text-[var(--content-secondary)]">Budget Steps (max_steps):</span>
@@ -1791,7 +1774,7 @@ export const SettingsPanel: React.FC<SettingsPanelProps> = ({
               </div>
               <div className="flex justify-between items-center border-t border-[var(--border-subtle)] pt-2">
                 <span className="text-[var(--content-secondary)]">Research Overrides:</span>
-                <span className={`font-bold ${enableOverrides ? "text-amber-400" : "text-emerald-400"}`}>
+                <span className={`font-bold ${enableOverrides ? "text-[var(--status-warning)]" : "text-[var(--status-success)]"}`}>
                   {enableOverrides ? `ACTIVE (τ = ${draftConfidenceThreshold})` : "LOCKED PRODUCTION (τ = 0.60)"}
                 </span>
               </div>

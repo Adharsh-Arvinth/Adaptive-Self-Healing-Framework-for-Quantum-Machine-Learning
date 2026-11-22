@@ -177,7 +177,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
             </div>
             <div>
               <span className="text-[10px] text-[var(--content-secondary)] block">Eligible Pool</span>
-              <span className="text-emerald-400 font-semibold">{decision.eligible_arms.length} / 6 Arms</span>
+              <span className="text-[var(--status-success)] font-semibold">{decision.eligible_arms.length} / 6 Arms</span>
             </div>
           </div>
         )}
@@ -252,7 +252,7 @@ export const BanditMonitor: React.FC<BanditMonitorProps> = ({
                       <td className="p-2 font-sans font-medium">{f.name}</td>
                       <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.formula}</td>
                       <td className="p-2 text-[var(--content-secondary)] text-[10px]">{f.range}</td>
-                      <td className="p-2 text-emerald-400 font-semibold">
+                      <td className="p-2 text-[var(--status-success)] font-semibold">
                         {f.getValue(currentTelemetry || null)}
                       </td>
                     </tr>

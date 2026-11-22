@@ -3,6 +3,8 @@
 import React, { useState, useEffect, useRef, useCallback } from "react";
 import { Header } from "@/components/Header";
 import { Story } from "@/components/story/Story";
+import { useAppearance } from "@/components/appearance/AppearanceProvider";
+import { AppearanceSheet } from "@/components/appearance/AppearancePanel";
 import { DashboardView } from "@/components/DashboardView";
 import { ToastContainer } from "@/components/Toast";
 import { ConfirmationModal } from "@/components/ConfirmationModal";
@@ -43,7 +45,8 @@ export default function Page() {
   useEffect(() => {
     window.scrollTo({ top: 0, behavior: "auto" });
   }, [activeView]);
-  const [isDarkMode, setIsDarkMode] = useState(true);
+  const { appearance, setAppearance } = useAppearance();
+  const isDarkMode = appearance.mode === "night";
 
   // Notifications & Modals
   const [toasts, setToasts] = useState<ToastMessage[]>([]);
@@ -147,39 +150,13 @@ export default function Page() {
     setToasts((prev) => prev.filter((t) => t.id !== id));
   };
 
-  // Sync Theme (Cinematic Dark Default with persistence)
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const stored = localStorage.getItem("theme");
-      if (stored === "light") {
-        setIsDarkMode(false);
-        document.documentElement.classList.remove("dark");
-      } else {
-        setIsDarkMode(true);
-        document.documentElement.classList.add("dark");
-      }
-    }
-  }, []);
-
-  const handleToggleTheme = () => {
-    setIsDarkMode((prev) => {
-      const next = !prev;
-      if (typeof window !== "undefined") {
-        localStorage.setItem("theme", next ? "dark" : "light");
-        if (next) {
-          document.documentElement.classList.add("dark");
-        } else {
-          document.documentElement.classList.remove("dark");
-        }
-      }
-      return next;
-    });
-  };
+  const handleToggleTheme = () => setAppearance({ mode: isDarkMode ? "day" : "night" });
 
   // Allow ESC key to exit dashboard back to landing
   useEffect(() => {
     const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === "Escape" && activeView === "dashboard") {
+      // Esc leaves the lab, unless a dialog (tour, confirmation) is open: Esc closes that first.
+      if (e.key === "Escape" && activeView === "dashboard" && !document.querySelector('[role="dialog"], [aria-modal="true"]')) {
         setActiveView("landing");
       }
     };
@@ -798,6 +775,7 @@ export default function Page() {
 
   return (
     <div className="flex flex-col min-h-screen bg-[var(--bg-primary)] text-[var(--content-primary)] transition-colors selection:bg-[var(--accent)] selection:text-white">
+      <AppearanceSheet />
       {/* Toast Notification Container */}
       <ToastContainer toasts={toasts} onDismiss={dismissToast} />
 
@@ -835,7 +813,7 @@ export default function Page() {
       {activeView === "landing" ? (
         <Story isConnected={isConnected} onLaunchLab={() => setActiveView("dashboard")} />
       ) : (
-        <main className="flex-1 w-full animate-fade-in py-6 px-3 sm:px-6 max-w-[1600px] mx-auto bg-grid-theme">
+        <main className="flex-1 w-full px-3 sm:px-6 lg:px-10 max-w-[120rem] mx-auto">
           <ErrorBoundary
             fallbackTitle="Interactive Research Laboratory Interrupted"
             onReturnToOverview={() => setActiveView("landing")}

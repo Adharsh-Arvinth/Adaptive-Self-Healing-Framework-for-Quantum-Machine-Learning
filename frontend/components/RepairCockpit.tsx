@@ -69,7 +69,7 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 02",
     name: "Reduce Circuit Depth",
     domain: "Hilbert Expressibility",
-    domainColor: "border-amber-500/30 text-amber-400 bg-amber-500/10",
+    domainColor: "border-c-status-warning/30 text-[var(--status-warning)] bg-c-status-warning/10",
     oneLiner: "Truncates variational ansatz layers (L → L - 1) to relieve barren plateau gradient vanishing.",
     mechanism: "Decrements ansatz layer count and truncates parameters θ_L. Parameter tensor dimension drops by 2 per qubit.",
     transformation: "U(θ) = ∏_{l=1}^{L-1} W_l(θ_l) V_l(x) — truncates layer L",
@@ -97,7 +97,7 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 04",
     name: "Adjust Learning Rate",
     domain: "Descent Dynamics",
-    domainColor: "border-emerald-500/30 text-emerald-400 bg-emerald-500/10",
+    domainColor: "border-c-status-success/30 text-[var(--status-success)] bg-c-status-success/10",
     oneLiner: "Scales step size η (0.5× reduction or 1.5× acceleration) within safe operational boundaries.",
     mechanism: "Multiplicatively scales descent step size η to recover from steep gradient divergence or flat plateau stalling.",
     transformation: "η_{t+1} = clip(η_t · factor, 1e-4, 1.0)  where factor ∈ {0.5, 1.5}",
@@ -111,7 +111,7 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 05",
     name: "Apply Noise Mitigation",
     domain: "Bloch State Correction",
-    domainColor: "border-purple-500/30 text-purple-400 bg-purple-500/10",
+    domainColor: "border-c-status-ansatz/30 text-[var(--status-ansatz)] bg-c-status-ansatz/10",
     oneLiner: "Applies simulation-side inverse-noise contraction correction across single-qubit Bloch state.",
     mechanism: "Evaluates single-qubit density matrix coordinates and inverts radial shrinkage r → r / (1 - p_noise).",
     transformation: "r_mitigated = min(1.0, r / (1 - p_noise))  ⟹  Tr(ρ²) → 1.0",
@@ -125,7 +125,7 @@ const LOCKED_ARMS: ArmSpec[] = [
     number: "ARM 06",
     name: "Warm Restart",
     domain: "Trajectory Escape",
-    domainColor: "border-rose-500/30 text-rose-400 bg-rose-500/10",
+    domainColor: "border-c-status-danger/30 text-[var(--status-danger)] bg-c-status-danger/10",
     oneLiner: "Adds bounded stochastic Gaussian jitter (σ = 0.05) to parameters to escape saddle points.",
     mechanism: "Perturbs parameter tensor coordinates θ with bounded isotropic Gaussian noise to kick weights off flat saddles.",
     transformation: "θ_{t+1} = θ_t + ε  where  ε ~ 𝒩(0, σ² I),  σ = 0.05",
@@ -204,7 +204,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
             </span>
           </div>
           <p className="text-xs text-[var(--content-secondary)] mt-1 leading-relaxed">
-            Autonomous closed-loop actuators evaluated via Bayesian linear regression posteriors, pre-screened in twin simulation, and gated by safety filters.
+            Six reversible repairs. A contextual bandit chooses, the digital twin rehearses each one, and safety bounds gate what can run.
           </p>
         </div>
 
@@ -218,14 +218,14 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
 
       {/* Live Transaction Status Bar if an arm is deployed/validating */}
       {isValidating && deployment && (
-        <div className="p-3.5 rounded-xl bg-amber-500/10 border border-amber-500/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono animate-fade-in">
+        <div className="p-3.5 rounded-xl bg-c-status-warning/10 border border-c-status-warning/30 flex flex-col sm:flex-row sm:items-center justify-between gap-3 text-xs font-mono animate-fade-in">
           <div className="flex items-center gap-2">
-            <span className="w-2.5 h-2.5 rounded-full bg-amber-500 animate-pulse" />
+            <span className="w-2.5 h-2.5 rounded-full bg-[var(--status-warning)] animate-pulse" />
             <span className="font-semibold text-[var(--content-primary)]">
               ACTIVE DEPLOYMENT: {deployment.repair_arm ? deployment.repair_arm.replace(/_/g, " ").toUpperCase() : "MUTATION"}
             </span>
             <span className="text-[var(--content-tertiary)]">•</span>
-            <span className="text-amber-500 font-medium">Validating Window W_val = 3</span>
+            <span className="text-[var(--status-warning)] font-medium">Validating Window W_val = 3</span>
             <span className="text-[var(--content-tertiary)]">•</span>
             <span className="text-[var(--content-secondary)]">
               Pre-Loss: {deployment.loss_pre ? deployment.loss_pre.toFixed(4) : "—"}
@@ -277,7 +277,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
               key={arm.id}
               className={`interactive-card group p-4 sm:p-5 rounded-2xl border flex flex-col justify-between select-none relative ${
                 isDeployedNow
-                  ? "bg-amber-500/10 border-amber-500 shadow-[0_0_24px_rgba(245,158,11,0.2)]"
+                  ? "bg-c-status-warning/10 border-[var(--status-warning)] shadow-[0_0_24px_rgba(245,158,11,0.2)]"
                   : isSelected
                   ? "bg-[var(--accent-subtle)] border-[var(--accent)] shadow-[0_0_24px_rgba(56,189,248,0.2)]"
                   : isInspected
@@ -305,7 +305,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                   {/* Status Pill */}
                   <div className="shrink-0">
                     {isDeployedNow ? (
-                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-amber-500 text-white animate-pulse">
+                      <span className="px-2 py-0.5 rounded text-[10px] font-mono font-bold bg-[var(--status-warning)] text-white animate-pulse">
                         VALIDATING
                       </span>
                     ) : isSelected ? (
@@ -366,7 +366,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
                       aria-disabled={isDeployDisabled}
                       className={`apple-btn px-3 py-1.5 rounded-lg text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm ${
                         isDeployedNow
-                          ? "bg-amber-500 text-white cursor-default"
+                          ? "bg-[var(--status-warning)] text-white cursor-default"
                           : isDeployDisabled
                           ? "opacity-40 cursor-not-allowed bg-[var(--bg-subtle)] text-[var(--content-tertiary)] border border-[var(--border-subtle)]"
                           : "bg-[var(--accent)] hover:bg-[var(--accent-hover)] text-white active:scale-95"
@@ -419,7 +419,7 @@ export const RepairCockpit: React.FC<RepairCockpitProps> = ({
             </div>
             <div className="p-2.5 rounded-lg bg-[var(--bg-surface)] border border-[var(--border-subtle)] space-y-1">
               <span className="text-[10px] text-[var(--content-tertiary)] block">SAFETY CLAMP CONSTRAINT</span>
-              <span className="text-amber-500 font-semibold block">{activeArm.boundConstraint}</span>
+              <span className="text-[var(--status-warning)] font-semibold block">{activeArm.boundConstraint}</span>
             </div>
           </div>
         </div>

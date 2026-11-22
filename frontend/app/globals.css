@@ -11,6 +11,48 @@
    driven storytelling on black).
    ========================================================================== */
 
+/* ==========================================================================
+   Typeface styles (Settings -> Appearance). Each style maps four roles onto font families
+   loaded by next/font in app/layout.tsx. --display-zoom keeps headline widths comparable,
+   because the default condensed face is much narrower than the alternatives.
+   ========================================================================== */
+:root,
+[data-font="racing"] {
+  --font-condensed: var(--ff-bigshoulders);
+  --font-display: var(--ff-archivo);
+  --font-sans: var(--ff-instrument);
+  --font-mono: var(--ff-dmmono);
+  --display-zoom: 1;
+}
+[data-font="swiss"] {
+  --font-condensed: var(--ff-intertight);
+  --font-display: var(--ff-intertight);
+  --font-sans: var(--ff-inter);
+  --font-mono: var(--ff-dmmono);
+  --display-zoom: 0.64;
+}
+[data-font="editorial"] {
+  --font-condensed: var(--ff-fraunces);
+  --font-display: var(--ff-fraunces);
+  --font-sans: var(--ff-instrument);
+  --font-mono: var(--ff-dmmono);
+  --display-zoom: 0.62;
+}
+[data-font="technical"] {
+  --font-condensed: var(--ff-spacegrotesk);
+  --font-display: var(--ff-spacegrotesk);
+  --font-sans: var(--ff-spacegrotesk);
+  --font-mono: var(--ff-spacemono);
+  --display-zoom: 0.6;
+}
+[data-font="geometric"] {
+  --font-condensed: var(--ff-unbounded);
+  --font-display: var(--ff-unbounded);
+  --font-sans: var(--ff-manrope);
+  --font-mono: var(--ff-dmmono);
+  --display-zoom: 0.5;
+}
+
 :root {
   /* Motion — strong custom curves (Emil Kowalski) */
   --ease-out: cubic-bezier(0.23, 1, 0.32, 1);
@@ -18,38 +60,38 @@
   --ease-drawer: cubic-bezier(0.32, 0.72, 0, 1);
 
   /* Fixed story palette (independent of the lab theme) */
-  --paper: #f2efe8;
-  --paper-2: #e9e5db;
-  --ink: #111110;
-  --ink-2: #55524a;
-  --ink-3: #8c887d;
-  --carbon: #0a0a0b;
-  --carbon-2: #141416;
-  --signal: #e8341c;
-  --signal-2: #ff5a3d;
-  --heal: #2fbf71;
+  --paper: #f4f1ea;
+  --paper-2: #e9e4d8;
+  --ink: #0e0e0e;
+  --ink-2: #4e4b45;
+  --ink-3: #8a857a;
+  --carbon: #0b0b0c;
+  --carbon-2: #151517;
+  --signal: #da291c;
+  --signal-2: #ff4d3d;
+  --heal: #1fa463;
 
   /* Lab theme — light ("paper") */
-  --bg-primary: #f2efe8;
-  --bg-surface: #fbfaf6;
+  --bg-primary: #f4f1ea;
+  --bg-surface: #faf8f3;
   --bg-surface-elevated: #ffffff;
-  --bg-subtle: #e9e5db;
-  --bg-hover: #e1dccf;
+  --bg-subtle: #ebe6db;
+  --bg-hover: #e2dccf;
 
-  --border-subtle: rgba(20, 18, 14, 0.1);
-  --border-highlight: rgba(20, 18, 14, 0.22);
+  --border-subtle: rgba(14, 14, 14, 0.1);
+  --border-highlight: rgba(14, 14, 14, 0.22);
 
-  --text-primary: #111110;
-  --text-secondary: #55524a;
-  --text-tertiary: #8c887d;
-  --content-primary: #111110;
-  --content-secondary: #55524a;
-  --content-tertiary: #8c887d;
+  --text-primary: #0e0e0e;
+  --text-secondary: #4e4b45;
+  --text-tertiary: #8a857a;
+  --content-primary: #0e0e0e;
+  --content-secondary: #4e4b45;
+  --content-tertiary: #8a857a;
 
-  --accent: #e8341c;
-  --accent-primary: #e8341c;
-  --accent-hover: #c92a14;
-  --accent-subtle: rgba(232, 52, 28, 0.09);
+  --accent: #da291c;
+  --accent-primary: #da291c;
+  --accent-hover: #b8200f;
+  --accent-subtle: rgba(218, 41, 28, 0.08);
 
   --accent-copper: #b5651d;
   --accent-copper-hover: #95521a;
@@ -75,30 +117,30 @@
   --card-shadow-lg: 0 24px 48px -24px rgba(20, 18, 14, 0.25);
   --grid-line: rgba(20, 18, 14, 0.05);
   /* RGB channels so Tailwind opacity modifiers work (e.g. bg-c-ink/70) */
-  --rgb-ink: 17 17 16;
-  --rgb-paper: 242 239 232;
-  --rgb-carbon: 10 10 11;
-  --rgb-signal: 232 52 28;
-  --rgb-accent: 232 52 28;
+  --rgb-ink: 14 14 14;
+  --rgb-paper: 244 241 234;
+  --rgb-carbon: 11 11 12;
+  --rgb-signal: 218 41 28;
+  --rgb-accent: 218 41 28;
   --rgb-status-danger: 214 31 105;
   --rgb-status-success: 31 157 85;
   --rgb-status-warning: 201 130 0;
   --rgb-status-info: 47 111 223;
   --rgb-status-purity: 14 147 132;
   --rgb-status-ansatz: 110 86 207;
-  --rgb-bg-surface: 251 250 246;
+  --rgb-bg-surface: 250 248 243;
   --rgb-bg-surface-elevated: 255 255 255;
-  --rgb-bg-subtle: 233 229 219;
-  --rgb-bg-primary: 242 239 232;
+  --rgb-bg-subtle: 235 230 219;
+  --rgb-bg-primary: 244 241 234;
 }
 
 /* Lab theme — dark ("carbon") */
 .dark {
-  --bg-primary: #0a0a0b;
-  --bg-surface: #121214;
-  --bg-surface-elevated: #18181b;
-  --bg-subtle: #1e1e22;
-  --bg-hover: #27272c;
+  --bg-primary: #0b0b0c;
+  --bg-surface: #131315;
+  --bg-surface-elevated: #19191c;
+  --bg-subtle: #1f1f23;
+  --bg-hover: #28282d;
 
   --border-subtle: rgba(255, 255, 255, 0.08);
   --border-highlight: rgba(255, 255, 255, 0.16);
@@ -110,10 +152,10 @@
   --content-secondary: #a3a09a;
   --content-tertiary: #6e6b66;
 
-  --accent: #ff4122;
-  --accent-primary: #ff4122;
-  --accent-hover: #ff5a3d;
-  --accent-subtle: rgba(255, 65, 34, 0.12);
+  --accent: #ff4d3d;
+  --accent-primary: #ff4d3d;
+  --accent-hover: #ff6a5c;
+  --accent-subtle: rgba(255, 77, 61, 0.12);
 
   --accent-copper: #f0a35e;
   --accent-copper-hover: #f5b57a;
@@ -138,24 +180,27 @@
   --card-shadow: 0 12px 32px -16px rgba(0, 0, 0, 0.7), inset 0 1px 0 0 rgba(255, 255, 255, 0.05);
   --card-shadow-lg: 0 28px 56px -24px rgba(0, 0, 0, 0.85), inset 0 1px 0 0 rgba(255, 255, 255, 0.06);
   --grid-line: rgba(255, 255, 255, 0.035);
-  --rgb-accent: 255 65 34;
+  --rgb-accent: 255 77 61;
   --rgb-status-danger: 255 79 139;
   --rgb-status-success: 61 214 140;
   --rgb-status-warning: 245 181 61;
   --rgb-status-info: 91 155 255;
   --rgb-status-purity: 45 212 191;
   --rgb-status-ansatz: 162 139 255;
-  --rgb-bg-surface: 18 18 20;
+  --rgb-bg-surface: 19 19 21;
   --rgb-bg-surface-elevated: 24 24 27;
-  --rgb-bg-subtle: 30 30 34;
-  --rgb-bg-primary: 10 10 11;
+  --rgb-bg-subtle: 31 31 35;
+  --rgb-bg-primary: 11 11 12;
 }
 
 /* ==========================================================================
    Base typography
    ========================================================================== */
+/* Fluid root size: every rem-based measure (spacing, type, containers) scales smoothly from
+   phones (16px) through laptops (16px at 1440) to large TVs (24px cap at ~3600px wide). */
 html {
   -webkit-text-size-adjust: 100%;
+  font-size: clamp(16px, calc(10.5px + 0.38vw), 24px);
 }
 
 body {
@@ -180,19 +225,19 @@ code, pre, .font-mono {
 }
 
 ::selection {
-  background: var(--signal);
+  background: var(--accent);
   color: #fff;
 }
 
 /* Display type: one variable family, two personalities */
 .type-condensed {
-  font-family: var(--font-display), sans-serif;
-  font-variation-settings: "wdth" 62;
-  font-stretch: 62%;
+  font-family: var(--font-condensed), var(--font-display), sans-serif;
+  zoom: var(--display-zoom, 1);
   font-weight: 800;
   text-transform: uppercase;
-  line-height: 0.84;
-  letter-spacing: -0.01em;
+  line-height: 0.86;
+  letter-spacing: -0.005em;
+  font-variant-numeric: tabular-nums;
 }
 .type-wide {
   font-family: var(--font-display), sans-serif;
@@ -217,8 +262,8 @@ code, pre, .font-mono {
 .bg-grid-paper {
   background-color: var(--paper);
   background-image:
-    linear-gradient(rgba(20, 18, 14, 0.045) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(20, 18, 14, 0.045) 1px, transparent 1px);
+    linear-gradient(var(--grid-paper-line, rgba(20, 18, 14, 0.045)) 1px, transparent 1px),
+    linear-gradient(90deg, var(--grid-paper-line, rgba(20, 18, 14, 0.045)) 1px, transparent 1px);
   background-size: 56px 56px;
   background-position: -1px -1px;
 }
@@ -408,4 +453,44 @@ html.lenis body {
 }
 @media (prefers-reduced-transparency: reduce) {
   .backdrop-blur-xl, .backdrop-blur-md { backdrop-filter: none !important; }
+}
+
+/* ==========================================================================
+   Lab: panel typography and staggered entrances
+   ========================================================================== */
+#dashboard .glass-panel {
+  border-radius: 1.75rem;
+}
+#dashboard .glass-panel h2,
+#dashboard .glass-panel h3 {
+  font-family: var(--font-display), sans-serif;
+  font-variation-settings: "wdth" 104;
+  font-weight: 700;
+  letter-spacing: -0.015em;
+  font-size: clamp(1rem, 0.88rem + 0.25vw, 1.25rem);
+  line-height: 1.2;
+}
+/* Sections of the active tab rise in one after another. fill-mode "backwards" applies the start
+   state during the delay, then leaves no transform behind (a lingering transform would trap
+   fixed-position overlays inside the panel). */
+@keyframes lab-rise {
+  from { opacity: 0; transform: translateY(14px); }
+  to { opacity: 1; transform: none; }
+}
+.lab-stagger > div > * {
+  animation: lab-rise 560ms var(--ease-out) backwards;
+}
+.lab-stagger > div > *:nth-child(2) { animation-delay: 70ms; }
+.lab-stagger > div > *:nth-child(3) { animation-delay: 140ms; }
+.lab-stagger > div > *:nth-child(4) { animation-delay: 210ms; }
+.lab-stagger > div > *:nth-child(5) { animation-delay: 280ms; }
+.lab-stagger > div > *:nth-child(n + 6) { animation-delay: 340ms; }
+
+/* Smooth colour hand-off when the visitor switches palette or mode (class added for ~450ms). */
+.appearance-transition,
+.appearance-transition *,
+.appearance-transition *::before,
+.appearance-transition *::after {
+  transition: background-color 420ms var(--ease-out), color 420ms var(--ease-out), border-color 420ms var(--ease-out),
+    fill 420ms var(--ease-out), stroke 420ms var(--ease-out) !important;
 }

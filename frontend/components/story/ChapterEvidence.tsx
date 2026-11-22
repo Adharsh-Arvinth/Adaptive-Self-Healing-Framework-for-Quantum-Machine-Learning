@@ -19,7 +19,7 @@ const T = {
     card: "bg-[var(--paper)] border border-c-ink/[0.12]",
     track: "bg-c-ink/[0.06]",
     bar: "bg-c-ink/70",
-    cell: (t: number) => ({ backgroundColor: `rgba(17,17,16,${(0.04 + 0.86 * t).toFixed(3)})`, color: t > 0.5 ? "#f2efe8" : "#55524a" }),
+    cell: (t: number) => ({ backgroundColor: `rgb(var(--rgb-ink) / ${(0.04 + 0.86 * t).toFixed(3)})`, color: t > 0.5 ? "var(--paper)" : "var(--ink-2)" }),
   },
   carbon: {
     section: "bg-[var(--carbon)] text-white",

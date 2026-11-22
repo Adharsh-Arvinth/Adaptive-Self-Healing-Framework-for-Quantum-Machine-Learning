@@ -6,7 +6,8 @@ import { ChapterFaults } from "./ChapterFaults";
 import { ChapterLoop } from "./ChapterLoop";
 import { ChapterRepairs } from "./ChapterRepairs";
 import { ChapterEvidence } from "./ChapterEvidence";
-import { ChapterFinale, ChapterLimits } from "./ChapterFinale";
+import { ChapterFinale, ChapterLimits, SiteFooter } from "./ChapterFinale";
+import { ChapterFAQ, ChapterResources } from "./ChapterResources";
 import { Marquee, useSmoothScroll } from "./motion";
 
 const BAND = ["Detect", "Diagnose", "Rehearse", "Repair", "Validate", "Recover"];
@@ -31,7 +32,10 @@ export const Story: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> 
       <ChapterRepairs />
       <ChapterEvidence tone="paper" />
       <ChapterLimits />
+      <ChapterResources />
+      <ChapterFAQ />
       <ChapterFinale onLaunchLab={onLaunchLab} />
+      <SiteFooter isConnected={isConnected} />
     </main>
   );
 };

@@ -61,7 +61,7 @@ export const ConfirmationModal: React.FC<ConfirmationModalProps> = ({
           </button>
           <button
             onClick={onConfirm}
-            className="apple-btn px-4 py-2 rounded-lg text-xs font-semibold bg-rose-600 text-white hover:bg-rose-700 shadow-sm transition-colors"
+            className="apple-btn px-4 py-2 rounded-lg text-xs font-semibold bg-[var(--status-danger)] text-white hover:bg-[var(--status-danger)] shadow-sm transition-colors"
           >
             {confirmLabel}
           </button>

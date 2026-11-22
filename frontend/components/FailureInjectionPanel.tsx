@@ -85,7 +85,7 @@ export const FailureInjectionPanel: React.FC<FailureInjectionPanelProps> = ({
                 </h2>
                 {isRunning && (
                   <span
-                    className="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"
+                    className="w-2 h-2 rounded-full bg-[var(--status-success)] animate-pulse"
                     title="Model actively training"
                   />
                 )}
