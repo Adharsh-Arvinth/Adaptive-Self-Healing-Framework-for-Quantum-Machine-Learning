@@ -68,7 +68,7 @@ export const ChapterEvidence: React.FC<{ tone?: Tone; compact?: boolean }> = ({ 
           {/* Headline numbers */}
           <div className={`grid grid-cols-2 lg:grid-cols-4 border-t ${s.rule}`}>
             {[
-              { v: data.n_episodes, d: 0, suf: "", label: "fault episodes replayed", sub: `${data.n_base_runs} paired training runs` },
+              { v: data.n_episodes, d: 0, suf: "", label: "counterfactual episodes", sub: `${data.n_faulty.toLocaleString("en-US")} faulty + ${(data.n_episodes - data.n_faulty).toLocaleString("en-US")} healthy controls · ${data.n_base_runs} paired runs` },
               { v: data.datasets.length, d: 0, suf: "", label: "datasets", sub: data.datasets.map((x) => DATASET_LABEL[x] ?? x).join(" · ") },
               { v: data.landscape.actions.length, d: 0, suf: "", label: "actions per episode", sub: "all from the same state" },
               { v: data.diagnosis.learned_macro_f1, d: 2, suf: "", label: "diagnosis macro-F1", sub: `on unseen datasets (rules: ${data.diagnosis.rule_macro_f1.toFixed(2)})` },
@@ -147,7 +147,7 @@ export const ChapterEvidence: React.FC<{ tone?: Tone; compact?: boolean }> = ({ 
             <div className="space-y-3">
               {policies.map((p, i) => (
                 <div key={p.name} className="grid grid-cols-[minmax(0,11rem)_1fr_3.5rem] sm:grid-cols-[18rem_1fr_4.5rem] items-center gap-4">
-                  <span className="text-sm truncate" title={p.name}>{p.name}</span>
+                  <span className="text-[0.8rem] sm:text-sm leading-snug" title={p.name}>{p.name}</span>
                   <div className={`relative h-7 rounded-md ${s.track}`} title={`${p.name}: ${pct(p.recovery)} (95% CI ${pct(p.ci[0])}–${pct(p.ci[1])})`}>
                     <motion.div
                       className={`absolute inset-y-0 left-0 rounded-md origin-left ${isOurs(p.name) ? "bg-[var(--signal)]" : s.bar}`}

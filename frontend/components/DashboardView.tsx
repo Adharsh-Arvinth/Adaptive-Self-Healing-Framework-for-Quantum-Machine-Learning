@@ -170,6 +170,19 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<DashboardTab>("overview");
   const [tourOpen, setTourOpen] = useState(false);
+  // tab rail: fade the edge that still has tabs beyond it (scroll hint on narrow screens)
+  const railRef = React.useRef<HTMLDivElement>(null);
+  const [railEdge, setRailEdge] = useState({ left: false, right: false });
+  const updateRail = React.useCallback(() => {
+    const el = railRef.current;
+    if (!el) return;
+    setRailEdge({ left: el.scrollLeft > 4, right: el.scrollLeft + el.clientWidth < el.scrollWidth - 4 });
+  }, []);
+  useEffect(() => {
+    updateRail();
+    window.addEventListener("resize", updateRail);
+    return () => window.removeEventListener("resize", updateRail);
+  }, [updateRail]);
 
   // First visit: open the guided tour automatically (remembered per browser).
   useEffect(() => {
@@ -296,7 +309,16 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       tone: "text-[var(--content-primary)]",
     },
   ];
-  const phase = String(pipelineState || "IDLE").replace(/_/g, " ");
+  const PHASE_LABEL: Record<string, string> = {
+    IDLE: "Idle", HEALTHY_TRAINING: "Healthy", ANOMALY_DETECTED: "Anomaly", DIAGNOSING: "Diagnosing",
+    CONFIDENCE_GATE_HOLD: "Gathering evidence", REPAIR_SELECTION: "Choosing repair", DIGITAL_TWIN_SIMULATING: "Rehearsing",
+    DEPLOYING: "Deploying", VALIDATING_REPAIR: "Probation", DEPLOYED: "Probation", COMMITTED: "Committed",
+    ROLLED_BACK: "Rolled back", STOPPED: "Stopped",
+  };
+  const rawPhase = String(pipelineState || "IDLE");
+  const phase = trainingStateDisplay === "COMPLETED" && !["VALIDATING_REPAIR", "DEPLOYED"].includes(rawPhase)
+    ? "Complete"
+    : PHASE_LABEL[rawPhase] ?? rawPhase.replace(/_/g, " ").toLowerCase();
   const tiles: { label: string; value: string; tone?: "ok" | "warn" | "bad" | "accent" }[] = [
     { label: "Training", value: trainingStateDisplay, tone: trainingStateDisplay === "RUNNING" ? "ok" : trainingStateDisplay === "COMPLETED" ? "accent" : undefined },
     {
@@ -304,7 +326,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
       value: deploymentStateDisplay === "NO CANDIDATE" ? "IDLE" : deploymentStateDisplay,
       tone: deploymentStateDisplay === "COMMITTED" ? "ok" : deploymentStateDisplay === "ROLLED BACK" ? "bad" : deploymentStateDisplay === "VALIDATING" ? "warn" : undefined,
     },
-    { label: "Pipeline phase", value: phase },
+    { label: "Pipeline phase", value: phase, tone: phase === "Probation" || phase === "Anomaly" ? "warn" : phase === "Committed" ? "ok" : phase === "Rolled back" ? "bad" : undefined },
   ];
   const toneClass = (t?: string) =>
     t === "ok" ? "text-[var(--status-success)]" : t === "warn" ? "text-[var(--status-warning)]" : t === "bad" ? "text-[var(--status-danger)]" : t === "accent" ? "text-[var(--accent)]" : "text-[var(--content-primary)]";
@@ -355,7 +377,7 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
                       animate={{ opacity: 1, y: 0 }}
                       exit={{ opacity: 0, y: -10 }}
                       transition={{ duration: 0.25, ease: [0.23, 1, 0.32, 1] }}
-                      className={`type-condensed text-[1.9rem] leading-tight mt-2 truncate ${toneClass(t.tone)}`}
+                      className={`type-condensed text-[clamp(1.4rem,1.2rem+0.6vw,1.9rem)] leading-[1.05] mt-2 break-words uppercase ${toneClass(t.tone)}`}
                       title={t.value}
                     >
                       {t.value}
@@ -410,7 +432,18 @@ export const DashboardView: React.FC<DashboardViewProps> = ({
 
       {/* ─── Tab rail (sticky, sliding indicator) ────────────────────────── */}
       <div className="sticky top-16 z-30 -mx-3 sm:-mx-6 px-3 sm:px-6 py-3 bg-c-bg-primary/85 backdrop-blur-xl border-y border-[var(--border-subtle)]">
-        <div data-tour="tabs" className="flex items-center gap-1 overflow-x-auto scrollbar-none" role="tablist" aria-label="Lab sections">
+        <div
+          ref={railRef}
+          onScroll={updateRail}
+          data-tour="tabs"
+          className="flex items-center gap-1 overflow-x-auto scrollbar-none"
+          style={{
+            maskImage: `linear-gradient(to right, ${railEdge.left ? "transparent" : "#000"} 0, #000 ${railEdge.left ? "2.5rem" : "0"}, #000 calc(100% - ${railEdge.right ? "2.5rem" : "0px"}), ${railEdge.right ? "transparent" : "#000"} 100%)`,
+            WebkitMaskImage: `linear-gradient(to right, ${railEdge.left ? "transparent" : "#000"} 0, #000 ${railEdge.left ? "2.5rem" : "0"}, #000 calc(100% - ${railEdge.right ? "2.5rem" : "0px"}), ${railEdge.right ? "transparent" : "#000"} 100%)`,
+          }}
+          role="tablist"
+          aria-label="Lab sections"
+        >
           {tabs.map((tab, ti) => {
             const newGroup = ti === 0 || tabs[ti - 1].group !== tab.group;
             const TabIcon = tab.icon;

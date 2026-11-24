@@ -97,7 +97,7 @@ export const Stat: React.FC<{ label: string; value: React.ReactNode; hint?: Reac
   className = "",
 }) => (
   <div className={`rounded-2xl border border-[var(--border-subtle)] bg-[var(--bg-primary)] p-4 min-w-0 ${className}`}>
-    <div className="type-label text-[var(--content-tertiary)] truncate">{label}</div>
+    <div className="type-label text-[var(--content-tertiary)] leading-snug">{label}</div>
     <div className={`type-condensed leading-none mt-2 truncate ${size === "lg" ? "text-[2.6rem]" : "text-[1.9rem]"} ${toneText[tone]}`}>{value}</div>
     {hint && <div className="text-xs text-[var(--content-tertiary)] mt-1.5 truncate">{hint}</div>}
   </div>
