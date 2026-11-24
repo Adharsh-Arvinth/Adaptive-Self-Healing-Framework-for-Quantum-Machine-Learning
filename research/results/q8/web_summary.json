@@ -1,0 +1,316 @@
+{
+ "generated": "2026-11-24",
+ "n_episodes": 420,
+ "n_faulty": 360,
+ "n_base_runs": 60,
+ "datasets": [
+  "breast_cancer",
+  "digits",
+  "hidden_manifold",
+  "moons",
+  "pima_diabetes",
+  "wine"
+ ],
+ "n_seeds": 10,
+ "landscape": {
+  "conditions": [
+   "nominal",
+   "barren_plateau",
+   "lr_misconfiguration",
+   "optimizer_instability",
+   "training_divergence",
+   "persistent_plateau",
+   "noise_degradation"
+  ],
+  "actions": [
+   "noop",
+   "rollback_healthy",
+   "change_optimizer",
+   "reduce_circuit_depth",
+   "modify_feature_map",
+   "adjust_learning_rate",
+   "apply_noise_mitigation",
+   "perform_warm_restart"
+  ],
+  "recovery": [
+   [
+    100.0,
+    86.7,
+    90.0,
+    18.3,
+    3.3,
+    85.0,
+    100.0,
+    91.7
+   ],
+   [
+    28.3,
+    96.7,
+    3.3,
+    10.0,
+    1.7,
+    18.3,
+    28.3,
+    31.7
+   ],
+   [
+    21.7,
+    93.3,
+    3.3,
+    16.7,
+    6.7,
+    65.0,
+    21.7,
+    28.3
+   ],
+   [
+    1.7,
+    93.3,
+    90.0,
+    23.3,
+    1.7,
+    3.3,
+    1.7,
+    50.0
+   ],
+   [
+    0.0,
+    100.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    0.0,
+    43.3
+   ],
+   [
+    41.7,
+    88.3,
+    43.3,
+    6.7,
+    1.7,
+    86.7,
+    41.7,
+    41.7
+   ],
+   [
+    58.3,
+    53.3,
+    73.3,
+    11.7,
+    3.3,
+    61.7,
+    58.3,
+    65.0
+   ]
+  ],
+  "n": [
+   60,
+   60,
+   60,
+   60,
+   60,
+   60,
+   60
+  ]
+ },
+ "diagnosis": {
+  "rule_macro_f1": 0.456,
+  "rule_false_gate_rate": 0.083,
+  "rule_coverage": 0.928,
+  "learned_macro_f1": 0.981,
+  "learned_ece": 0.014,
+  "learned_false_alarm_rate": 0.083,
+  "learned_detection_recall": 0.997
+ },
+ "policies": [
+  {
+   "name": "No repair (continue)",
+   "recovery": 25.3,
+   "ci": [
+    20.8,
+    30.3
+   ],
+   "acc_gap": -27.8,
+   "harmful": 0.0,
+   "oracle": false
+  },
+  {
+   "name": "Random arm",
+   "recovery": 35.7,
+   "ci": [
+    30.4,
+    41.0
+   ],
+   "acc_gap": -16.3,
+   "harmful": 13.1,
+   "oracle": false
+  },
+  {
+   "name": "Fixed rule map (AutoTrainer-style)",
+   "recovery": 40.8,
+   "ci": [
+    35.0,
+    46.7
+   ],
+   "acc_gap": -15.4,
+   "harmful": 6.7,
+   "oracle": false
+  },
+  {
+   "name": "LinUCB",
+   "recovery": 37.8,
+   "ci": [
+    32.6,
+    43.1
+   ],
+   "acc_gap": -15.5,
+   "harmful": 10.7,
+   "oracle": false
+  },
+  {
+   "name": "Thompson Sampling (proposed)",
+   "recovery": 36.7,
+   "ci": [
+    31.5,
+    41.9
+   ],
+   "acc_gap": -15.8,
+   "harmful": 11.1,
+   "oracle": false
+  },
+  {
+   "name": "Rule map + learned diagnosis",
+   "recovery": 55.6,
+   "ci": [
+    49.7,
+    61.1
+   ],
+   "acc_gap": -9.7,
+   "harmful": 7.5,
+   "oracle": false
+  },
+  {
+   "name": "TS + learned diagnosis, ext. library",
+   "recovery": 51.7,
+   "ci": [
+    47.5,
+    55.8
+   ],
+   "acc_gap": -11.7,
+   "harmful": 10.0,
+   "oracle": false
+  },
+  {
+   "name": "Restore checkpoint, learned gate",
+   "recovery": 88.1,
+   "ci": [
+    83.3,
+    91.9
+   ],
+   "acc_gap": -1.4,
+   "harmful": 3.1,
+   "oracle": false
+  },
+  {
+   "name": "Class-conditioned TS, ext. library",
+   "recovery": 51.3,
+   "ci": [
+    47.1,
+    55.4
+   ],
+   "acc_gap": -11.8,
+   "harmful": 10.2,
+   "oracle": false
+  },
+  {
+   "name": "Hybrid: restore + TS for environmental faults",
+   "recovery": 88.6,
+   "ci": [
+    84.5,
+    92.0
+   ],
+   "acc_gap": -1.4,
+   "harmful": 3.2,
+   "oracle": false
+  },
+  {
+   "name": "Oracle (6 arms)",
+   "recovery": 48.6,
+   "ci": [
+    42.5,
+    54.7
+   ],
+   "acc_gap": -12.6,
+   "harmful": 10.0,
+   "oracle": true
+  },
+  {
+   "name": "Oracle (ext. library, learned gate)",
+   "recovery": 79.7,
+   "ci": [
+    75.3,
+    84.2
+   ],
+   "acc_gap": -3.2,
+   "harmful": 4.4,
+   "oracle": true
+  }
+ ],
+ "ablation": [
+  {
+   "name": "TS full",
+   "recovery": 36.7,
+   "delta": 0.0,
+   "p_holm": null
+  },
+  {
+   "name": "TS - digital-twin features",
+   "recovery": 36.7,
+   "delta": 0.0,
+   "p_holm": 1.0
+  },
+  {
+   "name": "TS - twin viability gate",
+   "recovery": 32.0,
+   "delta": -4.7,
+   "p_holm": 0.00015870890527146602
+  },
+  {
+   "name": "TS - twin (features + gate)",
+   "recovery": 31.7,
+   "delta": -5.0,
+   "p_holm": 3.17460187912032e-05
+  },
+  {
+   "name": "TS - episodic memory",
+   "recovery": 36.9,
+   "delta": 0.2,
+   "p_holm": 1.0
+  },
+  {
+   "name": "TS - safety filter",
+   "recovery": 36.7,
+   "delta": 0.0,
+   "p_holm": 1.0
+  },
+  {
+   "name": "TS - deployment guard",
+   "recovery": 36.5,
+   "delta": -0.2,
+   "p_holm": 1.0
+  },
+  {
+   "name": "TS - confidence gate (always act)",
+   "recovery": 37.3,
+   "delta": 0.6,
+   "p_holm": 1.0
+  }
+ ],
+ "twin": {
+  "spearman_test_acc": 0.537,
+  "gate_precision": 0.975,
+  "gate_recall": 0.306
+ },
+ "reward_alignment": 0.492
+}

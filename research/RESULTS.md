@@ -243,3 +243,190 @@ Friedman test across the six learning/heuristic policies (reward): chi2 = 818.6,
 - Twin veto: precision 90.2% (vetoed repairs that were indeed bad), recall 34.3% (bad repairs caught).
 - Short-window reward vs eventual accuracy gap: Spearman 0.443; point-biserial vs recovery 0.309 (n = 10560).
 
+## 8-qubit classifier (q8: 2 layers, inputs PCA-reduced to 8 features)
+
+420 episodes. Recovery = mean test accuracy over the last 3 steps within 5 points of the fault-free run at the same step.
+
+Same protocol, faults, repairs and policies as the 4-qubit regimes; 8 qubits x 2 layers (16 trainable angles); inputs reduced to 8 features by a train-fitted PCA (tasks with 4 or 2 raw features are re-uploaded cyclically). Datasets: breast_cancer, digits, hidden_manifold, moons, pima_diabetes, wine. Circuits are evaluated by `research/fast_sim.py`, an exact vectorised statevector engine that matches the PennyLane QNode to ~1e-16 in forward values and gradients. Re-running one base run (wine, seed 0) with both engines gave identical detection, diagnosis and decision steps and identical recovery labels for all 56 action outcomes; 5 final accuracies differ, all in the chaotic corrupted-optimizer / 50x-LR episodes, where rounding is amplified within a few steps.
+
+### Counterfactual recovery (%) by fault and action
+
+| Condition | n | No repair | Restore ckpt | Optimizer | Depth | Feat. map | LR | Mitigation | Warm restart | Best arm (6) |
+|---|---|---|---|---|---|---|---|---|---|---|
+| Nominal | 60 | 100 | 87 | 90 | 18 | 3 | 85 | 100 | 92 | 100 |
+| Barren plateau (emul.) | 60 | 28 | 97 | 3 | 10 | 2 | 18 | 28 | 32 | 50 |
+| LR too large | 60 | 22 | 93 | 3 | 17 | 7 | 65 | 22 | 28 | 77 |
+| Optimizer corrupted | 60 | 2 | 93 | 90 | 23 | 2 | 3 | 2 | 50 | 93 |
+| Divergence (NaN) | 60 | 0 | 100 | 0 | 0 | 0 | 0 | 0 | 43 | 43 |
+| Step-size collapse | 60 | 42 | 88 | 43 | 7 | 2 | 87 | 42 | 42 | 88 |
+| Noise degradation | 60 | 58 | 53 | 73 | 12 | 3 | 62 | 58 | 65 | 82 |
+
+### Diagnosis
+
+| Diagnoser | Macro-F1 | Notes |
+|---|---|---|
+| Expert rules (online, gated) | 0.456 | false gate on healthy runs 8.3%, coverage 92.8%, admitted precision 54.0% |
+| Learned, leave-one-dataset-out | 0.981 | ECE 0.014, false alarms 8.3%, detection recall 99.7% |
+| Learned, seed-disjoint | 0.980 | train seeds < 4, test seeds >= |
+
+Per-dataset macro-F1 (LODO): breast_cancer 1.00, digits 0.99, hidden_manifold 0.94, moons 1.00, pima_diabetes 0.96, wine 1.00
+
+### Repair policies (faulty episodes; mean over random episode orders; 95% cluster-bootstrap CI)
+
+| Policy | Recovery % | 95% CI | Acc. gap (pp) | Harmful commits % | Healthy-run interventions % |
+|---|---|---|---|---|---|
+| No repair (continue) | 25.3 | 20.8-30.3 | -27.8 | 0.0 | 0.0 |
+| Restore last healthy checkpoint | 87.8 | 83.3-91.4 | -1.4 | 2.8 | 8.3 |
+| Random arm | 35.7 | 30.4-41.0 | -16.3 | 13.1 | 8.3 |
+| Fixed rule map (AutoTrainer-style) | 40.8 | 35.0-46.7 | -15.4 | 6.7 | 8.3 |
+| Greedy linear | 40.7 | 35.7-45.7 | -14.8 | 8.9 | 8.3 |
+| epsilon-greedy linear | 40.4 | 35.6-45.4 | -15.0 | 9.3 | 8.3 |
+| LinUCB | 37.8 | 32.6-43.1 | -15.5 | 10.7 | 8.3 |
+| Thompson Sampling (proposed) | 36.7 | 31.5-41.9 | -15.8 | 11.1 | 8.3 |
+| TS + diagnosis posterior | 36.9 | 31.5-42.1 | -15.8 | 11.4 | 8.3 |
+| TS, extended library (+checkpoint arm) | 52.0 | 47.8-56.1 | -11.5 | 9.5 | 8.3 |
+| Rule map + learned diagnosis | 55.6 | 49.7-61.1 | -9.7 | 7.5 | 8.3 |
+| TS + learned diagnosis (6 arms) | 37.5 | 32.0-42.9 | -15.5 | 11.5 | 8.3 |
+| TS + learned diagnosis, ext. library | 51.7 | 47.5-55.8 | -11.7 | 10.0 | 8.3 |
+| Restore checkpoint, learned gate | 88.1 | 83.3-91.9 | -1.4 | 3.1 | 8.3 |
+| Class-conditioned TS, ext. library | 51.3 | 47.1-55.4 | -11.8 | 10.2 | 8.3 |
+| Hybrid: restore + TS for environmental faults | 88.6 | 84.5-92.0 | -1.4 | 3.2 | 8.3 |
+| Oracle (6 arms) | 48.6 | 42.5-54.7 | -12.6 | 10.0 | 8.3 |
+| Oracle (extended library) | 79.4 | 75.0-83.9 | -3.3 | 4.2 | 8.3 |
+| Oracle (ext. library, learned gate) | 79.7 | 75.3-84.2 | -3.2 | 4.4 | 8.3 |
+
+Paired Wilcoxon on per-run means vs. the hybrid policy (recovery), Holm-corrected:
+
+| Comparator | Diff (pp) | p (Holm) | Cohen's d_z |
+|---|---|---|---|
+| Restore checkpoint, learned gate | +0.5 | 0.814 | 0.10 |
+| TS + learned diagnosis, ext. library | +36.9 | <1e-6 | 2.43 |
+| Class-conditioned TS, ext. library | +37.3 | <1e-6 | 2.35 |
+| Rule map + learned diagnosis | +33.0 | <1e-6 | 1.42 |
+| TS + learned diagnosis (6 arms) | +51.1 | <1e-6 | 2.34 |
+| Thompson Sampling (proposed) | +51.9 | <1e-6 | 2.49 |
+| Restore last healthy checkpoint | +0.8 | 0.814 | 0.13 |
+| Random arm | +52.9 | <1e-6 | 2.48 |
+
+Friedman test across the six learning/heuristic policies (reward): chi2 = 174.7, p = <1e-6, 60 blocks.
+
+### Ablation of the Thompson-sampling pipeline
+
+| Variant | Recovery % | Harmful % | p (Holm, recovery) |
+|---|---|---|---|
+| TS full | 36.7 | 11.1 | - |
+| TS - digital-twin features | 36.7 | 11.3 | 1 |
+| TS - twin viability gate | 32.0 | 10.9 | 0.000159 |
+| TS - twin (features + gate) | 31.7 | 11.3 | 3.17e-05 |
+| TS - episodic memory | 36.9 | 11.2 | 1 |
+| TS - safety filter | 36.7 | 11.1 | 1 |
+| TS - deployment guard | 36.5 | 16.6 | 1 |
+| TS - confidence gate (always act) | 37.3 | 11.2 | 1 |
+
+### Digital twin and reward signal
+
+- Twin prediction vs realised test accuracy: Spearman 0.537 (within-episode rank correlation 0.455, n = 2160).
+- Twin veto: precision 97.5% (vetoed repairs that were indeed bad), recall 30.6% (bad repairs caught).
+- Short-window reward vs eventual accuracy gap: Spearman 0.492; point-biserial vs recovery 0.402 (n = 2520).
+
+## Sensitivity to the recovery tolerance and the probation window
+
+No new training: recovery, acceptance and the short-window reward are re-derived from the stored per-step post-decision trajectories (`python -m research.sensitivity`). Tolerance tau: recovered if the final 3-step test accuracy is within tau of the fault-free run. W_val: number of probation steps used by the deployment guard and by the reward. Recovery % on faulty episodes, mean over 30 random episode orders.
+
+Claims checked in every cell: (1) *restore >> TS*: restore beats 6-arm TS by >= 20 pp with Wilcoxon p < 0.05; (2) *library ceiling*: both the reward-optimal 6-arm oracle and the hindsight 6-arm recovery ceiling stay below restore; (3) *reward misalignment*: the reward-optimal extended-library oracle recovers less than restore. In the latent regime 'restore' is the older clean checkpoint.
+
+### Ideal (1540 episodes)
+
+W_val = 3 reproduction: 0 acceptance and 0 reward mismatches out of 10780 stored action outcomes.
+
+| W_val | tau (pp) | No repair | Restore | Restore (learned gate) | TS (6 arms) | TS ext. | Hybrid | Oracle 6 | Oracle ext. | 6-arm hindsight ceiling | Restore - TS (pp, p) | Reward vs gap rho | (1) | (2) | (3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 3 | 22.4 | 83.8 | 83.5 | 36.7 | 56.9 | 84.0 | 47.4 | 77.7 | 61.7 | +47.1 (<1e-6) | 0.46 | holds | holds | holds |
+| 3 | 5 | 31.2 | 92.1 | 91.9 | 46.1 | 65.8 | 92.4 | 55.8 | 85.2 | 70.2 | +46.1 (<1e-6) | 0.46 | holds | holds | holds |
+| 3 | 10 | 43.3 | 96.9 | 96.8 | 59.8 | 75.3 | 97.1 | 69.5 | 92.0 | 81.4 | +37.1 (<1e-6) | 0.46 | holds | holds | holds |
+| 5 | 3 | 22.4 | 83.9 | 83.6 | 37.3 | 57.5 | 84.2 | 50.5 | 78.9 | 62.3 | +46.6 (<1e-6) | 0.49 | holds | holds | holds |
+| 5 | 5 | 31.2 | 92.3 | 92.0 | 46.8 | 66.4 | 92.5 | 59.0 | 87.3 | 70.8 | +45.5 (<1e-6) | 0.49 | holds | holds | holds |
+| 5 | 10 | 43.3 | 97.0 | 97.0 | 60.5 | 76.0 | 97.3 | 72.1 | 93.1 | 81.9 | +36.5 (<1e-6) | 0.49 | holds | holds | holds |
+
+### Hardware-calibrated (IBM Torino) (770 episodes)
+
+W_val = 3 reproduction: 0 acceptance and 0 reward mismatches out of 5390 stored action outcomes.
+
+| W_val | tau (pp) | No repair | Restore | Restore (learned gate) | TS (6 arms) | TS ext. | Hybrid | Oracle 6 | Oracle ext. | 6-arm hindsight ceiling | Restore - TS (pp, p) | Reward vs gap rho | (1) | (2) | (3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 3 | 27.1 | 88.0 | 87.7 | 39.1 | 58.0 | 88.7 | 52.0 | 80.6 | 68.8 | +48.9 (<1e-6) | 0.46 | holds | holds | holds |
+| 3 | 5 | 35.2 | 95.0 | 94.8 | 48.0 | 65.8 | 95.4 | 60.0 | 88.0 | 75.0 | +47.0 (<1e-6) | 0.46 | holds | holds | holds |
+| 3 | 10 | 47.3 | 98.0 | 98.6 | 61.1 | 75.3 | 98.4 | 72.0 | 93.3 | 83.9 | +36.9 (<1e-6) | 0.46 | holds | holds | holds |
+| 5 | 3 | 27.1 | 87.9 | 87.6 | 39.9 | 57.9 | 88.6 | 55.0 | 82.4 | 68.5 | +48.0 (<1e-6) | 0.49 | holds | holds | holds |
+| 5 | 5 | 35.2 | 94.8 | 94.7 | 49.1 | 65.9 | 95.2 | 62.6 | 89.2 | 75.0 | +45.8 (<1e-6) | 0.49 | holds | holds | holds |
+| 5 | 10 | 47.3 | 98.0 | 98.6 | 62.5 | 75.4 | 98.4 | 74.7 | 94.7 | 83.9 | +35.6 (<1e-6) | 0.49 | holds | holds | holds |
+
+### Latent faults (1540 episodes)
+
+W_val = 3 reproduction: 0 acceptance and 0 reward mismatches out of 12320 stored action outcomes.
+
+| W_val | tau (pp) | No repair | Restore latest | Restore clean | TS (6 arms) | Diag-TS + ckpts | Oracle 6 | Oracle ext. | 6-arm hindsight ceiling | Restore - TS (pp, p) | Reward vs gap rho | (1) | (2) | (3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 3 | 21.3 | 21.2 | 69.5 | 35.5 | 45.8 | 48.2 | 66.6 | 60.5 | +33.9 (<1e-6) | 0.44 | holds | holds | holds |
+| 3 | 5 | 28.9 | 27.9 | 81.4 | 44.1 | 55.4 | 56.8 | 76.4 | 69.0 | +37.3 (<1e-6) | 0.44 | holds | holds | holds |
+| 3 | 10 | 41.7 | 40.4 | 94.2 | 58.3 | 68.6 | 70.4 | 88.5 | 81.6 | +35.9 (<1e-6) | 0.44 | holds | holds | holds |
+| 5 | 3 | 21.3 | 21.3 | 69.5 | 37.1 | 47.1 | 50.3 | 67.9 | 61.0 | +32.3 (<1e-6) | 0.48 | holds | holds | holds |
+| 5 | 5 | 28.9 | 27.7 | 81.5 | 45.7 | 56.8 | 59.5 | 77.8 | 69.3 | +35.8 (<1e-6) | 0.48 | holds | holds | holds |
+| 5 | 10 | 41.7 | 40.5 | 94.2 | 60.2 | 70.0 | 73.0 | 90.0 | 81.9 | +34.0 (<1e-6) | 0.48 | holds | holds | holds |
+
+### 8 qubits (q8) (420 episodes)
+
+W_val = 3 reproduction: 0 acceptance and 0 reward mismatches out of 2940 stored action outcomes.
+
+| W_val | tau (pp) | No repair | Restore | Restore (learned gate) | TS (6 arms) | TS ext. | Hybrid | Oracle 6 | Oracle ext. | 6-arm hindsight ceiling | Restore - TS (pp, p) | Reward vs gap rho | (1) | (2) | (3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 3 | 19.4 | 76.7 | 76.9 | 27.7 | 42.6 | 77.9 | 37.2 | 67.8 | 57.5 | +49.0 (<1e-6) | 0.49 | holds | holds | holds |
+| 3 | 5 | 25.3 | 87.8 | 88.1 | 36.7 | 52.0 | 88.6 | 48.6 | 79.4 | 66.7 | +51.1 (<1e-6) | 0.49 | holds | holds | holds |
+| 3 | 10 | 38.3 | 95.3 | 95.3 | 51.3 | 63.8 | 95.7 | 63.3 | 89.4 | 78.3 | +44.0 (<1e-6) | 0.49 | holds | holds | holds |
+| 5 | 3 | 19.4 | 76.7 | 76.9 | 28.4 | 43.5 | 78.0 | 41.4 | 68.6 | 57.5 | +48.3 (<1e-6) | 0.53 | holds | holds | holds |
+| 5 | 5 | 25.3 | 87.8 | 87.8 | 37.6 | 53.0 | 88.8 | 53.3 | 81.1 | 66.4 | +50.1 (<1e-6) | 0.53 | holds | holds | holds |
+| 5 | 10 | 38.3 | 95.3 | 94.7 | 52.2 | 64.8 | 95.8 | 68.3 | 90.6 | 78.1 | +43.1 (<1e-6) | 0.53 | holds | holds | holds |
+
+### 4 qubits, same base runs as q8 (paired reference) (420 episodes)
+
+W_val = 3 reproduction: 0 acceptance and 0 reward mismatches out of 2940 stored action outcomes.
+
+| W_val | tau (pp) | No repair | Restore | Restore (learned gate) | TS (6 arms) | TS ext. | Hybrid | Oracle 6 | Oracle ext. | 6-arm hindsight ceiling | Restore - TS (pp, p) | Reward vs gap rho | (1) | (2) | (3) |
+|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|---|
+| 3 | 3 | 26.9 | 88.3 | 87.8 | 40.1 | 56.4 | 87.5 | 51.9 | 82.2 | 64.2 | +48.2 (<1e-6) | 0.45 | holds | holds | holds |
+| 3 | 5 | 36.9 | 94.2 | 93.9 | 50.0 | 65.0 | 93.3 | 59.7 | 87.5 | 72.8 | +44.2 (<1e-6) | 0.45 | holds | holds | holds |
+| 3 | 10 | 46.7 | 97.8 | 97.2 | 62.6 | 74.0 | 97.5 | 73.9 | 94.2 | 83.3 | +35.1 (<1e-6) | 0.45 | holds | holds | holds |
+| 5 | 3 | 26.9 | 88.3 | 87.8 | 41.2 | 57.3 | 87.5 | 53.1 | 81.4 | 65.0 | +47.1 (<1e-6) | 0.47 | holds | holds | holds |
+| 5 | 5 | 36.9 | 94.2 | 93.9 | 51.1 | 66.2 | 93.4 | 61.7 | 88.9 | 73.6 | +43.1 (<1e-6) | 0.47 | holds | holds | holds |
+| 5 | 10 | 46.7 | 97.8 | 97.2 | 63.4 | 75.0 | 97.6 | 75.6 | 95.3 | 84.2 | +34.4 (<1e-6) | 0.47 | holds | holds | holds |
+
+## Genuine vs emulated barren plateaus
+
+Var[d<Z_0>/d theta] for the first-layer rotation on qubit 0, over random parameters and inputs, by exact parameter shift (`python -m research.gradient_variance`; statevector simulator checked against the PennyLane circuit, max |diff| 0.0e+00). *Healthy*: the framework's initialisation U[-0.2, 0.2], 2 layers. *Framework, random*: the framework's ansatz (RY + CNOT ring) with parameters U[0, 2 pi]. *HEA, random*: McClean et al. (2018) random-Pauli hardware-efficient ansatz.
+
+| Circuit | Layers | n = 2 | n = 4 | n = 6 | n = 8 | n = 10 | n = 12 |
+|---|---|---|---|---|---|---|---|
+| Healthy (framework init) | 2 | 2.56e-01 | 1.23e-01 | 6.01e-02 | 2.85e-02 | 1.43e-02 | 9.47e-03 |
+| Framework, random | 2 | 3.68e-01 | 8.39e-02 | 2.61e-02 | 8.33e-03 | 2.25e-03 | 1.14e-03 |
+| Framework, random | 8 | 2.24e-01 | 6.14e-02 | 1.60e-02 | 3.86e-03 | 9.78e-04 | 2.61e-04 |
+| Framework, random | 32 | 2.25e-01 | 6.00e-02 | 1.58e-02 | 3.91e-03 | 9.87e-04 | 2.38e-04 |
+| HEA, random | 2 | 1.96e-01 | 1.94e-01 | 1.90e-01 | 1.92e-01 | 2.01e-01 | 1.94e-01 |
+| HEA, random | 8 | 1.15e-01 | 8.92e-02 | 8.68e-02 | 9.33e-02 | 9.49e-02 | 9.55e-02 |
+| HEA, random | 32 | 9.27e-02 | 2.47e-02 | 1.26e-02 | 1.15e-02 | 1.15e-02 | 1.19e-02 |
+
+Exponential fit log10 Var = a - b n on the deepest framework circuits (n >= 4):
+
+- framework ansatz, qubit 0: b = 0.300 decades per qubit (variance halves every 1.0 qubits), L = 32.
+- framework ansatz, last qubit: b = 0.300 decades per qubit (variance halves every 1.0 qubits), L = 32.
+
+The framework ansatz is already depth-saturated at L = 8 (L = 8 and L = 32 agree), so its fit is a concentration law. The HEA with a linear CZ ladder is NOT saturated at L = 32 for n >= 8: the qubit-0 variance stays near 1e-2 and the last-qubit variance is light-cone limited (zero at L = 2), so no exponent is extrapolated for it; its rows are shown for reference only.
+
+Emulated plateau in the same units: gradients scaled by alpha = 1e-06, i.e. an equivalent gradient std of 1.7e-07 (alpha x the healthy 8-qubit std 0.169), under shot noise std 0.02 (about 1024 shots): SNR 8.4e-06.
+
+| Circuit at 8 qubits | Gradient std | vs healthy | SNR at 1,024 shots | Qubits until genuine std = emulated std (extrapolated) | Qubits until SNR = 1 (extrapolated) |
+|---|---|---|---|---|---|
+| Framework ansatz, random, L = 32 | 0.063 | 0.37x | 3.13 | 45 | 11.3 |
+| HEA, random, L = 32 | 0.107 | 0.64x | 5.36 | not extrapolated | not extrapolated |
+
+At 8 qubits the genuine gradient of a fully scrambled framework circuit is 3.7e+05 times larger than the emulated one (SNR 3.1 vs 8.4e-06). The emulation therefore represents a plateau far deeper than anything that occurs at 4-8 qubits; it is a model of the regime that genuine concentration would reach only around the extrapolated qubit count above, not of the circuits trained here.
+

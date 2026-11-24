@@ -121,7 +121,7 @@ def device_noise(name: str) -> Dict[str, float]:
 
 
 def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
-             hw_device: Optional[str] = None, latent_lag: int = 0) -> List[Dict[str, Any]]:
+             hw_device: Optional[str] = None, latent_lag: int = 0, n_qubits: int = N_QUBITS) -> List[Dict[str, Any]]:
     """Run one base run and return one record per condition.
 
     hw_device: if given (e.g. "torino"), healthy training runs under that device's calibrated noise
@@ -131,12 +131,20 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
     W_WARM, so the most recent checkpoint already carries the fault ("latent fault"). Two restore actions
     are then evaluated: `rollback_healthy` (restore the most recent, possibly faulty, checkpoint) and
     `rollback_clean` (restore the older clean checkpoint, losing more progress).
+
+    n_qubits: classifier width (default 4). Any other width defines its own regime, e.g. "q8": the
+    same 2-layer ansatz on 8 qubits, inputs reduced to 8 features (see research.datasets.load_splits).
     """
     t0 = time.time()
-    sp = load_splits(dataset, seed)
+    simulator = "pennylane"
+    if n_qubits != N_QUBITS:  # exact vectorised engine (research/fast_sim.py), verified against PennyLane
+        from research import fast_sim
+        fast_sim.install()
+        simulator = "fast_sim"
+    sp = load_splits(dataset, seed, n_features=n_qubits)
     conditions = conditions or CONDITIONS
-    model = VQCModel(CircuitConfig(n_qubits=N_QUBITS, n_layers=N_LAYERS, learning_rate=LR, seed=seed))
-    regime = "ideal"
+    model = VQCModel(CircuitConfig(n_qubits=n_qubits, n_layers=N_LAYERS, learning_rate=LR, seed=seed))
+    regime = "ideal" if n_qubits == N_QUBITS else f"q{n_qubits}"
     if hw_device:
         cal = device_noise(hw_device)
         model.set_device_noise(cal["per_layer_depolarizing_p"], cal["median_readout_error"], shots=1024)
@@ -290,7 +298,7 @@ def run_base(dataset: str, seed: int, conditions: Optional[List[str]] = None,
 
         records.append({
             "episode_id": f"{dataset}_s{seed}_{cond}" + ("" if regime == "ideal" else f"_{regime}"),
-            "regime": regime, "latent_lag": latent_lag, "actions": action_list, "lag_telemetry": lag_rows,
+            "regime": regime, "latent_lag": latent_lag, "n_qubits": n_qubits, "simulator": simulator, "actions": action_list, "lag_telemetry": lag_rows,
             "dataset": dataset, "seed": seed, "condition": cond, "severity": severity if cond != "nominal" else 0.0,
             "bp_mode": bp_mode if cond == "barren_plateau" else None, "inject_report": inject_report,
             "healthy_test": healthy_test, "healthy_val": healthy_val,

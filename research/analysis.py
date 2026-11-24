@@ -26,7 +26,7 @@ from research.replay import ARMS, EXT_ARMS, ablation_policies, default_policies,
 
 ROOT = os.path.abspath(os.path.join(os.path.dirname(__file__), ".."))
 RAW = os.path.join(ROOT, "research", "data", "raw")
-REGIME = os.environ.get("REGIME", "ideal")          # ideal | hw_torino | ...
+REGIME = os.environ.get("REGIME", "ideal")          # ideal | hw_torino | latent4 | q8
 OUT = os.path.join(ROOT, "research", "results") if REGIME == "ideal" else os.path.join(ROOT, "research", "results", REGIME)
 FIG = os.path.join(OUT, "figures")
 FAULTS = ["barren_plateau", "lr_misconfiguration", "optimizer_instability",

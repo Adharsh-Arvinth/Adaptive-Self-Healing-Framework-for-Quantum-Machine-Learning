@@ -1,0 +1,557 @@
+{
+ "n_episodes": 1540,
+ "policies": [
+  "No repair (continue)",
+  "Restore latest checkpoint",
+  "Restore older clean checkpoint",
+  "Thompson Sampling (6 arms)",
+  "Diagnosis-conditioned TS, checkpoints",
+  "Oracle (6 arms)",
+  "Oracle (arms + checkpoints)"
+ ],
+ "restore": "Restore older clean checkpoint",
+ "ts": "Thompson Sampling (6 arms)",
+ "ext_oracle": "Oracle (arms + checkpoints)",
+ "grid": [
+  {
+   "tol": 0.03,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 12320,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.2128787878787878,
+    "Restore latest checkpoint": 0.21212121212121204,
+    "Restore older clean checkpoint": 0.6946969696969695,
+    "Thompson Sampling (6 arms)": 0.3553282828282828,
+    "Diagnosis-conditioned TS, checkpoints": 0.45838383838383834,
+    "Oracle (6 arms)": 0.48181818181818165,
+    "Oracle (arms + checkpoints)": 0.6659090909090908
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.18787878787878784,
+     0.23863636363636356
+    ],
+    "Restore latest checkpoint": [
+     0.18560606060606055,
+     0.24015151515151506
+    ],
+    "Restore older clean checkpoint": [
+     0.643181818181818,
+     0.7446969696969695
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.3263579545454545,
+     0.3845732323232323
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.4281767676767676,
+     0.4873756313131312
+    ],
+    "Oracle (6 arms)": [
+     0.4469696969696969,
+     0.515151515151515
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.6242234848484847,
+     0.7045454545454544
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.0871212121212121,
+    "Restore older clean checkpoint": 0.04848484848484847,
+    "Thompson Sampling (6 arms)": 0.09646464646464645,
+    "Diagnosis-conditioned TS, checkpoints": 0.07585858585858585,
+    "Oracle (6 arms)": 0.09166666666666665,
+    "Oracle (arms + checkpoints)": 0.06136363636363634
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.28560606060606053,
+    "Restore older clean checkpoint": 0.04545454545454544,
+    "Thompson Sampling (6 arms)": 0.19386363636363635,
+    "Diagnosis-conditioned TS, checkpoints": 0.15335858585858583,
+    "Oracle (6 arms)": 0.07272727272727271,
+    "Oracle (arms + checkpoints)": 0.012121212121212118
+   },
+   "ceiling_6_arms": 0.6045454545454545,
+   "ceiling_restore_only": 0.693939393939394,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.44273638870728144,
+    "pointbiserial_reward_vs_recovered": 0.28613345886673636,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.3393686868686868,
+    "p": 2.0744027098241008e-26,
+    "dz": 1.0143833479333877
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.028787878787878775,
+    "p": 0.06262177418939048,
+    "dz": 0.13915122440220581
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.05,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 12320,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.2886363636363635,
+    "Restore latest checkpoint": 0.2787878787878787,
+    "Restore older clean checkpoint": 0.8136363636363635,
+    "Thompson Sampling (6 arms)": 0.440580808080808,
+    "Diagnosis-conditioned TS, checkpoints": 0.5536616161616162,
+    "Oracle (6 arms)": 0.568181818181818,
+    "Oracle (arms + checkpoints)": 0.7643939393939392
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.26212121212121203,
+     0.31517045454545434
+    ],
+    "Restore latest checkpoint": [
+     0.2515151515151514,
+     0.30833333333333324
+    ],
+    "Restore older clean checkpoint": [
+     0.7734848484848483,
+     0.8522727272727271
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.4099488636363636,
+     0.4711376262626261
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.5260555555555555,
+     0.5802537878787879
+    ],
+    "Oracle (6 arms)": [
+     0.5348484848484847,
+     0.6015151515151513
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.7287878787878787,
+     0.7954545454545453
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.0871212121212121,
+    "Restore older clean checkpoint": 0.04848484848484847,
+    "Thompson Sampling (6 arms)": 0.09646464646464645,
+    "Diagnosis-conditioned TS, checkpoints": 0.07585858585858585,
+    "Oracle (6 arms)": 0.09166666666666665,
+    "Oracle (arms + checkpoints)": 0.06136363636363634
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.28560606060606053,
+    "Restore older clean checkpoint": 0.04545454545454544,
+    "Thompson Sampling (6 arms)": 0.19386363636363635,
+    "Diagnosis-conditioned TS, checkpoints": 0.15335858585858583,
+    "Oracle (6 arms)": 0.07272727272727271,
+    "Oracle (arms + checkpoints)": 0.012121212121212118
+   },
+   "ceiling_6_arms": 0.6901515151515152,
+   "ceiling_restore_only": 0.8121212121212121,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.44273638870728144,
+    "pointbiserial_reward_vs_recovered": 0.30879581362220826,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.3730555555555554,
+    "p": 9.038541693237155e-31,
+    "dz": 1.3009869283994426
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.04924242424242425,
+    "p": 7.562544100696873e-05,
+    "dz": 0.25863367723100605
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.1,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 12320,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.41742424242424236,
+    "Restore latest checkpoint": 0.4037878787878787,
+    "Restore older clean checkpoint": 0.9424242424242423,
+    "Thompson Sampling (6 arms)": 0.5832323232323231,
+    "Diagnosis-conditioned TS, checkpoints": 0.6863131313131312,
+    "Oracle (6 arms)": 0.7037878787878786,
+    "Oracle (arms + checkpoints)": 0.8848484848484847
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.3901515151515151,
+     0.44393939393939386
+    ],
+    "Restore latest checkpoint": [
+     0.3772727272727272,
+     0.43030303030303024
+    ],
+    "Restore older clean checkpoint": [
+     0.9219507575757574,
+     0.9613636363636362
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.5559084595959596,
+     0.6117771464646464
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.6654791666666666,
+     0.707602904040404
+    ],
+    "Oracle (6 arms)": [
+     0.6772727272727271,
+     0.731837121212121
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.8636363636363634,
+     0.9045454545454543
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.0871212121212121,
+    "Restore older clean checkpoint": 0.04848484848484847,
+    "Thompson Sampling (6 arms)": 0.09646464646464645,
+    "Diagnosis-conditioned TS, checkpoints": 0.07585858585858585,
+    "Oracle (6 arms)": 0.09166666666666665,
+    "Oracle (arms + checkpoints)": 0.06136363636363634
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.28560606060606053,
+    "Restore older clean checkpoint": 0.04545454545454544,
+    "Thompson Sampling (6 arms)": 0.19386363636363635,
+    "Diagnosis-conditioned TS, checkpoints": 0.15335858585858583,
+    "Oracle (6 arms)": 0.07272727272727271,
+    "Oracle (arms + checkpoints)": 0.012121212121212118
+   },
+   "ceiling_6_arms": 0.8159090909090909,
+   "ceiling_restore_only": 0.9416666666666667,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.44273638870728144,
+    "pointbiserial_reward_vs_recovered": 0.3379984932498562,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.3591919191919191,
+    "p": 5.180125417377736e-35,
+    "dz": 1.6526156891057646
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.05757575757575758,
+    "p": 6.605383443936441e-09,
+    "dz": 0.41229856806213294
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.03,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.2128787878787878,
+    "Restore latest checkpoint": 0.2128787878787878,
+    "Restore older clean checkpoint": 0.6946969696969695,
+    "Thompson Sampling (6 arms)": 0.3713383838383838,
+    "Diagnosis-conditioned TS, checkpoints": 0.47131313131313124,
+    "Oracle (6 arms)": 0.5030303030303028,
+    "Oracle (arms + checkpoints)": 0.6787878787878786
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.18787878787878784,
+     0.23863636363636356
+    ],
+    "Restore latest checkpoint": [
+     0.18636363636363631,
+     0.24090909090909082
+    ],
+    "Restore older clean checkpoint": [
+     0.643181818181818,
+     0.7447159090909088
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.341614898989899,
+     0.40088383838383834
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.4408333333333333,
+     0.5011628787878788
+    ],
+    "Oracle (6 arms)": [
+     0.46893939393939377,
+     0.5378787878787877
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.6363636363636362,
+     0.7196969696969695
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.08181818181818179,
+    "Restore older clean checkpoint": 0.04999999999999999,
+    "Thompson Sampling (6 arms)": 0.08762626262626262,
+    "Diagnosis-conditioned TS, checkpoints": 0.07146464646464647,
+    "Oracle (6 arms)": 0.07575757575757573,
+    "Oracle (arms + checkpoints)": 0.050757575757575744
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.3075757575757575,
+    "Restore older clean checkpoint": 0.04015151515151514,
+    "Thompson Sampling (6 arms)": 0.2000252525252525,
+    "Diagnosis-conditioned TS, checkpoints": 0.15366161616161614,
+    "Oracle (6 arms)": 0.07878787878787877,
+    "Oracle (arms + checkpoints)": 0.017424242424242422
+   },
+   "ceiling_6_arms": 0.6098484848484849,
+   "ceiling_restore_only": 0.693939393939394,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.4761812580347979,
+    "pointbiserial_reward_vs_recovered": 0.3186583408480942,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.32335858585858585,
+    "p": 2.2937872519970053e-25,
+    "dz": 0.9691273793700464
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.0159090909090909,
+    "p": 0.24171707334396386,
+    "dz": 0.07649699519380113
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.05,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.2886363636363635,
+    "Restore latest checkpoint": 0.27651515151515144,
+    "Restore older clean checkpoint": 0.815151515151515,
+    "Thompson Sampling (6 arms)": 0.4571212121212121,
+    "Diagnosis-conditioned TS, checkpoints": 0.5678030303030303,
+    "Oracle (6 arms)": 0.5946969696969695,
+    "Oracle (arms + checkpoints)": 0.7780303030303028
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.26212121212121203,
+     0.31517045454545434
+    ],
+    "Restore latest checkpoint": [
+     0.2492424242424242,
+     0.3068181818181817
+    ],
+    "Restore older clean checkpoint": [
+     0.7749999999999998,
+     0.8537878787878787
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.4267632575757575,
+     0.4880126262626261
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.5397967171717171,
+     0.5944709595959595
+    ],
+    "Oracle (6 arms)": [
+     0.5613446969696968,
+     0.6280303030303028
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.743181818181818,
+     0.8128787878787878
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.08181818181818179,
+    "Restore older clean checkpoint": 0.04999999999999999,
+    "Thompson Sampling (6 arms)": 0.08762626262626262,
+    "Diagnosis-conditioned TS, checkpoints": 0.07146464646464647,
+    "Oracle (6 arms)": 0.07575757575757573,
+    "Oracle (arms + checkpoints)": 0.050757575757575744
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.3075757575757575,
+    "Restore older clean checkpoint": 0.04015151515151514,
+    "Thompson Sampling (6 arms)": 0.2000252525252525,
+    "Diagnosis-conditioned TS, checkpoints": 0.15366161616161614,
+    "Oracle (6 arms)": 0.07878787878787877,
+    "Oracle (arms + checkpoints)": 0.017424242424242422
+   },
+   "ceiling_6_arms": 0.6931818181818182,
+   "ceiling_restore_only": 0.8136363636363636,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.4761812580347979,
+    "pointbiserial_reward_vs_recovered": 0.3435719767714711,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.3580303030303029,
+    "p": 6.62161435141073e-30,
+    "dz": 1.2480275074448637
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.03712121212121212,
+    "p": 0.00092735404207273,
+    "dz": 0.20437918608136485
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.1,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.41742424242424236,
+    "Restore latest checkpoint": 0.4045454545454545,
+    "Restore older clean checkpoint": 0.9424242424242423,
+    "Thompson Sampling (6 arms)": 0.6021717171717171,
+    "Diagnosis-conditioned TS, checkpoints": 0.7003787878787878,
+    "Oracle (6 arms)": 0.7295454545454544,
+    "Oracle (arms + checkpoints)": 0.8999999999999998
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.3901515151515151,
+     0.44393939393939386
+    ],
+    "Restore latest checkpoint": [
+     0.37803030303030294,
+     0.431060606060606
+    ],
+    "Restore older clean checkpoint": [
+     0.921212121212121,
+     0.9606249999999997
+    ],
+    "Thompson Sampling (6 arms)": [
+     0.5746117424242424,
+     0.629445707070707
+    ],
+    "Diagnosis-conditioned TS, checkpoints": [
+     0.6799457070707071,
+     0.7212121212121211
+    ],
+    "Oracle (6 arms)": [
+     0.702272727272727,
+     0.7583333333333332
+    ],
+    "Oracle (arms + checkpoints)": [
+     0.8772727272727271,
+     0.9219696969696968
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.08181818181818179,
+    "Restore older clean checkpoint": 0.04999999999999999,
+    "Thompson Sampling (6 arms)": 0.08762626262626262,
+    "Diagnosis-conditioned TS, checkpoints": 0.07146464646464647,
+    "Oracle (6 arms)": 0.07575757575757573,
+    "Oracle (arms + checkpoints)": 0.050757575757575744
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore latest checkpoint": 0.3075757575757575,
+    "Restore older clean checkpoint": 0.04015151515151514,
+    "Thompson Sampling (6 arms)": 0.2000252525252525,
+    "Diagnosis-conditioned TS, checkpoints": 0.15366161616161614,
+    "Oracle (6 arms)": 0.07878787878787877,
+    "Oracle (arms + checkpoints)": 0.017424242424242422
+   },
+   "ceiling_6_arms": 0.818939393939394,
+   "ceiling_restore_only": 0.9416666666666667,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.4761812580347979,
+    "pointbiserial_reward_vs_recovered": 0.3787138242285766,
+    "n": 10560
+   },
+   "restore_minus_ts": {
+    "diff": 0.34025252525252514,
+    "p": 1.0533986951340886e-34,
+    "dz": 1.580579390646943
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.04242424242424243,
+    "p": 5.2049566710340834e-05,
+    "dz": 0.2925947909218378
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  }
+ ],
+ "datasets": [
+  "banknote",
+  "breast_cancer",
+  "circles",
+  "digits",
+  "hidden_manifold",
+  "iris",
+  "linearly_separable",
+  "moons",
+  "pima_diabetes",
+  "two_curves",
+  "wine"
+ ],
+ "n_seeds": 20,
+ "tolerances": [
+  0.03,
+  0.05,
+  0.1
+ ],
+ "windows": [
+  3,
+  5
+ ],
+ "n_orders": 30
+}

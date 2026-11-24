@@ -1,0 +1,600 @@
+{
+ "n_episodes": 770,
+ "policies": [
+  "No repair (continue)",
+  "Restore last healthy checkpoint",
+  "Restore checkpoint, learned gate",
+  "Thompson Sampling (proposed)",
+  "TS, extended library (+checkpoint arm)",
+  "Hybrid: restore + TS for environmental faults",
+  "Oracle (6 arms)",
+  "Oracle (extended library)"
+ ],
+ "restore": "Restore last healthy checkpoint",
+ "ts": "Thompson Sampling (proposed)",
+ "ext_oracle": "Oracle (extended library)",
+ "grid": [
+  {
+   "tol": 0.03,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 5390,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.2712121212121211,
+    "Restore last healthy checkpoint": 0.8803030303030301,
+    "Restore checkpoint, learned gate": 0.8772727272727271,
+    "Thompson Sampling (proposed)": 0.3913636363636363,
+    "TS, extended library (+checkpoint arm)": 0.5798484848484848,
+    "Hybrid: restore + TS for environmental faults": 0.8867171717171718,
+    "Oracle (6 arms)": 0.5196969696969695,
+    "Oracle (extended library)": 0.8060606060606059
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.23939393939393935,
+     0.3015151515151514
+    ],
+    "Restore last healthy checkpoint": [
+     0.8469696969696968,
+     0.912121212121212
+    ],
+    "Restore checkpoint, learned gate": [
+     0.8424242424242423,
+     0.912121212121212
+    ],
+    "Thompson Sampling (proposed)": [
+     0.3575757575757576,
+     0.4279330808080807
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.5520176767676767,
+     0.6086477272727272
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.8558055555555555,
+     0.9155063131313131
+    ],
+    "Oracle (6 arms)": [
+     0.48030303030303023,
+     0.5606060606060604
+    ],
+    "Oracle (extended library)": [
+     0.7696969696969695,
+     0.8409090909090907
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.11106060606060604,
+    "TS, extended library (+checkpoint arm)": 0.07858585858585858,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.08939393939393937,
+    "Oracle (extended library)": 0.040909090909090895
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.007575757575757574,
+    "Restore checkpoint, learned gate": 0.016666666666666663,
+    "Thompson Sampling (proposed)": 0.20227272727272727,
+    "TS, extended library (+checkpoint arm)": 0.1268181818181818,
+    "Hybrid: restore + TS for environmental faults": 0.02131313131313131,
+    "Oracle (6 arms)": 0.07575757575757575,
+    "Oracle (extended library)": 0.004545454545454544
+   },
+   "ceiling_6_arms": 0.6878787878787879,
+   "ceiling_restore_only": 0.8742424242424243,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.45867653859346164,
+    "pointbiserial_reward_vs_recovered": 0.3618578066406166,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.48893939393939384,
+    "p": 1.1025362108825275e-19,
+    "dz": 2.3146835563760755
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.07424242424242423,
+    "p": 9.370282445827418e-07,
+    "dz": 0.5591768643031823
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.05,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 5390,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.35151515151515145,
+    "Restore last healthy checkpoint": 0.9499999999999998,
+    "Restore checkpoint, learned gate": 0.9484848484848483,
+    "Thompson Sampling (proposed)": 0.4798989898989898,
+    "TS, extended library (+checkpoint arm)": 0.6581818181818182,
+    "Hybrid: restore + TS for environmental faults": 0.9538383838383836,
+    "Oracle (6 arms)": 0.5999999999999999,
+    "Oracle (extended library)": 0.8803030303030301
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.3196969696969696,
+     0.3818560606060603
+    ],
+    "Restore last healthy checkpoint": [
+     0.9242424242424241,
+     0.9712121212121211
+    ],
+    "Restore checkpoint, learned gate": [
+     0.9242045454545453,
+     0.968181818181818
+    ],
+    "Thompson Sampling (proposed)": [
+     0.44550505050505046,
+     0.5164684343434344
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.6323219696969696,
+     0.6842929292929293
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.930641414141414,
+     0.9720227272727272
+    ],
+    "Oracle (6 arms)": [
+     0.5575757575757575,
+     0.6409090909090908
+    ],
+    "Oracle (extended library)": [
+     0.8484848484848483,
+     0.9106060606060604
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.11106060606060604,
+    "TS, extended library (+checkpoint arm)": 0.07858585858585858,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.08939393939393937,
+    "Oracle (extended library)": 0.040909090909090895
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.007575757575757574,
+    "Restore checkpoint, learned gate": 0.016666666666666663,
+    "Thompson Sampling (proposed)": 0.20227272727272727,
+    "TS, extended library (+checkpoint arm)": 0.1268181818181818,
+    "Hybrid: restore + TS for environmental faults": 0.02131313131313131,
+    "Oracle (6 arms)": 0.07575757575757575,
+    "Oracle (extended library)": 0.004545454545454544
+   },
+   "ceiling_6_arms": 0.75,
+   "ceiling_restore_only": 0.946969696969697,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.45867653859346164,
+    "pointbiserial_reward_vs_recovered": 0.3865389920740864,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.47010101010101,
+    "p": 9.219620160053383e-20,
+    "dz": 2.5044620274583735
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.0696969696969697,
+    "p": 7.6851437946437e-08,
+    "dz": 0.601050601608478
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.1,
+   "W_val": 3,
+   "check": {
+    "n_action_outcomes": 5390,
+    "acceptance_mismatches": 0,
+    "reward_mismatches": 0
+   },
+   "recovery": {
+    "No repair (continue)": 0.47272727272727266,
+    "Restore last healthy checkpoint": 0.9803030303030301,
+    "Restore checkpoint, learned gate": 0.9863636363636362,
+    "Thompson Sampling (proposed)": 0.6113131313131311,
+    "TS, extended library (+checkpoint arm)": 0.752979797979798,
+    "Hybrid: restore + TS for environmental faults": 0.9835858585858583,
+    "Oracle (6 arms)": 0.7196969696969695,
+    "Oracle (extended library)": 0.9333333333333331
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.4393939393939393,
+     0.5075757575757575
+    ],
+    "Restore last healthy checkpoint": [
+     0.965151515151515,
+     0.9924242424242422
+    ],
+    "Restore checkpoint, learned gate": [
+     0.9757575757575756,
+     0.9954545454545453
+    ],
+    "Thompson Sampling (proposed)": [
+     0.5752512626262626,
+     0.6487487373737373
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.727371212121212,
+     0.7784861111111111
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.9729785353535351,
+     0.9923737373737371
+    ],
+    "Oracle (6 arms)": [
+     0.6772727272727271,
+     0.7606439393939389
+    ],
+    "Oracle (extended library)": [
+     0.909090909090909,
+     0.9575757575757574
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.11106060606060604,
+    "TS, extended library (+checkpoint arm)": 0.07858585858585858,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.08939393939393937,
+    "Oracle (extended library)": 0.040909090909090895
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.007575757575757574,
+    "Restore checkpoint, learned gate": 0.016666666666666663,
+    "Thompson Sampling (proposed)": 0.20227272727272727,
+    "TS, extended library (+checkpoint arm)": 0.1268181818181818,
+    "Hybrid: restore + TS for environmental faults": 0.02131313131313131,
+    "Oracle (6 arms)": 0.07575757575757575,
+    "Oracle (extended library)": 0.004545454545454544
+   },
+   "ceiling_6_arms": 0.8393939393939394,
+   "ceiling_restore_only": 0.9863636363636363,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.45867653859346164,
+    "pointbiserial_reward_vs_recovered": 0.40485360441682955,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.368989898989899,
+    "p": 1.348881887003369e-19,
+    "dz": 2.034770215759825
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.04696969696969698,
+    "p": 1.2348618551820139e-05,
+    "dz": 0.4756517920802809
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.03,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.2712121212121211,
+    "Restore last healthy checkpoint": 0.8787878787878786,
+    "Restore checkpoint, learned gate": 0.8757575757575756,
+    "Thompson Sampling (proposed)": 0.3988383838383839,
+    "TS, extended library (+checkpoint arm)": 0.5785858585858586,
+    "Hybrid: restore + TS for environmental faults": 0.8856060606060606,
+    "Oracle (6 arms)": 0.5499999999999998,
+    "Oracle (extended library)": 0.8242424242424241
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.23939393939393935,
+     0.3015151515151514
+    ],
+    "Restore last healthy checkpoint": [
+     0.8454545454545452,
+     0.9106060606060604
+    ],
+    "Restore checkpoint, learned gate": [
+     0.8409090909090907,
+     0.910643939393939
+    ],
+    "Thompson Sampling (proposed)": [
+     0.3658560606060606,
+     0.43460606060606055
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.5515618686868686,
+     0.6068219696969697
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.8537361111111109,
+     0.9145467171717171
+    ],
+    "Oracle (6 arms)": [
+     0.5090530303030302,
+     0.5924621212121208
+    ],
+    "Oracle (extended library)": [
+     0.7878787878787877,
+     0.8590909090909089
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.09767676767676768,
+    "TS, extended library (+checkpoint arm)": 0.07545454545454545,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.06818181818181818,
+    "Oracle (extended library)": 0.036363636363636355
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.009090909090909089,
+    "Restore checkpoint, learned gate": 0.015151515151515148,
+    "Thompson Sampling (proposed)": 0.21156565656565657,
+    "TS, extended library (+checkpoint arm)": 0.13454545454545455,
+    "Hybrid: restore + TS for environmental faults": 0.022626262626262626,
+    "Oracle (6 arms)": 0.09090909090909088,
+    "Oracle (extended library)": 0.010606060606060605
+   },
+   "ceiling_6_arms": 0.6848484848484848,
+   "ceiling_restore_only": 0.8727272727272727,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.48626252076641213,
+    "pointbiserial_reward_vs_recovered": 0.3846771056247374,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.4799494949494948,
+    "p": 1.247600057240009e-19,
+    "dz": 2.2461107909896363
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.05454545454545454,
+    "p": 0.00040549951211872403,
+    "dz": 0.40206825902990845
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.05,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.35151515151515145,
+    "Restore last healthy checkpoint": 0.9484848484848483,
+    "Restore checkpoint, learned gate": 0.9469696969696968,
+    "Thompson Sampling (proposed)": 0.49060606060606055,
+    "TS, extended library (+checkpoint arm)": 0.6586868686868687,
+    "Hybrid: restore + TS for environmental faults": 0.9524747474747473,
+    "Oracle (6 arms)": 0.6257575757575756,
+    "Oracle (extended library)": 0.8924242424242422
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.3196969696969696,
+     0.3818560606060603
+    ],
+    "Restore last healthy checkpoint": [
+     0.9227272727272725,
+     0.9712121212121211
+    ],
+    "Restore checkpoint, learned gate": [
+     0.9211742424242423,
+     0.968181818181818
+    ],
+    "Thompson Sampling (proposed)": [
+     0.4564128787878788,
+     0.528185606060606
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.6328270202020201,
+     0.6854040404040405
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.9277247474747474,
+     0.9718181818181816
+    ],
+    "Oracle (6 arms)": [
+     0.5848484848484847,
+     0.668181818181818
+    ],
+    "Oracle (extended library)": [
+     0.8636363636363634,
+     0.921212121212121
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.09767676767676768,
+    "TS, extended library (+checkpoint arm)": 0.07545454545454545,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.06818181818181818,
+    "Oracle (extended library)": 0.036363636363636355
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.009090909090909089,
+    "Restore checkpoint, learned gate": 0.015151515151515148,
+    "Thompson Sampling (proposed)": 0.21156565656565657,
+    "TS, extended library (+checkpoint arm)": 0.13454545454545455,
+    "Hybrid: restore + TS for environmental faults": 0.022626262626262626,
+    "Oracle (6 arms)": 0.09090909090909088,
+    "Oracle (extended library)": 0.010606060606060605
+   },
+   "ceiling_6_arms": 0.75,
+   "ceiling_restore_only": 0.9454545454545454,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.48626252076641213,
+    "pointbiserial_reward_vs_recovered": 0.4081805577994404,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.45787878787878783,
+    "p": 9.485017108951574e-20,
+    "dz": 2.388090702987354
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.056060606060606054,
+    "p": 1.9674287623275823e-06,
+    "dz": 0.484414512655342
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  },
+  {
+   "tol": 0.1,
+   "W_val": 5,
+   "check": null,
+   "recovery": {
+    "No repair (continue)": 0.47272727272727266,
+    "Restore last healthy checkpoint": 0.9803030303030301,
+    "Restore checkpoint, learned gate": 0.9863636363636362,
+    "Thompson Sampling (proposed)": 0.6245959595959595,
+    "TS, extended library (+checkpoint arm)": 0.7543939393939394,
+    "Hybrid: restore + TS for environmental faults": 0.9838383838383837,
+    "Oracle (6 arms)": 0.7469696969696968,
+    "Oracle (extended library)": 0.9469696969696968
+   },
+   "recovery_ci": {
+    "No repair (continue)": [
+     0.4393939393939393,
+     0.5075757575757575
+    ],
+    "Restore last healthy checkpoint": [
+     0.965151515151515,
+     0.9924242424242422
+    ],
+    "Restore checkpoint, learned gate": [
+     0.9757575757575756,
+     0.9954545454545453
+    ],
+    "Thompson Sampling (proposed)": [
+     0.5896439393939394,
+     0.6617689393939394
+    ],
+    "TS, extended library (+checkpoint arm)": [
+     0.7293409090909091,
+     0.7796982323232322
+    ],
+    "Hybrid: restore + TS for environmental faults": [
+     0.9732297979797979,
+     0.9926262626262624
+    ],
+    "Oracle (6 arms)": [
+     0.7045454545454544,
+     0.7863636363636362
+    ],
+    "Oracle (extended library)": [
+     0.9257575757575756,
+     0.9666666666666665
+    ]
+   },
+   "harmful": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.031818181818181815,
+    "Restore checkpoint, learned gate": 0.040909090909090895,
+    "Thompson Sampling (proposed)": 0.09767676767676768,
+    "TS, extended library (+checkpoint arm)": 0.07545454545454545,
+    "Hybrid: restore + TS for environmental faults": 0.04757575757575758,
+    "Oracle (6 arms)": 0.06818181818181818,
+    "Oracle (extended library)": 0.036363636363636355
+   },
+   "rolled_back": {
+    "No repair (continue)": 0.0,
+    "Restore last healthy checkpoint": 0.009090909090909089,
+    "Restore checkpoint, learned gate": 0.015151515151515148,
+    "Thompson Sampling (proposed)": 0.21156565656565657,
+    "TS, extended library (+checkpoint arm)": 0.13454545454545455,
+    "Hybrid: restore + TS for environmental faults": 0.022626262626262626,
+    "Oracle (6 arms)": 0.09090909090909088,
+    "Oracle (extended library)": 0.010606060606060605
+   },
+   "ceiling_6_arms": 0.8393939393939394,
+   "ceiling_restore_only": 0.9863636363636363,
+   "alignment": {
+    "spearman_reward_vs_acc_gap": 0.48626252076641213,
+    "pointbiserial_reward_vs_recovered": 0.4278127412155665,
+    "n": 4620
+   },
+   "restore_minus_ts": {
+    "diff": 0.35570707070707075,
+    "p": 1.386179554410345e-19,
+    "dz": 1.972009229793147
+   },
+   "restore_minus_ext_oracle": {
+    "diff": 0.03333333333333333,
+    "p": 0.00011650161951952626,
+    "dz": 0.4126893504753701
+   },
+   "claims": {
+    "restore_gg_ts": true,
+    "library_ceiling": true,
+    "reward_misaligned": true
+   }
+  }
+ ],
+ "datasets": [
+  "banknote",
+  "breast_cancer",
+  "circles",
+  "digits",
+  "hidden_manifold",
+  "iris",
+  "linearly_separable",
+  "moons",
+  "pima_diabetes",
+  "two_curves",
+  "wine"
+ ],
+ "n_seeds": 10,
+ "tolerances": [
+  0.03,
+  0.05,
+  0.1
+ ],
+ "windows": [
+  3,
+  5
+ ],
+ "n_orders": 30
+}

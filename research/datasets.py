@@ -111,8 +111,13 @@ def _raw(name: str) -> Tuple[np.ndarray, np.ndarray]:
     raise ValueError(f"Unknown dataset {name}")
 
 
-def load_splits(name: str, seed: int) -> Splits:
-    """Stratified, seed-dependent splits with train-only preprocessing."""
+def load_splits(name: str, seed: int, n_features: int = N_FEATURES) -> Splits:
+    """Stratified, seed-dependent splits with train-only preprocessing.
+
+    n_features: width of the encoded input (= number of qubits). Tasks with more raw features are
+    reduced with a train-fitted PCA(n_features); tasks with fewer are re-uploaded cyclically.
+    The 8-qubit regime (q8) uses n_features = 8.
+    """
     X, y = _raw(name)
     n_raw = X.shape[1]
     rng = np.random.RandomState(seed)
@@ -127,8 +132,8 @@ def load_splits(name: str, seed: int) -> Splits:
     X_va, X_te, y_va, y_te = train_test_split(X_rest2, y_rest2, train_size=3 / 7, stratify=y_rest2, random_state=seed + 2)
 
     scaler = StandardScaler().fit(X_tr)
-    if n_raw > N_FEATURES:
-        pca = PCA(n_components=N_FEATURES, random_state=seed).fit(scaler.transform(X_tr))
+    if n_raw > n_features:
+        pca = PCA(n_components=n_features, random_state=seed).fit(scaler.transform(X_tr))
         f = lambda A: pca.transform(scaler.transform(A))
     else:
         f = lambda A: scaler.transform(A)
@@ -137,8 +142,8 @@ def load_splits(name: str, seed: int) -> Splits:
 
     def g(A: np.ndarray) -> np.ndarray:
         Z = np.clip(mm.transform(f(A)), 0.0, np.pi)
-        if Z.shape[1] < N_FEATURES:  # 2-D synthetic sets: re-upload features cyclically
-            Z = np.concatenate([Z] * int(np.ceil(N_FEATURES / Z.shape[1])), axis=1)[:, :N_FEATURES]
+        if Z.shape[1] < n_features:  # fewer raw features than qubits: re-upload features cyclically
+            Z = np.concatenate([Z] * int(np.ceil(n_features / Z.shape[1])), axis=1)[:, :n_features]
         return Z
 
     _ = rng  # seed retained for API symmetry

@@ -196,5 +196,65 @@ Framing options (decision for the author):
   horizon, and test whether adaptive repair then wins. Higher upside, more work, outcome unknown.
 - **C. Both:** A as the paper, B as its "when does adaptive repair matter?" section if the experiment is run first.
 
-Not yet done: hardware runs on a real QPU; more qubits (8-12) to test the plateau emulation against genuine
-concentration; compound and gradual faults.
+Not yet done: hardware runs on a real QPU; compound and gradual faults. (8 qubits, a genuine-vs-emulated plateau
+measurement and the tolerance / probation-window sensitivity are now in Part 6.)
+
+---
+
+## Part 6 - Reviewer-requested robustness checks (8 qubits, real plateaus, sensitivity)
+
+Exact tables: the `8-qubit classifier`, `Sensitivity` and `Genuine vs emulated barren plateaus` sections of
+[`RESULTS.md`](RESULTS.md). Regenerate with:
+
+```
+python -m research.run_campaign --n-qubits 8 --seeds 0-9 --workers 14 \
+    --datasets breast_cancer,wine,digits,pima_diabetes,hidden_manifold,moons      # ~1 h on 8 cores
+REGIME=q8 python -m research.analysis && REGIME=q8 python -m research.figures
+python -m research.gradient_variance                                              # ~50 min, 1 core
+python -m research.sensitivity                                                    # no training; ~1 h per 4-qubit regime
+python -m research.report
+```
+
+### 6.1 Eight qubits (regime `q8`, 420 episodes, 60 runs, 6 datasets x 10 seeds)
+Same faults, repairs and policies; 2 layers on 8 qubits, inputs PCA-reduced to 8 features. Circuits run on an exact
+vectorised statevector engine (`research/fast_sim.py`, ~1e-16 agreement with the PennyLane circuit, 23-93x faster per step).
+- **Every qualitative conclusion holds.** Checkpoint restore 87.8% (83.3-91.4) vs Thompson sampling 36.7% (31.5-41.9);
+  6-arm oracle 48.6%; reward-optimal extended-library oracle 79.4% (still below restore); hybrid 88.6%, not
+  significantly better than plain restore (p = 0.81). Learned diagnosis transfers (LODO macro-F1 0.981; rules 0.456).
+  The twin veto is again the only TS component with a significant effect (-4.7 pp without it).
+- **Everything gets harder at 8 qubits, restore included.** On the same 60 base runs at 4 qubits, restore recovers
+  94.2% and TS 50.0%; at 8 qubits 87.8% and 36.7%. The gap restore - TS *widens* (+44 -> +51 pp).
+- Restoring helps least for device noise (53%), as before; there the best single repair arm reaches 82%.
+
+### 6.2 Genuine vs emulated barren plateaus
+- On the framework's own ansatz with scrambled parameters, the gradient variance halves with every added qubit
+  (Var ~ 2^-n, fit over 4-12 qubits; depth-saturated by L = 8). At 8 qubits the genuine gradient std is 0.063,
+  i.e. only 2.7x smaller than in a healthy circuit, with an SNR of about 3 at 1,024 shots.
+- The emulated plateau (gradients x 1e-6 under 1,024-shot noise) has an SNR of 8e-6: **about 3.7e5 times weaker
+  than any genuine plateau at 8 qubits.** Extrapolating the measured law, genuine concentration reaches the 1,024-shot
+  noise floor near 11 qubits and the emulated level only near 45 qubits.
+- **This weakens the plateau claim.** The benchmark's barren-plateau fault models the deep-plateau regime of
+  far larger devices, not the circuits trained here. The paper must say so explicitly. It is defensible as a
+  stress test of the SNR-collapse mechanism, not as evidence about real 4-8 qubit plateaus.
+- Side observation: even healthy shallow circuits concentrate with width under angle encoding (variance halves about
+  every 2 qubits), which partly explains why 8-qubit training is weaker overall.
+- The McClean-style HEA with a linear CZ ladder was not depth-saturated at 32 layers for n >= 8, so no exponent is
+  claimed for it.
+
+### 6.3 Sensitivity to the recovery tolerance (3 / 5 / 10 points) and probation window (W_val = 3 / 5)
+Recomputed from the stored trajectories without new training. The W_val = 3 recomputation reproduces every stored
+acceptance flag and reward in every regime (0 mismatches).
+- **All three conclusions hold in all 30 cells** (5 regimes x 3 tolerances x 2 windows):
+  restore beats 6-arm TS by 32-51 pp (p < 1e-6 everywhere); both the reward-optimal 6-arm oracle and the
+  hindsight 6-arm recovery ceiling stay below restore; the reward-optimal extended-library oracle stays below restore.
+- Absolute rates move a lot with the tolerance (ideal restore: 83.8 / 92.1 / 96.9% at 3 / 5 / 10 points; TS
+  36.7 / 46.1 / 59.8%), so headline percentages must always be quoted with their tolerance.
+- **The hindsight ceiling is higher than the reward-optimal oracle.** If an agent could pick the arm that actually
+  recovers, the six arms reach 70.2% (ideal, 5 points), not 55.8%. That is still 22 pp below restore. The paper's
+  "library ceiling" should be quoted as this hindsight number, the stronger version of the claim.
+- **Where the margins are thin:** in the latent regime at 3 points, the reward-optimal extended oracle (66.6%) is only
+  2.9 pp below the clean restore (69.5%). The reward-misalignment argument there rests on a small gap.
+- A longer probation window changes little. W_val = 5 raises reward/outcome alignment only from Spearman 0.46 to
+  0.49 (ideal; 0.49 -> 0.53 at 8 qubits). Restore and TS recovery move by <= 1.6 pp; the reward-optimal oracles gain
+  1-5 pp but stay below restore. The misalignment is not an artefact of the 3-step window
+  length; the short-horizon reward is itself the problem.
