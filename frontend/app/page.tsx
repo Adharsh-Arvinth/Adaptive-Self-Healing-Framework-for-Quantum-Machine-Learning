@@ -36,6 +36,48 @@ const WS_URL =
     ? API_BASE.replace(/^https:\/\//, "wss://") + "/ws/telemetry"
     : API_BASE.replace(/^http:\/\//, "ws://") + "/ws/telemetry");
 
+// Each browser gets its own private lab on the backend (one visitor's start, reset or injected fault
+// never affects anyone else's run). The id is random, stored only in this browser, and carries no personal data.
+const LAB_SESSION_KEY = "shqml-lab-session";
+function labSessionId(): string {
+  if (typeof window === "undefined") return "";
+  try {
+    let id = window.localStorage.getItem(LAB_SESSION_KEY);
+    if (!id || !/^[A-Za-z0-9_-]{8,64}$/.test(id)) {
+      id =
+        typeof crypto !== "undefined" && "randomUUID" in crypto
+          ? crypto.randomUUID()
+          : `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+      window.localStorage.setItem(LAB_SESSION_KEY, id);
+    }
+    return id;
+  } catch {
+    // storage blocked (private mode): keep one id for this page view
+    const w = window as unknown as { __labSession?: string };
+    w.__labSession ||= `${Date.now().toString(36)}-${Math.random().toString(36).slice(2, 12)}`;
+    return w.__labSession;
+  }
+}
+
+/** fetch() against the lab API, tagged with this browser's lab session. */
+function labFetch(url: string, init: RequestInit = {}): Promise<Response> {
+  const headers = new Headers(init.headers);
+  const id = labSessionId();
+  if (id) headers.set("X-Lab-Session", id);
+  return fetch(url, { ...init, headers });
+}
+
+/** Explain a refused start/resume (e.g. the shared server is at capacity). */
+async function refusalMessage(res: Response): Promise<string> {
+  try {
+    const d = await res.json();
+    if (typeof d?.detail === "string") return d.detail;
+  } catch {
+    /* ignore */
+  }
+  return `The server answered ${res.status}.`;
+}
+
 export default function Page() {
   // Primary View Mode: "landing" (Cinematic Editorial Experience) | "dashboard" (Interactive Research Lab)
   const [activeView, setActiveView] = useState<"landing" | "dashboard">("landing");
@@ -168,10 +210,10 @@ export default function Page() {
   const fetchStatusAndPosteriors = useCallback(async () => {
     try {
       const [statusRes, posteriorsRes, memoryRes, histRes] = await Promise.all([
-        fetch(`${API_BASE}/api/experiment/status`),
-        fetch(`${API_BASE}/api/bandit/posteriors`),
-        fetch(`${API_BASE}/api/memory/episodes`),
-        fetch(`${API_BASE}/api/telemetry/history`),
+        labFetch(`${API_BASE}/api/experiment/status`),
+        labFetch(`${API_BASE}/api/bandit/posteriors`),
+        labFetch(`${API_BASE}/api/memory/episodes`),
+        labFetch(`${API_BASE}/api/telemetry/history`),
       ]);
 
       if (statusRes.ok) {
@@ -292,7 +334,7 @@ export default function Page() {
     }
 
     try {
-      const ws = new WebSocket(WS_URL);
+      const ws = new WebSocket(`${WS_URL}?session=${encodeURIComponent(labSessionId())}`);
       wsRef.current = ws;
 
       ws.onopen = () => {
@@ -454,12 +496,12 @@ export default function Page() {
 
     const interval = setInterval(() => {
       fetchStatusAndPosteriors();
-      fetch(`${API_BASE}/api/memory/episodes`)
+      labFetch(`${API_BASE}/api/memory/episodes`)
         .then((r) => r.json())
         .then((m) => m.episodes && setEpisodes(m.episodes))
         .catch(() => {});
 
-      fetch(`${API_BASE}/api/bandit/posteriors`)
+      labFetch(`${API_BASE}/api/bandit/posteriors`)
         .then((r) => r.json())
         .then((p) => setBanditPosteriors(p))
         .catch(() => {});
@@ -475,7 +517,7 @@ export default function Page() {
   // Action Handlers
   const handleStart = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/start`, {
+      const res = await labFetch(`${API_BASE}/api/experiment/start`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -492,7 +534,9 @@ export default function Page() {
       });
       if (res.ok) {
         setIsRunning(true);
-        addToast("success", "Training Started", "Autonomous MAPE-K pipeline running.");
+        addToast("success", "Training started", "Your private lab is running.");
+      } else {
+        addToast("warning", "Could not start", await refusalMessage(res));
       }
     } catch (e) {
       addToast("error", "Failed to Start", String(e));
@@ -525,7 +569,7 @@ export default function Page() {
       setStepDelayMs(cfg.stepDelayMs);
 
       try {
-        await fetch(`${API_BASE}/api/experiment/reset`, {
+        await labFetch(`${API_BASE}/api/experiment/reset`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -573,7 +617,7 @@ export default function Page() {
     }) => {
       await handleApplyConfig(cfg);
       try {
-        const res = await fetch(`${API_BASE}/api/experiment/start`, {
+        const res = await labFetch(`${API_BASE}/api/experiment/start`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -604,7 +648,7 @@ export default function Page() {
 
   const handlePause = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/pause`, { method: "POST" });
+      const res = await labFetch(`${API_BASE}/api/experiment/pause`, { method: "POST" });
       if (res.ok) {
         setIsRunning(false);
         addToast("info", "Execution Paused", "Pipeline runner cleanly paused.");
@@ -616,10 +660,12 @@ export default function Page() {
 
   const handleResume = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/resume`, { method: "POST" });
+      const res = await labFetch(`${API_BASE}/api/experiment/resume`, { method: "POST" });
       if (res.ok) {
         setIsRunning(true);
         addToast("success", "Execution Resumed", "Pipeline runner resumed execution.");
+      } else {
+        addToast("warning", "Could not resume", await refusalMessage(res));
       }
     } catch (e) {
       addToast("error", "Resume Failed", String(e));
@@ -628,7 +674,7 @@ export default function Page() {
 
   const handleStep = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/step`, { method: "POST" });
+      const res = await labFetch(`${API_BASE}/api/experiment/step`, { method: "POST" });
       if (res.ok) {
         const payload = await res.json();
         setStepCount(payload.step);
@@ -642,7 +688,7 @@ export default function Page() {
   const handleReset = async () => {
     setIsResetModalOpen(false);
     try {
-      await fetch(`${API_BASE}/api/experiment/reset`, { method: "POST" });
+      await labFetch(`${API_BASE}/api/experiment/reset`, { method: "POST" });
       setHistory([]);
       setStepCount(0);
       setIsRunning(false);
@@ -656,7 +702,7 @@ export default function Page() {
 
   const handleInjectFailure = async (failureType: string, severity: number) => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/inject-failure`, {
+      const res = await labFetch(`${API_BASE}/api/experiment/inject-failure`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -674,7 +720,7 @@ export default function Page() {
 
   const handleTriggerRepair = async (armId: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/trigger-repair`, {
+      const res = await labFetch(`${API_BASE}/api/experiment/trigger-repair`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repair_arm: armId, arm: armId }),
@@ -714,7 +760,7 @@ export default function Page() {
 
   const handleSimulateTwin = async (armId: string) => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/simulate-twin`, {
+      const res = await labFetch(`${API_BASE}/api/experiment/simulate-twin`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ repair_arm: armId, arm: armId, horizon: 3 }),
@@ -741,7 +787,7 @@ export default function Page() {
 
   const handleCommit = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/commit`, { method: "POST" });
+      const res = await labFetch(`${API_BASE}/api/experiment/commit`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
         addToast("success", "Repair Committed", "Active repair permanently accepted.");
@@ -758,7 +804,7 @@ export default function Page() {
 
   const handleRollback = async () => {
     try {
-      const res = await fetch(`${API_BASE}/api/experiment/rollback`, { method: "POST" });
+      const res = await labFetch(`${API_BASE}/api/experiment/rollback`, { method: "POST" });
       const data = await res.json();
       if (res.ok) {
         addToast("warning", "Repair Rolled Back", "Model restored from pre-repair checkpoint snapshot.");

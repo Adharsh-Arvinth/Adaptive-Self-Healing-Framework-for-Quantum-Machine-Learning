@@ -15,12 +15,13 @@ from dataclasses import asdict
 import json
 import math
 import os
+import re
 import sys
 import time
 from typing import Any, Dict, List, Optional, Set
 import numpy as np
 
-from fastapi import FastAPI, HTTPException, Request, WebSocket, WebSocketDisconnect
+from fastapi import Depends, FastAPI, Header, HTTPException, Request, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel, Field, model_validator
@@ -122,10 +123,17 @@ def json_safe(obj: Any) -> Any:
     return obj
 
 
-class GlobalStateManager:
-    """Manages the active pipeline instance, background runner, and WebSocket client connections."""
+class LabSession:
+    """One visitor's lab: pipeline instance, background runner and WebSocket connections.
 
-    def __init__(self):
+    Every visitor gets their own LabSession (see SessionRegistry), so one person's start, reset or
+    injected fault never affects another person's run. The failure memory (SQLite) and the bandit
+    posteriors are deliberately shared: they are the system's accumulated experience.
+    """
+
+    def __init__(self, session_id: str = "default"):
+        self.session_id = session_id
+        self.last_used = time.monotonic()
         self.pipeline: Optional[SelfHealingPipeline] = None
         self.model: Optional[VQCModel] = None
         self.X_train: Optional[Any] = None
@@ -313,7 +321,73 @@ class GlobalStateManager:
             await self.broadcast({"type": "training_stopped", "payload": {"final_step": self.pipeline.step_count if self.pipeline else 0}})
 
 
-state_mgr = GlobalStateManager()
+# Backwards-compatible name (tests and tools import it)
+GlobalStateManager = LabSession
+
+SESSION_ID_RE = re.compile(r"^[A-Za-z0-9_-]{8,64}$")
+MAX_SESSIONS = int(os.environ.get("LAB_MAX_SESSIONS", "16"))
+MAX_RUNNING = int(os.environ.get("LAB_MAX_RUNNING", "6"))
+IDLE_TTL_S = float(os.environ.get("LAB_IDLE_TTL_S", "1800"))
+
+
+class SessionRegistry:
+    """Per-visitor lab sessions with an upper bound and idle expiry (protects a small server)."""
+
+    def __init__(self, default: LabSession):
+        self.sessions: Dict[str, LabSession] = {"default": default}
+
+    def _evict_one(self) -> None:
+        candidates = [x for k, x in self.sessions.items() if k != "default"]
+        if not candidates:
+            return
+        # prefer sessions that are neither running nor being watched, then least recently used
+        candidates.sort(key=lambda x: (x.is_running or bool(x.active_connections), x.last_used))
+        self.drop(candidates[0].session_id)
+
+    def drop(self, session_id: str) -> None:
+        sess = self.sessions.pop(session_id, None)
+        if sess is None:
+            return
+        sess.is_running = False
+        if sess.runner_task and not sess.runner_task.done():
+            sess.runner_task.cancel()
+
+    def get(self, session_id: Optional[str]) -> LabSession:
+        sid = session_id if (session_id and SESSION_ID_RE.match(session_id)) else "default"
+        sess = self.sessions.get(sid)
+        if sess is None:
+            while len(self.sessions) >= MAX_SESSIONS + 1:  # +1: the default session
+                self._evict_one()
+            sess = LabSession(sid)
+            sess.initialize_experiment(StartExperimentRequest())
+            self.sessions[sid] = sess
+        sess.last_used = time.monotonic()
+        return sess
+
+    def running_count(self) -> int:
+        return sum(1 for x in self.sessions.values() if x.is_running)
+
+    def expire_idle(self) -> int:
+        now = time.monotonic()
+        stale = [k for k, x in self.sessions.items()
+                 if k != "default" and not x.active_connections and now - x.last_used > IDLE_TTL_S]
+        for k in stale:
+            self.drop(k)
+        return len(stale)
+
+
+state_mgr = LabSession("default")
+sessions = SessionRegistry(state_mgr)
+
+
+def lab_session(x_lab_session: Optional[str] = Header(default=None)) -> LabSession:
+    """FastAPI dependency: the caller's own lab session (X-Lab-Session header)."""
+    return sessions.get(x_lab_session)
+
+
+def ensure_capacity(s: LabSession) -> None:
+    if not s.is_running and sessions.running_count() >= MAX_RUNNING:
+        raise HTTPException(status_code=429, detail="The lab is busy right now. Please try again in a minute.")
 
 
 # ----------------------------------------------------------------------
@@ -324,10 +398,19 @@ state_mgr = GlobalStateManager()
 async def lifespan(app: FastAPI):
     # Ensure default model is initialized on startup
     state_mgr.initialize_experiment(StartExperimentRequest())
+
+    async def janitor():
+        while True:
+            await asyncio.sleep(60)
+            sessions.expire_idle()
+
+    janitor_task = asyncio.create_task(janitor())
     yield
-    # Gracefully stop runner on shutdown
-    if state_mgr.runner_task and not state_mgr.runner_task.done():
-        state_mgr.runner_task.cancel()
+    janitor_task.cancel()
+    # Gracefully stop runners on shutdown
+    for sess in list(sessions.sessions.values()):
+        if sess.runner_task and not sess.runner_task.done():
+            sess.runner_task.cancel()
 
 
 app = FastAPI(
@@ -559,78 +642,80 @@ def get_health():
 
 
 @app.get("/api/experiment/status")
-def get_experiment_status():
+def get_experiment_status(s: LabSession = Depends(lab_session)):
     """Current experiment configuration, running state, and latest step."""
-    if not state_mgr.pipeline or not state_mgr.model:
+    if not s.pipeline or not s.model:
         return {"status": "NOT_INITIALIZED"}
 
-    latest = state_mgr.telemetry_history[-1] if state_mgr.telemetry_history else None
+    latest = s.telemetry_history[-1] if s.telemetry_history else None
     return {
-        "is_running": state_mgr.is_running,
-        "step_count": state_mgr.pipeline.step_count,
-        "max_steps": state_mgr.max_steps,
-        "pipeline_state": state_mgr.pipeline.state.value,
-        "config": asdict(state_mgr.model.config),
+        "is_running": s.is_running,
+        "step_count": s.pipeline.step_count,
+        "max_steps": s.max_steps,
+        "pipeline_state": s.pipeline.state.value,
+        "config": asdict(s.model.config),
         "latest_telemetry": latest,
     }
 
 
 @app.post("/api/experiment/start")
-async def start_experiment(req: StartExperimentRequest):
+async def start_experiment(req: StartExperimentRequest, s: LabSession = Depends(lab_session)):
     """Start autonomous training loop in the background."""
-    if state_mgr.is_running:
+    if s.is_running:
         return {"status": "ALREADY_RUNNING", "message": "Training loop is already active."}
+    ensure_capacity(s)
 
     # If new configuration or reset requested, initialize
-    state_mgr.initialize_experiment(req)
-    state_mgr.is_running = True
-    state_mgr.runner_task = asyncio.create_task(state_mgr.run_training_loop())
+    s.initialize_experiment(req)
+    s.is_running = True
+    s.runner_task = asyncio.create_task(s.run_training_loop())
 
-    await state_mgr.broadcast({"type": "training_started", "payload": {"config": asdict(state_mgr.model.config)}})
-    return {"status": "STARTED", "experiment_id": state_mgr.pipeline.experiment_id}
+    await s.broadcast({"type": "training_started", "payload": {"config": asdict(s.model.config)}})
+    return {"status": "STARTED", "experiment_id": s.pipeline.experiment_id}
 
 
 @app.post("/api/experiment/stop")
-async def stop_experiment():
+async def stop_experiment(s: LabSession = Depends(lab_session)):
     """Pause or stop the autonomous background training loop."""
-    if state_mgr.is_running and state_mgr.runner_task:
-        state_mgr.is_running = False
-        state_mgr.runner_task.cancel()
-        await state_mgr.broadcast({"type": "training_stopped", "payload": {"step": state_mgr.pipeline.step_count if state_mgr.pipeline else 0}})
+    if s.is_running and s.runner_task:
+        s.is_running = False
+        s.runner_task.cancel()
+        await s.broadcast({"type": "training_stopped", "payload": {"step": s.pipeline.step_count if s.pipeline else 0}})
         return {"status": "STOPPED"}
     return {"status": "IDLE"}
 
 
 @app.post("/api/experiment/pause")
-async def pause_experiment():
+async def pause_experiment(s: LabSession = Depends(lab_session)):
     """Pause autonomous training loop cleanly without resetting state."""
-    if state_mgr.is_running and state_mgr.runner_task:
-        state_mgr.is_running = False
-        state_mgr.runner_task.cancel()
-        step = state_mgr.pipeline.step_count if state_mgr.pipeline else 0
-        await state_mgr.broadcast({"type": "training_paused", "payload": {"step": step}})
+    if s.is_running and s.runner_task:
+        s.is_running = False
+        s.runner_task.cancel()
+        step = s.pipeline.step_count if s.pipeline else 0
+        await s.broadcast({"type": "training_paused", "payload": {"step": step}})
         return {"status": "PAUSED", "step": step}
     return {"status": "NOT_RUNNING"}
 
 
 @app.post("/api/experiment/resume")
-async def resume_experiment():
+async def resume_experiment(s: LabSession = Depends(lab_session)):
     """Resume autonomous background training worker from current step."""
-    if state_mgr.is_running:
+    if s.is_running:
         return {"status": "ALREADY_RUNNING"}
-    if not state_mgr.pipeline:
+    if not s.pipeline:
         raise HTTPException(status_code=400, detail="Experiment not initialized")
-    state_mgr.is_running = True
-    state_mgr.runner_task = asyncio.create_task(state_mgr.run_training_loop())
-    step = state_mgr.pipeline.step_count
-    await state_mgr.broadcast({"type": "training_resumed", "payload": {"step": step}})
+    ensure_capacity(s)
+    s.is_running = True
+    s.runner_task = asyncio.create_task(s.run_training_loop())
+    step = s.pipeline.step_count
+    await s.broadcast({"type": "training_resumed", "payload": {"step": step}})
     return {"status": "RESUMED", "step": step}
 
 
 @app.post("/api/experiment/simulate-twin")
-async def simulate_twin(req: SimulateTwinRequest):
+async def simulate_twin(req: SimulateTwinRequest, s: LabSession = Depends(lab_session)):
     """Run an isolated H=3 forward simulation in the Digital Twin sandbox without mutating model weights."""
-    if not state_mgr.pipeline or not state_mgr.model:
+    if not s.pipeline or not s.model:
         raise HTTPException(status_code=400, detail="Model not initialized")
     try:
         arm = RepairArm(req.repair_arm)
@@ -640,16 +725,16 @@ async def simulate_twin(req: SimulateTwinRequest):
             detail=f"Invalid arm: {req.repair_arm}. Must be one of {[a.value for a in RepairArm]}"
         )
     
-    candidates = state_mgr.pipeline.repair_lib.generate_candidate_repairs(state_mgr.model.get_state(), all_arms=True)
+    candidates = s.pipeline.repair_lib.generate_candidate_repairs(s.model.get_state(), all_arms=True)
     cand = next((c for c in candidates if c.arm == arm), None)
     if not cand:
         raise HTTPException(status_code=400, detail=f"Candidate repair for arm {arm.value} not available")
     
-    pred = state_mgr.pipeline.digital_twin.simulate_candidate(
-        state_mgr.model,
+    pred = s.pipeline.digital_twin.simulate_candidate(
+        s.model,
         cand,
-        state_mgr.X_val,
-        state_mgr.y_val,
+        s.X_val,
+        s.y_val,
     )
     data = {
         "arm": pred.arm.value,
@@ -665,14 +750,14 @@ async def simulate_twin(req: SimulateTwinRequest):
         "is_viable": bool(pred.is_viable),
         "rejection_reason": pred.rejection_reason,
     }
-    await state_mgr.broadcast({"type": "twin_simulated", "payload": data})
+    await s.broadcast({"type": "twin_simulated", "payload": data})
     return data
 
 
 @app.post("/api/experiment/trigger-repair")
-async def trigger_repair(req: TriggerRepairRequest):
+async def trigger_repair(req: TriggerRepairRequest, s: LabSession = Depends(lab_session)):
     """Manually trigger deployment of a candidate repair through safety filtering and atomic validation."""
-    if not state_mgr.pipeline or not state_mgr.model:
+    if not s.pipeline or not s.model:
         raise HTTPException(status_code=400, detail="Model not initialized")
     try:
         arm = RepairArm(req.repair_arm)
@@ -682,38 +767,38 @@ async def trigger_repair(req: TriggerRepairRequest):
             detail=f"Invalid arm: {req.repair_arm}. Must be one of {[a.value for a in RepairArm]}"
         )
     
-    candidates = state_mgr.pipeline.repair_lib.generate_candidate_repairs(state_mgr.model.get_state(), all_arms=True)
+    candidates = s.pipeline.repair_lib.generate_candidate_repairs(s.model.get_state(), all_arms=True)
     cand = next((c for c in candidates if c.arm == arm), None)
     if not cand:
         raise HTTPException(status_code=400, detail=f"Candidate repair for arm {arm.value} not available")
     
     # Check safety filter
-    decisions = state_mgr.pipeline.safety_filter.filter_candidates([cand], state_mgr.model.get_state())
+    decisions = s.pipeline.safety_filter.filter_candidates([cand], s.model.get_state())
     decision = decisions[0] if decisions else None
     if decision and not decision.is_safe:
         return {"status": "BLOCKED_BY_SAFETY_FILTER", "reason": decision.rejection_reason}
     
     # Snapshot checkpoint & deploy
-    latest = state_mgr.telemetry_history[-1] if state_mgr.telemetry_history else None
+    latest = s.telemetry_history[-1] if s.telemetry_history else None
     cur_loss = float(latest["loss"]) if latest else 0.693
     cur_val_loss = float(latest["val_loss"]) if latest else 0.693
     cur_acc = float(latest["accuracy"]) if latest else 0.50
     cur_val_acc = float(latest["val_accuracy"]) if latest else 0.50
     cur_grad_norm = float(latest["gradient_norm"]) if latest else 0.05
 
-    ckpt = state_mgr.pipeline.deployment_mgr.create_checkpoint(
-        model=state_mgr.model,
-        experiment_id=state_mgr.pipeline.experiment_id,
-        step=state_mgr.pipeline.step_count,
+    ckpt = s.pipeline.deployment_mgr.create_checkpoint(
+        model=s.model,
+        experiment_id=s.pipeline.experiment_id,
+        step=s.pipeline.step_count,
         loss=cur_loss,
         val_loss=cur_val_loss,
         accuracy=cur_acc,
         val_accuracy=cur_val_acc,
         grad_norm=cur_grad_norm,
     )
-    record = state_mgr.pipeline.deployment_mgr.deploy_repair(state_mgr.model, cand, ckpt)
-    state_mgr.pipeline.state = PipelineState.VALIDATING_REPAIR
-    state_mgr.pipeline.is_recovering = True
+    record = s.pipeline.deployment_mgr.deploy_repair(s.model, cand, ckpt)
+    s.pipeline.state = PipelineState.VALIDATING_REPAIR
+    s.pipeline.is_recovering = True
     
     dep_data = {
         "deployment_id": record.deployment_id,
@@ -721,75 +806,75 @@ async def trigger_repair(req: TriggerRepairRequest):
         "status": record.status.value,
         "loss_pre": float(record.loss_pre),
     }
-    await state_mgr.broadcast({"type": "repair_deployed", "payload": dep_data})
+    await s.broadcast({"type": "repair_deployed", "payload": dep_data})
     return {"status": "DEPLOYED", "deployment": dep_data}
 
 
 @app.post("/api/experiment/commit")
-async def commit_active_repair():
+async def commit_active_repair(s: LabSession = Depends(lab_session)):
     """Manually commit active repair during validation."""
-    if not state_mgr.pipeline or not state_mgr.pipeline.deployment_mgr.active_deployment:
+    if not s.pipeline or not s.pipeline.deployment_mgr.active_deployment:
         raise HTTPException(status_code=400, detail="No active deployment to commit")
-    dep = state_mgr.pipeline.deployment_mgr.finalize_deployment(state_mgr.model)
-    eval_rec = state_mgr.pipeline._finalize_recovery(dep, was_rolled_back=False)
-    state_mgr.pipeline.state = PipelineState.COMMITTED
-    state_mgr.pipeline.is_recovering = False
+    dep = s.pipeline.deployment_mgr.finalize_deployment(s.model)
+    eval_rec = s.pipeline._finalize_recovery(dep, was_rolled_back=False)
+    s.pipeline.state = PipelineState.COMMITTED
+    s.pipeline.is_recovering = False
     payload = {
         "status": "COMMITTED",
         "reward": float(eval_rec.actual_reward),
         "deployment_id": dep.deployment_id,
     }
-    await state_mgr.broadcast({"type": "repair_committed", "payload": payload})
+    await s.broadcast({"type": "repair_committed", "payload": payload})
     return payload
 
 
 @app.post("/api/experiment/rollback")
-async def rollback_active_repair():
+async def rollback_active_repair(s: LabSession = Depends(lab_session)):
     """Manually rollback active repair during validation."""
-    if not state_mgr.pipeline or not state_mgr.pipeline.deployment_mgr.active_deployment:
+    if not s.pipeline or not s.pipeline.deployment_mgr.active_deployment:
         raise HTTPException(status_code=400, detail="No active deployment to rollback")
-    dep = state_mgr.pipeline.deployment_mgr.force_rollback(state_mgr.model, reason="Manual user rollback request")
-    eval_rec = state_mgr.pipeline._finalize_recovery(dep, was_rolled_back=True)
-    state_mgr.pipeline.state = PipelineState.ROLLED_BACK
-    state_mgr.pipeline.is_recovering = False
+    dep = s.pipeline.deployment_mgr.force_rollback(s.model, reason="Manual user rollback request")
+    eval_rec = s.pipeline._finalize_recovery(dep, was_rolled_back=True)
+    s.pipeline.state = PipelineState.ROLLED_BACK
+    s.pipeline.is_recovering = False
     payload = {
         "status": "ROLLED_BACK",
         "reason": dep.rollback_reason,
         "reward": float(eval_rec.actual_reward),
         "deployment_id": dep.deployment_id,
     }
-    await state_mgr.broadcast({"type": "repair_rolled_back", "payload": payload})
+    await s.broadcast({"type": "repair_rolled_back", "payload": payload})
     return payload
 
 
 @app.post("/api/experiment/step")
-async def step_experiment():
+async def step_experiment(s: LabSession = Depends(lab_session)):
     """Execute exactly one step synchronously and broadcast telemetry."""
-    if not state_mgr.pipeline:
+    if not s.pipeline:
         raise HTTPException(status_code=400, detail="Experiment not initialized")
 
-    payload = state_mgr.execute_single_step()
-    await state_mgr.broadcast({"type": "step_telemetry", "payload": payload})
+    payload = s.execute_single_step()
+    await s.broadcast({"type": "step_telemetry", "payload": payload})
     return payload
 
 
 @app.post("/api/experiment/reset")
-async def reset_experiment(req: Optional[StartExperimentRequest] = None):
+async def reset_experiment(req: Optional[StartExperimentRequest] = None, s: LabSession = Depends(lab_session)):
     """Reset model, optimizer, memory, and pipeline to step 0."""
-    if state_mgr.is_running and state_mgr.runner_task:
-        state_mgr.is_running = False
-        state_mgr.runner_task.cancel()
+    if s.is_running and s.runner_task:
+        s.is_running = False
+        s.runner_task.cancel()
 
     r = req or StartExperimentRequest()
-    state_mgr.initialize_experiment(r)
-    await state_mgr.broadcast({"type": "experiment_reset", "payload": {}})
+    s.initialize_experiment(r)
+    await s.broadcast({"type": "experiment_reset", "payload": {}})
     return {"status": "RESET", "step": 0}
 
 
 @app.post("/api/experiment/inject-failure")
-async def inject_failure(req: InjectFailureRequest):
+async def inject_failure(req: InjectFailureRequest, s: LabSession = Depends(lab_session)):
     """Inject a controlled synthetic failure into the live running model."""
-    if not state_mgr.model:
+    if not s.model:
         raise HTTPException(status_code=400, detail="Model not initialized")
 
     try:
@@ -797,25 +882,25 @@ async def inject_failure(req: InjectFailureRequest):
     except ValueError:
         raise HTTPException(status_code=400, detail=f"Invalid failure type. Must be one of {[f.value for f in FailureType]}")
 
-    report = state_mgr.model.inject_failure(ft, severity=req.severity)
-    await state_mgr.broadcast({"type": "failure_injected", "payload": report})
+    report = s.model.inject_failure(ft, severity=req.severity)
+    await s.broadcast({"type": "failure_injected", "payload": report})
     return {"status": "INJECTED", "report": report}
 
 
 @app.get("/api/telemetry/history")
-def get_telemetry_history():
+def get_telemetry_history(s: LabSession = Depends(lab_session)):
     """Return complete time-series history of training telemetry."""
-    return {"count": len(state_mgr.telemetry_history), "history": state_mgr.telemetry_history}
+    return {"count": len(s.telemetry_history), "history": s.telemetry_history}
 
 
 @app.get("/api/bandit/posteriors")
-def get_bandit_posteriors():
+def get_bandit_posteriors(s: LabSession = Depends(lab_session)):
     """Inspect current Bayesian linear regression posteriors for all 6 locked arms."""
-    if not state_mgr.pipeline:
+    if not s.pipeline:
         raise HTTPException(status_code=400, detail="Pipeline not initialized")
 
     res = {}
-    for arm, post in state_mgr.pipeline.bandit.posteriors.items():
+    for arm, post in s.pipeline.bandit.posteriors.items():
         res[arm.value] = {
             "update_count": post.update_count,
             "mu": post.mu.tolist(),
@@ -826,14 +911,14 @@ def get_bandit_posteriors():
 
 
 @app.get("/api/memory/episodes")
-def get_memory_episodes():
+def get_memory_episodes(s: LabSession = Depends(lab_session)):
     """Query persistent SQLite failure memory repository (DEF-007)."""
-    if not state_mgr.pipeline:
+    if not s.pipeline:
         raise HTTPException(status_code=400, detail="Pipeline not initialized")
 
-    count = state_mgr.pipeline.memory.count()
+    count = s.pipeline.memory.count()
     # Retrieve recent episodes chronologically without dummy vectors
-    recent_episodes = state_mgr.pipeline.memory.get_recent_episodes(limit=20)
+    recent_episodes = s.pipeline.memory.get_recent_episodes(limit=20)
 
     episodes = []
     for ep in recent_episodes:
@@ -915,16 +1000,17 @@ async def websocket_telemetry_endpoint(websocket: WebSocket):
     Broadcasts step metrics, Bloch coordinates, diagnosis, digital twin,
     bandit actions, and recovery events.
     """
-    await state_mgr.connect_client(websocket)
+    s = sessions.get(websocket.query_params.get("session"))
+    await s.connect_client(websocket)
     # Send welcome handshake with initial state and full history
     try:
         await websocket.send_text(json.dumps(json_safe({
             "type": "connection_established",
             "payload": {
-                "step_count": state_mgr.pipeline.step_count if state_mgr.pipeline else 0,
-                "is_running": state_mgr.is_running,
-                "history": state_mgr.telemetry_history,
-                "bloch": state_mgr.model.get_bloch_coordinates() if state_mgr.model else None,
+                "step_count": s.pipeline.step_count if s.pipeline else 0,
+                "is_running": s.is_running,
+                "history": s.telemetry_history,
+                "bloch": s.model.get_bloch_coordinates() if s.model else None,
             }
         })))
 
@@ -935,14 +1021,14 @@ async def websocket_telemetry_endpoint(websocket: WebSocket):
                 cmd = json.loads(data_text)
                 action = cmd.get("action")
                 if action == "step":
-                    payload = state_mgr.execute_single_step()
-                    await state_mgr.broadcast({"type": "step_telemetry", "payload": payload})
+                    payload = s.execute_single_step()
+                    await s.broadcast({"type": "step_telemetry", "payload": payload})
                 elif action == "pause":
-                    state_mgr.is_running = False
-                    await state_mgr.broadcast({"type": "training_stopped", "payload": {}})
+                    s.is_running = False
+                    await s.broadcast({"type": "training_stopped", "payload": {}})
             except Exception:
                 pass  # Ignore malformed client command messages safely
     except WebSocketDisconnect:
-        state_mgr.disconnect_client(websocket)
+        s.disconnect_client(websocket)
     except Exception:
-        state_mgr.disconnect_client(websocket)
+        s.disconnect_client(websocket)
