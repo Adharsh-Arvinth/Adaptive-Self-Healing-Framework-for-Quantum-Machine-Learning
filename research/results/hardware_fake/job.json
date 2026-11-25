@@ -1,0 +1,65 @@
+{
+ "job_id": "5123b030-565a-499f-bc5f-5331af7cee55",
+ "backend": "fake_torino",
+ "fake": true,
+ "submitted": "2026-11-25T06:00:24+00:00",
+ "calibration_at_submit": {
+  "median_1q_error": 0.000271147748591249,
+  "median_2q_error": 0.00408020905993689,
+  "median_readout_error": 0.02294921875,
+  "per_layer_depolarizing_p": 0.017287782751485237,
+  "two_qubit_gate": [
+   "cz"
+  ]
+ },
+ "transpiled": {
+  "2": {
+   "depth": 56,
+   "two_qubit_gates": 26,
+   "ops": {
+    "sx": 53,
+    "rz": 52,
+    "cz": 26,
+    "measure": 1
+   },
+   "layout": [
+    81,
+    99,
+    92,
+    80
+   ]
+  },
+  "4": {
+   "depth": 115,
+   "two_qubit_gates": 58,
+   "ops": {
+    "sx": 117,
+    "rz": 98,
+    "cz": 58,
+    "measure": 1
+   },
+   "layout": [
+    92,
+    80,
+    98,
+    99
+   ]
+  },
+  "8": {
+   "depth": 231,
+   "two_qubit_gates": 122,
+   "ops": {
+    "sx": 241,
+    "rz": 194,
+    "cz": 122,
+    "measure": 1
+   },
+   "layout": [
+    92,
+    80,
+    98,
+    99
+   ]
+  }
+ }
+}

@@ -1,0 +1,312 @@
+{
+ "backend": "fake_torino",
+ "fake": true,
+ "job_id": "5123b030-565a-499f-bc5f-5331af7cee55",
+ "submitted": "2026-11-25T06:00:24+00:00",
+ "usage_seconds": null,
+ "transpiled": {
+  "2": {
+   "depth": 56,
+   "two_qubit_gates": 26,
+   "ops": {
+    "sx": 53,
+    "rz": 52,
+    "cz": 26,
+    "measure": 1
+   },
+   "layout": [
+    81,
+    99,
+    92,
+    80
+   ]
+  },
+  "4": {
+   "depth": 115,
+   "two_qubit_gates": 58,
+   "ops": {
+    "sx": 117,
+    "rz": 98,
+    "cz": 58,
+    "measure": 1
+   },
+   "layout": [
+    92,
+    80,
+    98,
+    99
+   ]
+  },
+  "8": {
+   "depth": 231,
+   "two_qubit_gates": 122,
+   "ops": {
+    "sx": 241,
+    "rz": 194,
+    "cz": 122,
+    "measure": 1
+   },
+   "layout": [
+    92,
+    80,
+    98,
+    99
+   ]
+  }
+ },
+ "calibration_at_submit": {
+  "median_1q_error": 0.000271147748591249,
+  "median_2q_error": 0.00408020905993689,
+  "median_readout_error": 0.02294921875,
+  "per_layer_depolarizing_p": 0.017287782751485237,
+  "two_qubit_gate": [
+   "cz"
+  ]
+ },
+ "calibration_snapshot": {
+  "backend_name": "ibm_torino",
+  "last_update": "2025-02-26T15:26:08-05:00",
+  "n_qubits": 133,
+  "two_qubit_gate": [
+   "cz"
+  ],
+  "median_1q_error": 0.000271147748591249,
+  "median_2q_error": 0.00408020905993689,
+  "median_readout_error": 0.02294921875,
+  "median_T1_us": 184.9874260203931,
+  "median_T2_us": 140.938949034492,
+  "per_layer_depolarizing_p": 0.017287782751485237,
+  "readout_contraction": 0.9541015625
+ },
+ "rows": [
+  {
+   "dataset": "breast_cancer",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.8556247394723131,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.9666666666666667,
+   "acc_hw": 0.95,
+   "sign_flips": 1,
+   "resid_rms": 0.026755107291133524,
+   "shot_rms": 0.028214384936043675,
+   "bias": -0.003521294547233578
+  },
+  {
+   "dataset": "breast_cancer",
+   "layers": 4,
+   "n": 60,
+   "c_hw": 0.7932119604686292,
+   "c_model_snapshot": 0.8898156264493556,
+   "c_model_now": 0.8898156264493556,
+   "c_model_routed": 0.72916883204926,
+   "acc_ideal": 0.7,
+   "acc_hw": 0.6833333333333333,
+   "sign_flips": 1,
+   "resid_rms": 0.03480557277645669,
+   "shot_rms": 0.029845214820769343,
+   "bias": 0.0031744256999787592
+  },
+  {
+   "dataset": "breast_cancer",
+   "layers": 8,
+   "n": 60,
+   "c_hw": 0.6322571349903466,
+   "c_model_snapshot": 0.8298611806051402,
+   "c_model_now": 0.8298611806051402,
+   "c_model_routed": 0.5427293963576868,
+   "acc_ideal": 0.6666666666666666,
+   "acc_hw": 0.65,
+   "sign_flips": 5,
+   "resid_rms": 0.028749860912765258,
+   "shot_rms": 0.03030629536352247,
+   "bias": 2.204269027673925e-05
+  },
+  {
+   "dataset": "wine",
+   "layers": 2,
+   "n": 27,
+   "c_hw": 0.8538711621439748,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.8148148148148148,
+   "acc_hw": 0.8148148148148148,
+   "sign_flips": 0,
+   "resid_rms": 0.019015287919105475,
+   "shot_rms": 0.025704871578198073,
+   "bias": 0.0042700646435130446
+  },
+  {
+   "dataset": "digits",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.8583369542057734,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.9,
+   "acc_hw": 0.9166666666666666,
+   "sign_flips": 1,
+   "resid_rms": 0.026692704727228306,
+   "shot_rms": 0.026585627360527383,
+   "bias": 0.004853249060781165
+  },
+  {
+   "dataset": "banknote",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.8584533669618549,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.8833333333333333,
+   "acc_hw": 0.8833333333333333,
+   "sign_flips": 2,
+   "resid_rms": 0.028912788574980454,
+   "shot_rms": 0.029210514731123658,
+   "bias": -0.0010621281774585432
+  },
+  {
+   "dataset": "banknote",
+   "layers": 4,
+   "n": 60,
+   "c_hw": 0.7976570485311923,
+   "c_model_snapshot": 0.8898156264493556,
+   "c_model_now": 0.8898156264493556,
+   "c_model_routed": 0.72916883204926,
+   "acc_ideal": 0.1,
+   "acc_hw": 0.13333333333333333,
+   "sign_flips": 3,
+   "resid_rms": 0.027886808692141087,
+   "shot_rms": 0.02900303428951232,
+   "bias": 0.0032404133035747
+  },
+  {
+   "dataset": "banknote",
+   "layers": 8,
+   "n": 60,
+   "c_hw": 0.5976575494700901,
+   "c_model_snapshot": 0.8298611806051402,
+   "c_model_now": 0.8298611806051402,
+   "c_model_routed": 0.5427293963576868,
+   "acc_ideal": 0.21666666666666667,
+   "acc_hw": 0.2,
+   "sign_flips": 7,
+   "resid_rms": 0.030919273357512753,
+   "shot_rms": 0.030916993359017913,
+   "bias": 0.001671876079779426
+  },
+  {
+   "dataset": "pima_diabetes",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.861666626672532,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.6666666666666666,
+   "acc_hw": 0.6666666666666666,
+   "sign_flips": 2,
+   "resid_rms": 0.027244818236935767,
+   "shot_rms": 0.02827109308229911,
+   "bias": -0.0030245999878170202
+  },
+  {
+   "dataset": "iris",
+   "layers": 2,
+   "n": 20,
+   "c_hw": 0.8600927234275758,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.9,
+   "acc_hw": 0.9,
+   "sign_flips": 0,
+   "resid_rms": 0.020376918527266818,
+   "shot_rms": 0.029040454039856233,
+   "bias": 0.00312399196053468
+  },
+  {
+   "dataset": "hidden_manifold",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.8656586683446943,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.65,
+   "acc_hw": 0.65,
+   "sign_flips": 4,
+   "resid_rms": 0.031912263651230316,
+   "shot_rms": 0.03035330637915131,
+   "bias": 0.007855339070112434
+  },
+  {
+   "dataset": "moons",
+   "layers": 2,
+   "n": 60,
+   "c_hw": 0.857042947283992,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656,
+   "acc_ideal": 0.5833333333333334,
+   "acc_hw": 0.5833333333333334,
+   "sign_flips": 2,
+   "resid_rms": 0.030464267582206654,
+   "shot_rms": 0.028664173379089008,
+   "bias": 0.0032737532875780294
+  }
+ ],
+ "L2": {
+  "c_hw_pooled": 0.8591237690980551,
+  "c_model_snapshot": 0.9213981113135876,
+  "c_model_now": 0.9213981113135876,
+  "c_model_routed": 0.8456409788382656,
+  "acc_ideal": 0.7837837837837838,
+  "acc_hw": 0.7837837837837838,
+  "sign_flips": 12,
+  "n": 407,
+  "excess_scatter_ratio": 0.9326750715533683
+ },
+ "depth": {
+  "breast_cancer_L2": {
+   "c_hw": 0.8556247394723131,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656
+  },
+  "breast_cancer_L4": {
+   "c_hw": 0.7932119604686292,
+   "c_model_snapshot": 0.8898156264493556,
+   "c_model_now": 0.8898156264493556,
+   "c_model_routed": 0.72916883204926
+  },
+  "breast_cancer_L8": {
+   "c_hw": 0.6322571349903466,
+   "c_model_snapshot": 0.8298611806051402,
+   "c_model_now": 0.8298611806051402,
+   "c_model_routed": 0.5427293963576868
+  },
+  "banknote_L2": {
+   "c_hw": 0.8584533669618549,
+   "c_model_snapshot": 0.9213981113135876,
+   "c_model_now": 0.9213981113135876,
+   "c_model_routed": 0.8456409788382656
+  },
+  "banknote_L4": {
+   "c_hw": 0.7976570485311923,
+   "c_model_snapshot": 0.8898156264493556,
+   "c_model_now": 0.8898156264493556,
+   "c_model_routed": 0.72916883204926
+  },
+  "banknote_L8": {
+   "c_hw": 0.5976575494700901,
+   "c_model_snapshot": 0.8298611806051402,
+   "c_model_now": 0.8298611806051402,
+   "c_model_routed": 0.5427293963576868
+  }
+ }
+}

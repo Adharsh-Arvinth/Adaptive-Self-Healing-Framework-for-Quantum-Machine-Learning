@@ -430,3 +430,30 @@ Emulated plateau in the same units: gradients scaled by alpha = 1e-06, i.e. an e
 
 At 8 qubits the genuine gradient of a fully scrambled framework circuit is 3.7e+05 times larger than the emulated one (SNR 3.1 vs 8.4e-06). The emulation therefore represents a plateau far deeper than anything that occurs at 4-8 qubits; it is a model of the regime that genuine concentration would reach only around the extrapolated qubit count above, not of the circuits trained here.
 
+## Noise-model check on IBM hardware
+
+`python -m research.hardware_check`: 8 classifiers trained in noiseless simulation (seed 0, 45 steps) are executed on their test splits with 1,024 shots per sample, and the measured <Z_0> is compared with the hw_torino noise model c(L) = (1 - p)^L (1 - 2r). Two classifiers are also run padded to 4 and 8 layers (zero-angle layers, extra CNOT rings) to test the depth law. *Routing-aware*: the same calibration, counting the gates actually executed after transpilation onto the device's coupling map.
+
+### Device-level noise SIMULATION (FakeTorino: Torino calibration snapshot with Aer), not hardware
+
+Transpiled two-qubit gates (logical circuit has 4 per layer): L = 2: 26, L = 4: 58, L = 8: 122.
+
+| Circuit | n | c measured | c paper model | c model, calibration at run | c routing-aware | Acc. ideal | Acc. measured | Flips | Residual / shot noise |
+|---|---|---|---|---|---|---|---|---|---|
+| breast_cancer, L = 2 | 60 | 0.856 | 0.921 | 0.921 | 0.846 | 0.967 | 0.950 | 1 | 0.95 |
+| breast_cancer, L = 4 | 60 | 0.793 | 0.890 | 0.890 | 0.729 | 0.700 | 0.683 | 1 | 1.17 |
+| breast_cancer, L = 8 | 60 | 0.632 | 0.830 | 0.830 | 0.543 | 0.667 | 0.650 | 5 | 0.95 |
+| wine, L = 2 | 27 | 0.854 | 0.921 | 0.921 | 0.846 | 0.815 | 0.815 | 0 | 0.74 |
+| digits, L = 2 | 60 | 0.858 | 0.921 | 0.921 | 0.846 | 0.900 | 0.917 | 1 | 1.00 |
+| banknote, L = 2 | 60 | 0.858 | 0.921 | 0.921 | 0.846 | 0.883 | 0.883 | 2 | 0.99 |
+| banknote, L = 4 | 60 | 0.798 | 0.890 | 0.890 | 0.729 | 0.100 | 0.133 | 3 | 0.96 |
+| banknote, L = 8 | 60 | 0.598 | 0.830 | 0.830 | 0.543 | 0.217 | 0.200 | 7 | 1.00 |
+| pima_diabetes, L = 2 | 60 | 0.862 | 0.921 | 0.921 | 0.846 | 0.667 | 0.667 | 2 | 0.96 |
+| iris, L = 2 | 20 | 0.860 | 0.921 | 0.921 | 0.846 | 0.900 | 0.900 | 0 | 0.70 |
+| hidden_manifold, L = 2 | 60 | 0.866 | 0.921 | 0.921 | 0.846 | 0.650 | 0.650 | 4 | 1.05 |
+| moons, L = 2 | 60 | 0.857 | 0.921 | 0.921 | 0.846 | 0.583 | 0.583 | 2 | 1.06 |
+
+Pooled over the 407 two-layer test samples: contraction 0.859 measured vs 0.921 (paper model) and 0.846 (routing-aware); accuracy 78.4% ideal vs 78.4% measured; 12 predictions flipped; residual scatter 0.93x pure shot noise.
+
+The real-QPU run is prepared but has not been executed yet (see `research/HARDWARE_RUN.md`).
+

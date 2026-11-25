@@ -258,3 +258,16 @@ acceptance flag and reward in every regime (0 mismatches).
   0.49 (ideal; 0.49 -> 0.53 at 8 qubits). Restore and TS recovery move by <= 1.6 pp; the reward-optimal oracles gain
   1-5 pp but stay below restore. The misalignment is not an artefact of the 3-step window
   length; the short-horizon reward is itself the problem.
+
+### 6.4 Hardware noise model: device-level dry run (real QPU run prepared, not yet executed)
+`research/hardware_check.py` runs 8 classifiers trained in simulation (plus 4 deeper variants) on an IBM processor and
+compares the measured outputs with the hw_torino noise model. The real-QPU run (~3-4 min of free-plan processor
+time) needs the author's IBM account; instructions in [`HARDWARE_RUN.md`](HARDWARE_RUN.md). The dry run on a
+device-level simulation of ibm_torino (its calibration snapshot plus routing, in Aer) already shows:
+- **The paper's model understates the noise.** It counts 4 two-qubit gates per layer, but routing the CNOT ring onto
+  Torino's heavy-hex lattice needs 26 two-qubit gates at L = 2. Measured contraction 0.86 vs modelled 0.92; at
+  L = 8, 0.60-0.63 vs 0.83. A routing-aware variant of the same model (0.85 at L = 2) is much closer.
+- **Predictions barely change.** Accuracy is unchanged (78.4% -> 78.4% over 407 samples; 12 sign flips), and the
+  residual scatter matches pure shot noise (0.93x), consistent with a global-contraction picture at this size.
+- Implication: the hardware-calibrated regime is somewhat optimistic about noise strength, but because a contraction
+  does not flip predictions, its policy conclusions are unaffected. This is now stated in the paper's threats to validity.
