@@ -7,10 +7,10 @@ import { ChapterMark, EASE_OUT, Magnetic, Marquee, MaskLines, Reveal } from "./m
 import { REPO } from "./ChapterResources";
 
 const LIMITS = [
-  { t: "Simulation only", d: "Results come from statevector simulation of a 4-qubit classifier, not physical hardware." },
+  { t: "Simulation only", d: "Results come from four-qubit simulations with a separate eight-qubit scaling check." },
   { t: "Emulated plateaus", d: "Barren plateaus cannot be reproduced at 4 qubits, so they are modelled as a gradient signal-to-noise collapse." },
   { t: "Calibrated, not measured, noise", d: "The hardware regime uses public IBM calibration snapshots (medians), not live device runs." },
-  { t: "Checkpoints are strong", d: "Restoring a healthy checkpoint fixes most state faults. Adaptive repair matters most when the fault lives in the device." },
+  { t: "Checkpoints are strong", d: "In the latent-fault regime the latest checkpoint already contains the fault. Locating onset to select a clean checkpoint remains open." },
   { t: "One fault at a time", d: "Each episode injects a single fault mid-training. Compound and gradual faults are future work." },
   { t: "Short-window reward", d: "Policies learn from a 3-step reward that only partly predicts the final result." },
 ];
@@ -173,9 +173,9 @@ export const SiteFooter: React.FC<{ isConnected: boolean }> = ({ isConnected }) 
             <a href={SOCIAL.linkedin} target="_blank" rel="noopener noreferrer me" className="btn-ink border border-white/15 hover:border-white text-white">
               <LinkedInMark /> LinkedIn
             </a>
-            <span className="btn-ink border border-dashed border-white/15 text-white/40 cursor-default" title="Portfolio link coming soon">
-              Portfolio · soon
-            </span>
+            {process.env.NEXT_PUBLIC_PORTFOLIO_URL && (
+              <a href={process.env.NEXT_PUBLIC_PORTFOLIO_URL} className="btn-ink border border-white/15 text-white">Portfolio</a>
+            )}
           </div>
         </div>
 

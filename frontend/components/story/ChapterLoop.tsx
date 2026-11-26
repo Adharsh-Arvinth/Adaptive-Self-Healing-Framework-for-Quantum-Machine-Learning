@@ -7,7 +7,7 @@ import { ChapterMark, MaskLines, Reveal } from "./motion";
 const STAGES = [
   { n: "01", t: "Monitor", d: "Every step records loss, validation loss, gradient norm and direction, parameter velocity and the measured output margin.", c: "backend/monitoring.py" },
   { n: "02", t: "Detect", d: "Each signal is compared with the run's own recent history, so the same rules work on any dataset or circuit size.", c: "backend/detection.py" },
-  { n: "03", t: "Diagnose", d: "Evidence is turned into a probability for each of the six faults. Below 60% confidence, the system waits rather than guessing.", c: "τ = 0.60 gate" },
+  { n: "03", t: "Diagnose", d: "The online rules estimate fault probabilities. A separate learned diagnoser uses scale-free telemetry and reaches macro-F1 0.98 on unseen datasets. Below 60% confidence, the system waits rather than guessing.", c: "τ = 0.60 gate" },
   { n: "04", t: "Remember", d: "Past faults and what fixed them are stored and recalled by similarity, so experience accumulates across runs.", c: "SQLite episodic memory" },
   { n: "05", t: "Simulate", d: "Every candidate repair is tried on an isolated copy of the model for three steps before the real model is touched.", c: "digital twin · H = 3" },
   { n: "06", t: "Select", d: "A contextual Thompson-sampling bandit picks the repair, balancing what has worked before against what is still uncertain.", c: "12-D context" },

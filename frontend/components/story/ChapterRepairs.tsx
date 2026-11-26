@@ -19,7 +19,7 @@ const ACTIONS = [
 export const ChapterRepairs: React.FC = () => {
   const [open, setOpen] = useState<string | null>("rollback_healthy");
   const reduce = useReducedMotion();
-  const { data } = useResults();
+  const { data, failed } = useResults();
 
   // For each action, the fault it recovers best (from the counterfactual landscape).
   const best = useMemo(() => {
@@ -41,7 +41,7 @@ export const ChapterRepairs: React.FC = () => {
     <section id="repairs" className="relative bg-[var(--carbon)] text-white px-4 sm:px-8 lg:px-12 py-24 sm:py-32">
       <ChapterMark index="03" label="The actuators" tone="carbon" />
       <div className="grid lg:grid-cols-12 gap-8 mt-10 mb-16">
-        <MaskLines className="lg:col-span-8 type-wide text-[clamp(2.4rem,6.6vw,6.5rem)]" lines={["Seven ways", "to recover."]} />
+        <MaskLines className="lg:col-span-8 type-wide text-[clamp(2.4rem,6.6vw,6.5rem)]" lines={["Six repairs", "plus checkpoint restore as a baseline."]} />
         <Reveal className="lg:col-span-4 lg:pt-4 text-white/60 text-lg leading-relaxed" delay={0.15}>
           Every repair is a small, reversible change to the training configuration. None of them is right for every fault,
           which is why the choice has to be learned.
@@ -104,7 +104,7 @@ export const ChapterRepairs: React.FC = () => {
                           <span className="block text-white/70 text-sm mt-1">recovered · {CONDITION_LABEL[b.fault] ?? b.fault}</span>
                         </p>
                       ) : (
-                        <p className="text-white/40 text-sm">Benchmark results loading…</p>
+                        <p className="text-white/40 text-sm">{failed ? "Benchmark results could not be loaded." : "Loading benchmark results…"}</p>
                       )}
                     </div>
                   </div>

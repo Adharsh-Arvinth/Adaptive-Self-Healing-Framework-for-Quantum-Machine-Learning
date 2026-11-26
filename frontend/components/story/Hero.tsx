@@ -1,5 +1,6 @@
 "use client";
 
+import results from "../../public/data/qfaultbench_results.json";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
@@ -53,7 +54,7 @@ const TelemetryCard: React.FC = () => {
       <div className="absolute inset-0 bg-grid-carbon opacity-60 pointer-events-none" />
       <div className="relative flex items-center justify-between type-label text-white/50">
         <span className="flex items-center gap-2">
-          <span className="w-1.5 h-1.5 rounded-full bg-[var(--heal)] animate-pulse-dot" /> Live trace
+          <span className="w-1.5 h-1.5 rounded-full bg-[var(--heal)] animate-pulse-dot" /> Illustrative trace
         </span>
         <span>VQC · 4 qubits · Adam</span>
       </div>
@@ -142,7 +143,18 @@ export const Hero: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> =
               A closed loop around a variational quantum classifier that detects training faults, diagnoses the cause,
               tests a fix in a sandbox and keeps it only if it works.
             </p>
+            <dl className="grid grid-cols-2 gap-4 text-sm">
+              {[
+                ["Restore", `${results.headline.restore}%`],
+                ["Thompson sampling", `${results.headline.thompson}%`],
+                ["Diagnosis F1 · learned / rules", `${results.diagnosis.learned_macro_f1.toFixed(2)} / ${results.diagnosis.rule_macro_f1.toFixed(2)}`],
+                ["Latent recovery · older / latest", `${results.headline.older}% / ${results.headline.latest}%`],
+              ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd className="text-xl font-semibold">{value}</dd></div>)}
+            </dl>
             <div className="flex flex-wrap items-center gap-3">
+              {process.env.NEXT_PUBLIC_PAPER_URL
+                ? <a className="btn-ink border" href={process.env.NEXT_PUBLIC_PAPER_URL}>Read the paper</a>
+                : <button disabled className="btn-ink border">Read the paper · preprint pending</button>}
               <Magnetic>
                 <button onClick={onLaunchLab} className="btn-ink bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--signal)]">
                   Open the live lab <ArrowUpRight className="w-4 h-4" />

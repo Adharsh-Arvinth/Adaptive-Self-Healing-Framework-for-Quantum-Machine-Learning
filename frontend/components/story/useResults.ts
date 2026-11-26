@@ -1,5 +1,6 @@
 "use client";
 
+import released from "../../public/data/qfaultbench_results.json";
 import { useEffect, useState } from "react";
 
 /* Shape of /data/qfaultbench_results.json (written by `python -m research.analysis`). */
@@ -18,6 +19,7 @@ export interface AblationRow {
   p_holm: number | null;
 }
 export interface Results {
+  headline: { restore: number; thompson: number; latest: number; older: number };
   generated: string;
   n_episodes: number;
   n_faulty: number;
@@ -43,7 +45,7 @@ export interface Results {
 let cache: Promise<Results> | null = null;
 
 export function useResults(): { data: Results | null; failed: boolean } {
-  const [data, setData] = useState<Results | null>(null);
+  const [data, setData] = useState<Results | null>(released as Results);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;

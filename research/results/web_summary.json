@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-22",
+ "generated": "2026-11-26",
  "n_episodes": 1540,
  "n_faulty": 1320,
  "n_base_runs": 220,
@@ -317,5 +317,11 @@
   "gate_precision": 0.898,
   "gate_recall": 0.343
  },
- "reward_alignment": 0.457
+ "reward_alignment": 0.457,
+ "headline": {
+  "restore": 92.1,
+  "thompson": 46.1,
+  "latest": 27.9,
+  "older": 81.4
+ }
 }

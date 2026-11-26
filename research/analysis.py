@@ -413,6 +413,15 @@ def write_web_summary(eps, S):
                  "gate_precision": round(F["gate"]["precision"], 3), "gate_recall": round(F["gate"]["recall"], 3)},
         "reward_alignment": round(S["D_reward_alignment"]["spearman_reward_vs_acc_gap"], 3),
     }
+    if REGIME == "ideal":
+        with open(os.path.join(OUT, "latent4", "summary.json"), encoding="utf8") as stream:
+            latent = json.load(stream)["D_policies"]
+        web["headline"] = {
+            "restore": round(100 * S["D_policies"]["Restore last healthy checkpoint"]["recovered"], 1),
+            "thompson": round(100 * S["D_policies"]["Thompson Sampling (proposed)"]["recovered"], 1),
+            "latest": round(100 * latent["Restore latest checkpoint"]["recovered"], 1),
+            "older": round(100 * latent["Restore older clean checkpoint"]["recovered"], 1),
+        }
     paths = [os.path.join(OUT, "web_summary.json")]
     if REGIME == "ideal" and not os.environ.get("NO_WEB"):
         paths.append(os.path.join(ROOT, "frontend", "public", "data", "qfaultbench_results.json"))

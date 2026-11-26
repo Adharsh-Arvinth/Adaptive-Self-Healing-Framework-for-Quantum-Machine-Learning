@@ -11,8 +11,7 @@ const BLOB = `${REPO}/blob/main`;
 const TREE = `${REPO}/tree/main`;
 
 const BIBTEX = `@misc{arvinth2026selfhealing,
-  title  = {Adaptive Self-Healing for Variational Quantum Classifiers:
-            the QFaultBench-VQC Counterfactual Benchmark},
+  title  = {Self-Healing Training of Variational Quantum Classifiers: A Counterfactual Benchmark of Fault Diagnosis and Repair},
   author = {Arvinth, Adharsh},
   year   = {2026},
   howpublished = {\\url{${REPO}}},

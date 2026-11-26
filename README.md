@@ -1,5 +1,7 @@
 # Adaptive Self-Healing Framework for Quantum Machine Learning
 
+Manuscript: *Self-Healing Training of Variational Quantum Classifiers: A Counterfactual Benchmark of Fault Diagnosis and Repair*.
+
 [![Python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![PennyLane 0.45.1](https://img.shields.io/badge/PennyLane-0.45.1-purple.svg)](https://pennylane.ai/)
 [![Next.js 14.2](https://img.shields.io/badge/Next.js-14.2%20(React%2018)-black.svg)](https://nextjs.org/)
