@@ -414,6 +414,13 @@ def write_web_summary(eps, S):
         "reward_alignment": round(S["D_reward_alignment"]["spearman_reward_vs_acc_gap"], 3),
     }
     if REGIME == "ideal":
+        from research.tuned_expert import scores_for_episodes
+
+        _, tuned_fault_f1 = scores_for_episodes(eps, FAULTS)
+        web["diagnosis"].update(
+            learned_fault_macro_f1=round(C["lodo_macro_f1_faults_only"], 3),
+            tuned_rule_fault_macro_f1=round(tuned_fault_f1, 3),
+        )
         with open(os.path.join(OUT, "latent4", "summary.json"), encoding="utf8") as stream:
             latent = json.load(stream)["D_policies"]
         web["headline"] = {

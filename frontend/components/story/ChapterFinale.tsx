@@ -8,10 +8,11 @@ import { REPO } from "./ChapterResources";
 
 const LIMITS = [
   { t: "Simulation only", d: "Results come from four-qubit simulations with a separate eight-qubit scaling check." },
-  { t: "Emulated plateaus", d: "Barren plateaus cannot be reproduced at 4 qubits, so they are modelled as a gradient signal-to-noise collapse." },
-  { t: "Calibrated, not measured, noise", d: "The hardware regime uses public IBM calibration snapshots (medians), not live device runs." },
-  { t: "Checkpoints are strong", d: "In the latent-fault regime the latest checkpoint already contains the fault. Locating onset to select a clean checkpoint remains open." },
-  { t: "One fault at a time", d: "Each episode injects a single fault mid-training. Compound and gradual faults are future work." },
+  { t: "Emulated plateaus", d: "Genuine plateaus are mild at the widths tested. The injected plateau emulates a stronger gradient signal collapse." },
+  { t: "Calibrated, not measured, noise", d: "The hardware-calibrated regime uses median errors from one public IBM Torino calibration snapshot." },
+  { t: "Fault-onset localization", d: "The latent regime supplies a clean checkpoint as an oracle upper bound. Finding the onset online remains open." },
+  { t: "Known healthy baseline", d: "The benchmark-aligned diagnoser receives a known healthy baseline. First-alarm alignment estimates it from recent observations and cannot find onset before monitoring begins." },
+  { t: "Classical and quantum faults", d: "Only the emulated barren plateau and device noise target quantum mechanisms. Other injections affect classical optimization or numerical state. Each episode injects one fault." },
   { t: "Short-window reward", d: "Policies learn from a 3-step reward that only partly predicts the final result." },
 ];
 

@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-26",
+ "generated": "2026-11-27",
  "n_episodes": 1540,
  "n_faulty": 1320,
  "n_base_runs": 220,
@@ -126,7 +126,9 @@
   "learned_macro_f1": 0.982,
   "learned_ece": 0.014,
   "learned_false_alarm_rate": 0.055,
-  "learned_detection_recall": 0.992
+  "learned_detection_recall": 0.992,
+  "learned_fault_macro_f1": 0.988,
+  "tuned_rule_fault_macro_f1": 0.457
  },
  "policies": [
   {

@@ -19,6 +19,6 @@ export function SimulatorWake() {
   return <section aria-label="Simulator connection" className="p-4 border-b">
     <p role="status">{ready ? "Still connecting to the simulator." : "Waking the simulator. A recorded run will be available in 10 seconds."}</p>
     {ready && <button className="btn-ink border mt-2" onClick={() => setFrame(0)}>Replay recorded Iris run</button>}
-    {point && <p>Recorded validation trace · {trace.episode} · no repair · step {point.step} · loss {point.loss.toFixed(3)} · accuracy {(100 * point.accuracy).toFixed(1)}%</p>}
+    {point && <p>Recorded validation trace · Iris · LR too large · no repair · step {point.step} · loss {point.loss.toFixed(3)} · accuracy {(100 * point.accuracy).toFixed(1)}%</p>}
   </section>;
 }

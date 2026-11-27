@@ -13,7 +13,7 @@ interface DiagnosisPanelProps {
 
 const FAULTS: Record<string, { name: string; signature: string }> = {
   barren_plateau: { name: "Barren plateau", signature: "Consecutive gradients decorrelate while the loss stops improving." },
-  lr_misconfiguration: { name: "LR misconfiguration", signature: "The loss oscillates; gradients reverse direction step to step." },
+  lr_misconfiguration: { name: "LR too large", signature: "The loss oscillates; gradients reverse direction step to step." },
   optimizer_instability: { name: "Optimizer corrupted", signature: "The loss's coefficient of variation rises without any change to data or circuit." },
   training_divergence: { name: "Numerical divergence", signature: "Non-finite loss or gradients, or loss above 5." },
   persistent_plateau: { name: "Step-size collapse", signature: "Healthy gradient norm, near-zero parameter velocity, flat loss." },

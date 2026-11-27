@@ -1,6 +1,7 @@
 "use client";
 
-import results from "../../public/data/qfaultbench_results.json";
+import { PAPER_TITLE, PAPER_URL } from "../../app/paper";
+import { useResults } from "./useResults";
 import React, { useEffect, useRef, useState } from "react";
 import { motion, useReducedMotion, useScroll, useTransform } from "motion/react";
 import { ArrowDown, ArrowUpRight } from "lucide-react";
@@ -14,7 +15,7 @@ const HEALED = "M 252 70 C 270 104, 300 136, 340 148 S 400 160, 440 163";
 const PHASES = [
   { at: 0.0, tag: "HEALTHY", text: "Loss descending · ‖g‖ coherent", tone: "text-white/70" },
   { at: 0.42, tag: "FAULT", text: "Step size ×50 · loss oscillating", tone: "text-[var(--signal-2)]" },
-  { at: 0.6, tag: "DIAGNOSED", text: "lr_misconfiguration · gate cleared", tone: "text-amber-300" },
+  { at: 0.6, tag: "DIAGNOSED", text: "LR too large · gate cleared", tone: "text-amber-300" },
   { at: 0.74, tag: "REPAIRED", text: "LR re-anchored · validated 3/3 · committed", tone: "text-[var(--heal)]" },
 ];
 
@@ -22,11 +23,14 @@ const CYCLE = 7.5;
 
 const TelemetryCard: React.FC = () => {
   const reduce = useReducedMotion();
-  const [phase, setPhase] = useState(reduce ? 3 : 0);
+  const [phase, setPhase] = useState(0);
   const [cycle, setCycle] = useState(0);
 
   useEffect(() => {
-    if (reduce) return;
+    if (reduce) {
+      setPhase(PHASES.length - 1);
+      return;
+    }
     const timers: number[] = [];
     PHASES.forEach((p, i) => timers.push(window.setTimeout(() => setPhase(i), p.at * CYCLE * 1000)));
     timers.push(window.setTimeout(() => setCycle((c) => c + 1), CYCLE * 1000));
@@ -85,6 +89,7 @@ const TelemetryCard: React.FC = () => {
 
 export const Hero: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> = ({ onLaunchLab, isConnected }) => {
   const ref = useRef<HTMLElement>(null);
+  const { data: results } = useResults();
   const reduce = useReducedMotion();
   const { scrollYProgress } = useScroll({ target: ref, offset: ["start start", "end start"] });
   const titleY = useTransform(scrollYProgress, [0, 1], ["0%", reduce ? "0%" : "28%"]);
@@ -93,7 +98,11 @@ export const Hero: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> =
   return (
     <section ref={ref} id="top" className="relative bg-grid-paper text-[var(--ink)] overflow-hidden pt-[6.5rem] sm:pt-28">
       {/* Signal stripes (motorsport livery), sweeping in once */}
-      <div className="pointer-events-none absolute -right-[12vw] top-0 h-full w-[46vw] hidden md:block" aria-hidden="true">
+      <div
+        className="pointer-events-none absolute -right-[12vw] top-0 h-full w-[46vw] hidden lg:block"
+        style={{ maskImage: "linear-gradient(to bottom, black 45%, transparent 65%)" }}
+        aria-hidden="true"
+      >
         {[0, 1, 2].map((i) => (
           <motion.div
             key={i}
@@ -140,21 +149,21 @@ export const Hero: React.FC<{ onLaunchLab: () => void; isConnected: boolean }> =
               Quantum models break while they train. This one notices, and repairs itself.
             </p>
             <p className="text-[var(--ink-2)] text-base sm:text-lg leading-relaxed max-w-md">
-              A closed loop around a variational quantum classifier that detects training faults, diagnoses the cause,
-              tests a fix in a sandbox and keeps it only if it works.
+              The benchmark tests six repairs plus checkpoint restore as a baseline. The live loop detects training faults,
+              diagnoses the cause and rehearses a fix before deploying it.
             </p>
-            <dl className="grid grid-cols-2 gap-4 text-sm">
+            <p className="text-sm font-medium">{PAPER_TITLE}</p>
+            {results && <dl className="grid grid-cols-2 gap-4 text-sm" aria-label="Benchmark headline results">
               {[
                 ["Restore", `${results.headline.restore}%`],
                 ["Thompson sampling", `${results.headline.thompson}%`],
-                ["Diagnosis F1 · learned / rules", `${results.diagnosis.learned_macro_f1.toFixed(2)} / ${results.diagnosis.rule_macro_f1.toFixed(2)}`],
-                ["Latent recovery · older / latest", `${results.headline.older}% / ${results.headline.latest}%`],
+                ["Diagnosis macro-F1 · boosting vs tuned rules (six faults)", `${results.diagnosis.learned_fault_macro_f1.toFixed(3)} vs ${results.diagnosis.tuned_rule_fault_macro_f1.toFixed(3)}`],
+                ["Latent recovery · oracle clean vs latest", `${results.headline.older}% vs ${results.headline.latest}%`],
               ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd className="text-xl font-semibold">{value}</dd></div>)}
-            </dl>
+            </dl>}
+            <p className="text-sm text-[var(--ink-2)]">The oracle supplies the older clean checkpoint, giving an upper bound for checkpoint selection in this regime. Online fault-onset localization remains open.</p>
             <div className="flex flex-wrap items-center gap-3">
-              {process.env.NEXT_PUBLIC_PAPER_URL
-                ? <a className="btn-ink border" href={process.env.NEXT_PUBLIC_PAPER_URL}>Read the paper</a>
-                : <button disabled className="btn-ink border">Read the paper · preprint pending</button>}
+              {PAPER_URL && <a className="btn-ink border" href={PAPER_URL}>Read the paper</a>}
               <Magnetic>
                 <button onClick={onLaunchLab} className="btn-ink bg-[var(--ink)] text-[var(--paper)] hover:bg-[var(--signal)]">
                   Open the live lab <ArrowUpRight className="w-4 h-4" />

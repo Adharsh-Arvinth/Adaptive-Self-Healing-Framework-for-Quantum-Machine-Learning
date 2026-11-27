@@ -36,7 +36,7 @@ const securityHeaders = [
 
 const nextConfig = {
   // Output standalone build for containerized & cloud deployments
-  output: "standalone",
+  output: process.env.NEXT_BUILD_NO_STANDALONE === "1" ? undefined : "standalone",
   // Do not advertise the framework, and never ship readable source maps to browsers.
   poweredByHeader: false,
   productionBrowserSourceMaps: false,

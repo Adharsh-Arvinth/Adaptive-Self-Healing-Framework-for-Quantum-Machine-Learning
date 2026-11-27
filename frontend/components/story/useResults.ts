@@ -32,6 +32,8 @@ export interface Results {
     rule_false_gate_rate: number;
     rule_coverage: number;
     learned_macro_f1: number;
+    learned_fault_macro_f1: number;
+    tuned_rule_fault_macro_f1: number;
     learned_ece: number;
     learned_false_alarm_rate: number;
     learned_detection_recall: number;
@@ -66,7 +68,7 @@ export function useResults(): { data: Results | null; failed: boolean } {
 export const CONDITION_LABEL: Record<string, string> = {
   nominal: "Healthy (no fault)",
   barren_plateau: "Barren plateau",
-  lr_misconfiguration: "Step size too large",
+  lr_misconfiguration: "LR too large",
   optimizer_instability: "Optimizer corrupted",
   training_divergence: "Numerical divergence",
   persistent_plateau: "Step-size collapse",
