@@ -39,7 +39,7 @@ def main():
     warm = {(e["dataset"], e["seed"], reg(e)): e["warm_telemetry"] for e in eps if e.get("warm_telemetry")}
 
     with open(os.path.join(OUT, "episodes.csv"), "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["episode_id", "regime", "dataset", "seed", "label", "severity", "bp_mode", "onset_step",
                     "first_anomaly_step", "decision_step", "gate_cleared", "rule_diagnosis", "rule_confidence",
                     "healthy_test_acc_at_onset"])
@@ -65,7 +65,7 @@ def main():
 
     _raw.close()
     with open(os.path.join(OUT, "outcomes.csv"), "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["episode_id", "action", "applied", "accepted", "reject_reason", "reward", "test_acc3",
                     "ref_test_acc3", "acc_gap", "recovered", "test_loss3", "final_finite"])
         for e in eps:
@@ -76,7 +76,7 @@ def main():
                             round(o["acc_gap"], 5), int(o["recovered"]), round(o["test_loss3"], 5), int(o["final_finite"])])
 
     with open(os.path.join(OUT, "twin.csv"), "w", newline="", encoding="utf-8") as f:
-        w = csv.writer(f)
+        w = csv.writer(f, lineterminator="\n")
         w.writerow(["episode_id", "arm", "safe", "viable", "pred_loss_delta", "norm_delta", "stability", "circuit_evals"])
         for e in eps:
             for a in ARMS:
@@ -146,7 +146,7 @@ and at a fixed onset step; small test sets (20-60 samples) make accuracy coarse,
 ## Licence
 MIT, as the repository.
 """
-    with open(os.path.join(OUT, "DATASHEET.md"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUT, "DATASHEET.md"), "w", encoding="utf-8", newline="\n") as f:
         f.write(sheet)
 
     lines = []
@@ -155,7 +155,7 @@ MIT, as the repository.
             continue
         h = hashlib.sha256(open(os.path.join(OUT, fn), "rb").read()).hexdigest()
         lines.append(f"{h}  {fn}")
-    with open(os.path.join(OUT, "SHA256SUMS"), "w", encoding="utf-8") as f:
+    with open(os.path.join(OUT, "SHA256SUMS"), "w", encoding="utf-8", newline="\n") as f:
         f.write("\n".join(lines) + "\n")
     print(f"exported {len(eps)} episodes to {OUT}")
     for fn in sorted(os.listdir(OUT)):

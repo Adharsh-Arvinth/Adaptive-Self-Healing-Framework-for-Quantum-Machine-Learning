@@ -1,0 +1,4 @@
+# Keep the published dataset byte-identical across Git checkouts and source archives.
+research/dataset/qfaultbench_v1/*.csv text eol=lf
+research/dataset/qfaultbench_v1/DATASHEET.md text eol=lf
+research/dataset/qfaultbench_v1/SHA256SUMS text eol=lf

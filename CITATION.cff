@@ -1,0 +1,10 @@
+cff-version: 1.2.0
+message: "If you use the QFaultBench-VQC code or data, please cite this release."
+title: "Self-Healing Training of Variational Quantum Classifiers: A Counterfactual Benchmark of Fault Diagnosis and Repair"
+type: software
+authors:
+  - given-names: Adharsh
+    family-names: Arvinth
+repository-code: https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning
+license: MIT
+# TODO (author): add the version DOI from Zenodo as the top-level doi field.
