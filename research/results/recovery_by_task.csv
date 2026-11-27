@@ -1,0 +1,85 @@
+regime,task,policy,recovery_pct
+ideal,banknote,No repair (continue),24.2
+ideal,banknote,Restore last healthy checkpoint,92.5
+ideal,banknote,Thompson Sampling (proposed),36.0
+ideal,breast_cancer,No repair (continue),25.0
+ideal,breast_cancer,Restore last healthy checkpoint,92.5
+ideal,breast_cancer,Thompson Sampling (proposed),46.4
+ideal,circles,No repair (continue),30.0
+ideal,circles,Restore last healthy checkpoint,87.5
+ideal,circles,Thompson Sampling (proposed),46.4
+ideal,digits,No repair (continue),40.0
+ideal,digits,Restore last healthy checkpoint,96.7
+ideal,digits,Thompson Sampling (proposed),53.0
+ideal,hidden_manifold,No repair (continue),50.0
+ideal,hidden_manifold,Restore last healthy checkpoint,99.2
+ideal,hidden_manifold,Thompson Sampling (proposed),64.3
+ideal,iris,No repair (continue),17.5
+ideal,iris,Restore last healthy checkpoint,87.5
+ideal,iris,Thompson Sampling (proposed),40.5
+ideal,linearly_separable,No repair (continue),18.3
+ideal,linearly_separable,Restore last healthy checkpoint,91.7
+ideal,linearly_separable,Thompson Sampling (proposed),32.0
+ideal,moons,No repair (continue),25.0
+ideal,moons,Restore last healthy checkpoint,89.2
+ideal,moons,Thompson Sampling (proposed),35.5
+ideal,pima_diabetes,No repair (continue),54.2
+ideal,pima_diabetes,Restore last healthy checkpoint,99.2
+ideal,pima_diabetes,Thompson Sampling (proposed),65.7
+ideal,two_curves,No repair (continue),24.2
+ideal,two_curves,Restore last healthy checkpoint,85.8
+ideal,two_curves,Thompson Sampling (proposed),36.8
+ideal,wine,No repair (continue),35.0
+ideal,wine,Restore last healthy checkpoint,91.7
+ideal,wine,Thompson Sampling (proposed),50.1
+hw_torino,banknote,No repair (continue),26.7
+hw_torino,banknote,Restore last healthy checkpoint,86.7
+hw_torino,banknote,Thompson Sampling (proposed),37.6
+hw_torino,breast_cancer,No repair (continue),31.7
+hw_torino,breast_cancer,Restore last healthy checkpoint,95.0
+hw_torino,breast_cancer,Thompson Sampling (proposed),47.1
+hw_torino,circles,No repair (continue),40.0
+hw_torino,circles,Restore last healthy checkpoint,90.0
+hw_torino,circles,Thompson Sampling (proposed),50.8
+hw_torino,digits,No repair (continue),33.3
+hw_torino,digits,Restore last healthy checkpoint,100.0
+hw_torino,digits,Thompson Sampling (proposed),44.7
+hw_torino,hidden_manifold,No repair (continue),41.7
+hw_torino,hidden_manifold,Restore last healthy checkpoint,98.3
+hw_torino,hidden_manifold,Thompson Sampling (proposed),61.4
+hw_torino,iris,No repair (continue),28.3
+hw_torino,iris,Restore last healthy checkpoint,98.3
+hw_torino,iris,Thompson Sampling (proposed),43.1
+hw_torino,linearly_separable,No repair (continue),25.0
+hw_torino,linearly_separable,Restore last healthy checkpoint,98.3
+hw_torino,linearly_separable,Thompson Sampling (proposed),41.1
+hw_torino,moons,No repair (continue),33.3
+hw_torino,moons,Restore last healthy checkpoint,96.7
+hw_torino,moons,Thompson Sampling (proposed),40.8
+hw_torino,pima_diabetes,No repair (continue),55.0
+hw_torino,pima_diabetes,Restore last healthy checkpoint,100.0
+hw_torino,pima_diabetes,Thompson Sampling (proposed),66.6
+hw_torino,two_curves,No repair (continue),31.7
+hw_torino,two_curves,Restore last healthy checkpoint,93.3
+hw_torino,two_curves,Thompson Sampling (proposed),42.1
+hw_torino,wine,No repair (continue),40.0
+hw_torino,wine,Restore last healthy checkpoint,88.3
+hw_torino,wine,Thompson Sampling (proposed),52.7
+q8,breast_cancer,No repair (continue),21.7
+q8,breast_cancer,Restore last healthy checkpoint,81.7
+q8,breast_cancer,Thompson Sampling (proposed),33.4
+q8,digits,No repair (continue),25.0
+q8,digits,Restore last healthy checkpoint,96.7
+q8,digits,Thompson Sampling (proposed),34.3
+q8,hidden_manifold,No repair (continue),40.0
+q8,hidden_manifold,Restore last healthy checkpoint,93.3
+q8,hidden_manifold,Thompson Sampling (proposed),52.2
+q8,moons,No repair (continue),18.3
+q8,moons,Restore last healthy checkpoint,83.3
+q8,moons,Thompson Sampling (proposed),28.2
+q8,pima_diabetes,No repair (continue),35.0
+q8,pima_diabetes,Restore last healthy checkpoint,88.3
+q8,pima_diabetes,Thompson Sampling (proposed),50.9
+q8,wine,No repair (continue),11.7
+q8,wine,Restore last healthy checkpoint,83.3
+q8,wine,Thompson Sampling (proposed),21.2

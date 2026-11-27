@@ -12,7 +12,7 @@ interface FailureInjectionPanelProps {
 
 /* Each fault: what it does, and the telemetry signature to watch for afterwards. */
 const FAULTS = [
-  { type: "lr_misconfiguration", label: "LR misconfiguration", what: "Learning rate ×50: the loss starts to bounce.", watch: "Oscillating loss, opposing gradients", icon: Zap, recommended: true },
+  { type: "lr_misconfiguration", label: "LR too large", what: "Learning rate ×50: the loss starts to bounce.", watch: "Oscillating loss, opposing gradients", icon: Zap, recommended: true },
   { type: "barren_plateau", label: "Barren plateau", what: "Gradient signal sinks below shot noise.", watch: "Decorrelated gradients, flat loss", icon: Compass },
   { type: "optimizer_instability", label: "Optimizer corrupted", what: "Momentum buffers inverted and amplified.", watch: "Loss drifts upward smoothly", icon: Sliders },
   { type: "training_divergence", label: "Numerical divergence", what: "Parameters become NaN.", watch: "Non-finite loss in one step", icon: Flame },

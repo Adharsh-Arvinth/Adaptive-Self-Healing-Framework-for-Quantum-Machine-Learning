@@ -5,14 +5,14 @@ import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { ArrowUpRight, Check, Copy, Plus } from "lucide-react";
 import { ChapterMark, EASE_OUT, MaskLines, Reveal } from "./motion";
 import { useResults } from "./useResults";
+import { PAPER_TITLE, PAPER_URL } from "../../app/paper";
 
 export const REPO = "https://github.com/Adharsh-Arvinth/Adaptive-Self-Healing-Framework-for-Quantum-Machine-Learning";
 const BLOB = `${REPO}/blob/main`;
 const TREE = `${REPO}/tree/main`;
 
 const BIBTEX = `@misc{arvinth2026selfhealing,
-  title  = {Adaptive Self-Healing for Variational Quantum Classifiers:
-            the QFaultBench-VQC Counterfactual Benchmark},
+  title  = {${PAPER_TITLE}},
   author = {Arvinth, Adharsh},
   year   = {2026},
   howpublished = {\\url{${REPO}}},
@@ -66,12 +66,12 @@ export const ChapterResources: React.FC = () => {
   const { data } = useResults();
   const cards = [
     { k: "Findings", t: "Read the research", d: "The audit, the protocol, what the results mean and what they do not.", href: `${BLOB}/research/RESEARCH_FINDINGS.md` },
-    { k: "Results", t: "Every number", d: "Generated tables for both noise regimes: no hand-typed figures.", href: `${BLOB}/research/RESULTS.md` },
+    { k: "Results", t: "Every number", d: "Generated results for the main regimes, the eight-qubit check and the sensitivity analysis.", href: `${BLOB}/research/RESULTS.md` },
     {
       k: "Dataset",
       t: "QFaultBench-VQC",
       d: `Every campaign episode labelled, with counterfactual outcomes for all actions, a datasheet and checksums${data ? ` (${data.datasets.length} datasets)` : ""}.`,
-      href: `${TREE}/research/dataset/qfaultbench_v1`,
+      href: process.env.NEXT_PUBLIC_DATASET_ARCHIVE_URL?.trim() || `${TREE}/research/dataset/qfaultbench_v1`,
     },
     { k: "API", t: "Live backend", d: "Interactive FastAPI documentation for the simulator the lab talks to.", href: "https://qml-backend-nczx.onrender.com/docs" },
   ];
@@ -129,6 +129,7 @@ export const ChapterResources: React.FC = () => {
               <div>
                 <div className="type-label text-white/45">Cite</div>
                 <div className="type-wide text-xl mt-1">BibTeX</div>
+                {PAPER_URL?.startsWith("https://doi.org/") && <a href={PAPER_URL} className="text-sm underline">DOI</a>}
               </div>
               <CopyButton text={BIBTEX} label="Copy" />
             </div>
@@ -153,7 +154,7 @@ const FAQS = [
   },
   {
     q: "So what actually works best?",
-    a: "On this benchmark, restoring the last healthy checkpoint recovers far more faults than choosing among configuration repairs with a bandit. The learned diagnosis is the strongest component: it recognises the fault correctly on datasets it never saw.",
+    a: "The benchmark tests six repairs plus checkpoint restore as a baseline. In the ideal regime, restoring the last healthy checkpoint recovers far more faults than choosing among configuration repairs with a bandit. Learned diagnosis transfers to unseen datasets given a known healthy baseline. With first-alarm alignment, seven-class macro-F1 is 0.928 in ideal simulation, 0.862 with calibrated noise and 0.893 with latent faults. The ideal nominal false-alarm rates are 16.8% for the fixed gate, 5.5% for benchmark-aligned boosting and 4.5% for alarm-aligned boosting.",
   },
   {
     q: "Can I use the dataset or code?",
@@ -165,7 +166,7 @@ const FAQS = [
   },
   {
     q: "Can visitors change or break the live experiment?",
-    a: "The lab drives one shared demo simulator, so anyone can start, pause or reset it, by design. Nobody can change the website itself: what someone edits in their browser's inspector only changes their own screen.",
+    a: "Each browser has a separate live session. Tabs sharing that browser session can control the same run. Nobody can change the website itself: what someone edits in their browser's inspector only changes their own screen.",
   },
 ];
 

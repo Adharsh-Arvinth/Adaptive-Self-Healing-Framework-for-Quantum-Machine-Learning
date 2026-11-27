@@ -1,5 +1,5 @@
 {
- "generated": "2026-11-22",
+ "generated": "2026-11-27",
  "n_episodes": 1540,
  "n_faulty": 1320,
  "n_base_runs": 220,
@@ -126,7 +126,9 @@
   "learned_macro_f1": 0.982,
   "learned_ece": 0.014,
   "learned_false_alarm_rate": 0.055,
-  "learned_detection_recall": 0.992
+  "learned_detection_recall": 0.992,
+  "learned_fault_macro_f1": 0.988,
+  "tuned_rule_fault_macro_f1": 0.457
  },
  "policies": [
   {
@@ -317,5 +319,11 @@
   "gate_precision": 0.898,
   "gate_recall": 0.343
  },
- "reward_alignment": 0.457
+ "reward_alignment": 0.457,
+ "headline": {
+  "restore": 92.1,
+  "thompson": 46.1,
+  "latest": 27.9,
+  "older": 81.4
+ }
 }

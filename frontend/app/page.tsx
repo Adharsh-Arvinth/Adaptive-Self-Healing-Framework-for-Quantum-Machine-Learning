@@ -1,6 +1,7 @@
 "use client";
 
 import React, { useState, useEffect, useRef, useCallback } from "react";
+import { SimulatorWake } from "@/components/SimulatorWake";
 import { Header } from "@/components/Header";
 import { Story } from "@/components/story/Story";
 import { useAppearance } from "@/components/appearance/AppearanceProvider";
@@ -860,6 +861,7 @@ export default function Page() {
         <Story isConnected={isConnected} onLaunchLab={() => setActiveView("dashboard")} />
       ) : (
         <main className="flex-1 w-full px-3 sm:px-6 lg:px-10 max-w-[120rem] mx-auto">
+          {!isConnected && <SimulatorWake />}
           <ErrorBoundary
             fallbackTitle="Interactive Research Laboratory Interrupted"
             onReturnToOverview={() => setActiveView("landing")}

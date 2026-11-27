@@ -71,24 +71,18 @@ with a dangling deployment (the "Training COMPLETED / Deployment VALIDATING" sta
 
 ## Part 3 - New experimental protocol (QFaultBench-VQC v1)
 
-**Datasets (real, not synthetic labels).** Four UCI datasets shipped with scikit-learn (Iris
-versicolor/virginica, Breast Cancer Wisconsin, Wine 1/2, Digits 3/8) plus two synthetic geometric
-controls (moons, circles). Train-only StandardScaler + PCA(4) + MinMax[0, π]; ≤ 300 samples;
-stratified splits train 55 / twin 10 / val 15 / test 20.
+**Datasets.** Six tabular tasks, three quantum machine learning benchmark tasks, and two synthetic geometric controls. The released datasheet records task identities, sources, and splits. Preprocessing fits standardization, four-component PCA, and scaling to [0, π] on the training split. Stratified samples are capped at 300 per task, split into 55% training, 10% twin, 15% validation, and 20% test.
 
 **Model.** 4-qubit VQC, RY angle encoding, 2 layers RY + CNOT ring, <Z0>, BCE, Adam 0.05,
-parameter-shift gradients (PennyLane `default.qubit`). It learns all six tasks (e.g. 95% val accuracy
-on Breast Cancer after 40 steps).
+parameter-shift gradients (PennyLane `default.qubit`).
 
-**Episodes.** Base run = (dataset, seed), 30 seeds x 6 datasets = 180 base runs. Train 15 healthy steps,
-checkpoint, then fork into 7 conditions (nominal + 6 faults, severity ~ U[0.75, 1.25]) - a paired design.
+**Episodes.** A base run is a dataset and seed pair. The ideal and latent regimes each use 20 seeds on 11 tasks (220 base runs per regime). The calibrated regime uses 10 seeds on the same 11 tasks (110 base runs). The eight-qubit check uses 10 seeds on six tasks (60 base runs). In the ideal and calibrated regimes, train for 15 healthy steps and checkpoint before injection. The latent fault begins four steps before the periodic checkpoint. Each base run supplies seven paired conditions (nominal and six faults, severity ~ U[0.75, 1.25]).
 The framework's own detector + diagnoser run online for up to 10 steps; the decision point is where the
 confidence gate clears (else step 10).
 
-**Counterfactual outcomes.** From the identical decision state, *all* 8 actions (no-op, restore last
-healthy checkpoint, 6 repair arms) are executed and trained for 20 more steps. The deployment guard's
-verdict (W_val = 3) is computed for each. **Recovery** = mean test accuracy over the last 3 steps within
-5 points of the fault-free run at the same training step. Policies are then evaluated by replay over 30
+**Counterfactual outcomes.** From the identical decision state, no repair, six repairs plus checkpoint restore as a baseline, and the older clean checkpoint in the latent regime are evaluated over 20 further training steps. The deployment guard's
+verdict (W_val = 3) is computed for each. **Recovery** = a finite final state and mean test accuracy over the last 3 steps no more than
+5 points below the fault-free run at the same training step. Policies are then evaluated by replay over 30
 random episode orders; regret against the per-episode oracle is exact and all comparisons are paired.
 
 **Statistics.** Cluster bootstrap (by base run) for CIs; Wilcoxon signed-rank on base-run means with Holm
@@ -106,10 +100,8 @@ qualitative conclusion.
 
 ### 4.1 The action library, not the learner, is the bottleneck
 - No repair recovers 31.2% of faulty episodes. The proposed contextual Thompson sampler recovers **46.1%**
-  (95% CI 42.9-48.9), statistically indistinguishable from LinUCB (47.8) and the AutoTrainer-style fixed rule map
-  (48.0), and below greedy / epsilon-greedy linear policies (51.6 / 51.2).
-- Even the **hindsight-optimal choice among the six repair arms reaches only 55.8%**. No selection strategy over
-  this library can do much better, whatever its exploration scheme.
+  (95% CI 42.9-48.9), below LinUCB (47.8), the AutoTrainer-style fixed rule map (48.0), and greedy / epsilon-greedy linear policies (51.6 / 51.2).
+- The **reward-optimal oracle over the six repairs recovers 55.8%**. At least one repair succeeds on 70.2% of faulty episodes, the hindsight recovery ceiling for the library.
 - Simply **restoring the last healthy checkpoint recovers 92.1%** (90.4-93.8). Per fault: 96-100% for every
   state-corruption fault, but only 66% for device noise (noise lives in the environment and survives a rollback).
 - Adding checkpoint restoration as a seventh arm lifts the bandits to 64-67%, still ~25 points below always restoring.
@@ -124,10 +116,9 @@ qualitative conclusion.
 - Expert threshold rules (online, gated): macro-F1 **0.40**; they fire on 16.8% of healthy runs and confuse LR,
   optimizer and plateau faults with noise.
 - A gradient-boosted classifier on baseline-relative, scale-free telemetry (first <= 3 post-onset steps, causal),
-  evaluated **leave-one-dataset-out**: macro-F1 **0.982**, ECE 0.014, 5.5% false alarms, 99.2% detection recall;
+  evaluated **leave-one-dataset-out** with a known healthy baseline: seven-class macro-F1 **0.982**, ECE 0.014, 5.5% false alarms, 99.2% detection recall;
   >= 0.95 on every one of the 11 datasets; 0.960 in the hardware-calibrated regime.
-- The scale-free channels introduced here (gradient-direction coherence, label-aligned output margin, output
-  magnitude) are what make this transfer possible.
+- On the six fault classes, boosting reaches 0.988 versus 0.457 for tuned expert rules. First-alarm alignment yields seven-class macro-F1 of 0.928 (ideal), 0.862 (hardware-calibrated) and 0.893 (latent). On ideal nominal runs the fixed gate fires on 16.8%, benchmark-aligned boosting on 5.5%, and alarm-aligned boosting on 4.5%. Individual feature contributions were not isolated.
 
 ### 4.4 What each pipeline component contributes (ablation of the TS pipeline)
 - **Digital-twin veto: the only component with a significant effect on recovery** (-7.0 pp without it,
@@ -157,11 +148,10 @@ qualitative conclusion.
 Regime `latent4` (1,540 episodes, 220 runs): the fault starts 4 steps **before** the periodic checkpoint, so the
 most recent checkpoint carries it. A second restore action, the older clean checkpoint, is evaluated.
 - Restoring the **latest** checkpoint recovers only **27.9%** (no better than no repair, 28.9%).
-- Restoring the **older clean** checkpoint recovers **81.4%** (77.3-85.2): checkpoint history depth, not repair
-  selection, decides the outcome.
+- Restoring the **older clean** checkpoint recovers **81.4%** (77.3-85.2): an oracle upper bound that assumes successful fault-onset localization. Online fault-onset localization remains open.
 - Diagnosis-matched repairs are competitive fault by fault (optimizer change 84% on corrupted optimizer state,
   LR re-anchoring 86% on step-size collapse) and win for device noise (73% vs 58%), where rollback cannot help.
-- The learned diagnoser transfers again (LODO macro-F1 0.975; rules 0.47).
+- Given a known healthy baseline, the learned diagnoser transfers again (seven-class LODO macro-F1 0.975; six-fault rules 0.47).
 - Learning policies over arms + checkpoints reach 54-55%; the reward-optimal oracle (76.4%) is again below the
   clean restore (81.4%): the short-window reward remains misaligned with recovery.
 
@@ -172,10 +162,9 @@ most recent checkpoint carries it. A second restore action, the older clean chec
 What the evidence **supports** (updated with the latent-fault regime):
 1. A released, counterfactual benchmark of VQC training faults (QFaultBench-VQC) that allows exact regret
    evaluation of any repair policy: a dataset contribution reviewers can reuse.
-2. A learned, scale-free telemetry diagnoser that transfers to unseen datasets (0.98 vs 0.40 macro-F1) and to
-   hardware-calibrated noise.
+2. A learned, scale-free telemetry diagnoser that transfers to unseen datasets given a known healthy baseline (six-fault macro-F1 0.988 versus 0.457 for tuned rules in the ideal regime).
 3. A rigorous negative/clarifying result: configuration-level bandit repair underperforms checkpoint
-   restoration by ~45 points, and the reasons are measurable (library ceiling 56%, reward-outcome misalignment 0.46).
+   restoration by ~45 points, and the reasons are measurable (recovery ceiling 70.2%, reward-optimal oracle 55.8%, reward-outcome correlation 0.46).
 4. Component-level evidence: the twin veto and the deployment guard earn their place; memory and the safety
    filter do not, on this benchmark.
 
@@ -187,17 +176,15 @@ that it outperforms simpler baselines.
    began, not only *what* it is. This is a concrete, novel problem the benchmark exposes, and a natural extension
    of the learned telemetry diagnoser.
 
-Framing options (decision for the author):
-- **A. Benchmark + diagnosis paper.** "QFaultBench-VQC: a counterfactual benchmark for training-fault diagnosis and
-  repair in variational quantum classifiers." Lead with the dataset, the learned diagnoser, and the
-  checkpoint-vs-bandit analysis. Best fit for the current evidence.
-- **B. Method paper after one more experiment.** Add the regime where checkpoint restoration *cannot* help (latent
-  faults that predate the last checkpoint; stale or corrupted checkpoints), redesign the reward around a longer
-  horizon, and test whether adaptive repair then wins. Higher upside, more work, outcome unknown.
-- **C. Both:** A as the paper, B as its "when does adaptive repair matter?" section if the experiment is run first.
+## Known limitations
 
-Not yet done: hardware runs on a real QPU; compound and gradual faults. (8 qubits, a genuine-vs-emulated plateau
-measurement and the tolerance / probation-window sensitivity are now in Part 6.)
+The main four-qubit VQCs and the eight-qubit check use simulated training, one ansatz family and one readout. The hardware regime uses median errors from a static IBM Torino calibration snapshot. Only emulated plateaus and device noise target quantum mechanisms. The remaining injections concern classical optimization or numerical state. The single-fault design leaves gradual and compound faults open.
+
+Benchmark-aligned diagnosis depends on a known healthy baseline. First-alarm alignment cannot localize an onset before monitoring begins. The older clean checkpoint in the latent regime is supplied by an oracle. Small test sets discretize accuracy, so the study reports sensitivity to the one-sided recovery tolerance and probation windows. Detector thresholds and reward weights were chosen before the campaign.
+
+## How to reproduce each table and figure
+
+Use the table-by-table and figure-by-figure commands in the [repository README](../README.md#how-to-reproduce-each-table-and-figure). Released JSON summaries support the policy, ablation, and diagnosis figures. The supplementary tables derive from an independent replay over the released episode trajectories.
 
 ---
 
@@ -220,7 +207,7 @@ Same faults, repairs and policies; 2 layers on 8 qubits, inputs PCA-reduced to 8
 vectorised statevector engine (`research/fast_sim.py`, ~1e-16 agreement with the PennyLane circuit, 23-93x faster per step).
 - **Every qualitative conclusion holds.** Checkpoint restore 87.8% (83.3-91.4) vs Thompson sampling 36.7% (31.5-41.9);
   6-arm oracle 48.6%; reward-optimal extended-library oracle 79.4% (still below restore); hybrid 88.6%, not
-  significantly better than plain restore (p = 0.81). Learned diagnosis transfers (LODO macro-F1 0.981; rules 0.456).
+  significantly better than plain restore (p = 0.81). With a known healthy baseline, learned diagnosis transfers (seven-class LODO macro-F1 0.981; six-fault rules 0.456).
   The twin veto is again the only TS component with a significant effect (-4.7 pp without it).
 - **Everything gets harder at 8 qubits, restore included.** On the same 60 base runs at 4 qubits, restore recovers
   94.2% and TS 50.0%; at 8 qubits 87.8% and 36.7%. The gap restore - TS *widens* (+44 -> +51 pp).

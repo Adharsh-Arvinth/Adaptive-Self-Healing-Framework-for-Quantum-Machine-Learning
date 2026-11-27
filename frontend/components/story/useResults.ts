@@ -1,5 +1,6 @@
 "use client";
 
+import released from "../../public/data/qfaultbench_results.json";
 import { useEffect, useState } from "react";
 
 /* Shape of /data/qfaultbench_results.json (written by `python -m research.analysis`). */
@@ -18,6 +19,7 @@ export interface AblationRow {
   p_holm: number | null;
 }
 export interface Results {
+  headline: { restore: number; thompson: number; latest: number; older: number };
   generated: string;
   n_episodes: number;
   n_faulty: number;
@@ -30,6 +32,8 @@ export interface Results {
     rule_false_gate_rate: number;
     rule_coverage: number;
     learned_macro_f1: number;
+    learned_fault_macro_f1: number;
+    tuned_rule_fault_macro_f1: number;
     learned_ece: number;
     learned_false_alarm_rate: number;
     learned_detection_recall: number;
@@ -43,7 +47,7 @@ export interface Results {
 let cache: Promise<Results> | null = null;
 
 export function useResults(): { data: Results | null; failed: boolean } {
-  const [data, setData] = useState<Results | null>(null);
+  const [data, setData] = useState<Results | null>(released as Results);
   const [failed, setFailed] = useState(false);
   useEffect(() => {
     let alive = true;
@@ -64,7 +68,7 @@ export function useResults(): { data: Results | null; failed: boolean } {
 export const CONDITION_LABEL: Record<string, string> = {
   nominal: "Healthy (no fault)",
   barren_plateau: "Barren plateau",
-  lr_misconfiguration: "Step size too large",
+  lr_misconfiguration: "LR too large",
   optimizer_instability: "Optimizer corrupted",
   training_divergence: "Numerical divergence",
   persistent_plateau: "Step-size collapse",

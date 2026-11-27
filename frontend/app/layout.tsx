@@ -1,3 +1,4 @@
+import { PAPER_TITLE } from "./paper";
 import type { Metadata, Viewport } from "next";
 import {
   Archivo,
@@ -37,7 +38,7 @@ const fontVars = [bigShoulders, archivo, instrument, dmMono, interTight, inter, 
   .join(" ");
 
 export const metadata: Metadata = {
-  title: "Self-Healing Quantum ML",
+  title: PAPER_TITLE,
   description:
     "A closed-loop framework that detects, diagnoses and repairs training faults in variational quantum classifiers, with an open counterfactual benchmark across 11 datasets.",
   icons: { icon: "/icon.svg" },
