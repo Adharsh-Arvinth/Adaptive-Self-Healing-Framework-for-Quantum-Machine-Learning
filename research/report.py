@@ -38,7 +38,7 @@ def p_fmt(p):
 def section(key, title, S):
     A, B, C, F = S["A_landscape"], S["B_rule_diagnosis"], S["C_learned_diagnoser"], S["F_twin"]
     n_base = len({k for k in S["A_landscape"]["_healthy_reference_by_dataset"]})
-    L = [f"## {title}", "", f"{S['n_episodes']} episodes. Recovery = mean test accuracy over the last 3 steps within 5 points of the fault-free run at the same step.", ""]
+    L = [f"## {title}", "", f"{S['n_episodes']} episodes. Recovery = finite final state and mean test accuracy over the last 3 steps no more than 5 points below the fault-free run at the same step.", ""]
     if key == "q8":
         L += ["Same protocol, faults, repairs and policies as the 4-qubit regimes; 8 qubits x 2 layers (16 trainable angles); "
               "inputs reduced to 8 features by a train-fitted PCA (tasks with 4 or 2 raw features are re-uploaded cyclically). "

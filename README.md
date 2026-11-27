@@ -1,12 +1,10 @@
-# Adaptive Self-Healing Framework for Quantum Machine Learning
-
-Manuscript: *Self-Healing Training of Variational Quantum Classifiers: A Counterfactual Benchmark of Fault Diagnosis and Repair*.
+# Self-Healing Training of Variational Quantum Classifiers: A Counterfactual Benchmark of Fault Diagnosis and Repair
 
 [![Python 3.11 | 3.12 | 3.13](https://img.shields.io/badge/Python-3.11%20%7C%203.12%20%7C%203.13-blue.svg)](https://www.python.org/)
 [![PennyLane 0.45.1](https://img.shields.io/badge/PennyLane-0.45.1-purple.svg)](https://pennylane.ai/)
 [![Next.js 14.2](https://img.shields.io/badge/Next.js-14.2%20(React%2018)-black.svg)](https://nextjs.org/)
 [![FastAPI](https://img.shields.io/badge/FastAPI-0.110+-009688.svg)](https://fastapi.tiangolo.com/)
-[![Pytest Suite](https://img.shields.io/badge/Pytest-97%2F97%20Passing-brightgreen.svg)](tests/)
+[Python test suite](tests/)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](LICENSE)
 [![Live Demo](https://img.shields.io/badge/Live%20Demo-Vercel%20%7C%20Render-black.svg?logo=vercel&logoColor=white)](https://adaptive-self-healing-framework-for.vercel.app/)
 
@@ -17,8 +15,8 @@ Developed as an Autonomous Closed-Loop Runtime Platform for Variational Quantum 
 > 🧪 **Research status (November 2026).** The evidence behind this project was rebuilt from scratch.
 > The earlier "Stage 8" benchmark (in `benchmark_results/` and `manuscript/`) trained on random labels and is
 > **superseded**; see the audit in [`research/RESEARCH_FINDINGS.md`](research/RESEARCH_FINDINGS.md).
-> Current results come from the counterfactual campaign in [`research/`](research/) (11 datasets, an
-> IBM-calibrated noise regime, 2,310 episodes) and are tabulated in [`research/RESULTS.md`](research/RESULTS.md).
+> Current results come from the counterfactual campaign in [`research/`](research/) (11 datasets and
+> 3,850 episodes across ideal, IBM-calibrated, and latent regimes, with 420 additional eight-qubit episodes) and are tabulated in [`research/RESULTS.md`](research/RESULTS.md).
 > The benchmark is released as a dataset in [`research/dataset/qfaultbench_v1/`](research/dataset/qfaultbench_v1/).
 
 > 🌐 **Live Web Application:** [https://adaptive-self-healing-framework-for.vercel.app/](https://adaptive-self-healing-framework-for.vercel.app/)  
@@ -46,7 +44,7 @@ Developed as an Autonomous Closed-Loop Runtime Platform for Variational Quantum 
    - [Multi-Objective Reward Formulation](#1-multi-objective-reward-formulation)
    - [12-Dimensional Context Feature Vector](#2-12-dimensional-context-feature-vector)
    - [Contextual Thompson Sampling Decision Rule](#3-contextual-thompson-sampling-decision-rule)
-10. [Empirical Scope & Research Limitations](#empirical-scope--research-limitations)
+10. [Known limitations](#known-limitations)
 11. [Troubleshooting & Windows Tips](#troubleshooting--windows-tips)
 12. [Manuscript & Scientific Dossier](#manuscript--scientific-dossier)
 13. [License](#license)
@@ -363,7 +361,7 @@ pytest -q
 ```
 
 ### Mode 4: QFaultBench Counterfactual Campaign
-Every fault episode is replayed under all 8 actions (no repair, restore checkpoint, six repair arms) from the identical
+Each episode evaluates no repair, six repairs plus checkpoint restore as a baseline, and an older clean checkpoint in the latent regime from the identical
 decision state, so policies are compared with exact regret against the per-episode oracle.
 ```bash
 python -m research.run_campaign --seeds 0-19 --workers 14                    # ideal regime, ~2-3 h on 8 cores, resumable
@@ -500,19 +498,15 @@ At decision step $t$, the agent:
 
 ---
 
-## Empirical Scope & Research Limitations
+## Known limitations
 
 Current findings and their limits are documented in [`research/RESEARCH_FINDINGS.md`](research/RESEARCH_FINDINGS.md)
 with all numbers in [`research/RESULTS.md`](research/RESULTS.md). In short:
 
-1. **Simulation only.** PennyLane statevector simulation of a 4-qubit classifier; no physical QPU runs.
-2. **Emulated faults.** Barren plateaus cannot be reproduced at 4 qubits and are emulated as a gradient
-   signal-to-noise collapse; the hardware regime uses public IBM calibration medians, not live devices.
-3. **Checkpoint restoration is a very strong baseline.** On this benchmark, restoring the last healthy checkpoint
-   recovers far more faulty runs than bandit selection over the six configuration arms; even the hindsight-optimal
-   choice among those arms is far below it.
-4. **Short-window reward.** The 3-step multi-objective reward only moderately predicts the eventual outcome.
-5. **Single, fixed-onset faults.** Compound, gradual, and pre-checkpoint (latent) faults are not yet covered.
+1. **Onset information.** Benchmark-aligned diagnosis transfers to unseen datasets given a known healthy baseline. First-alarm alignment estimates the baseline within the monitored window. In the latent regime, oracle-supplied clean restore recovers 81.4% versus 27.9% from the latest checkpoint. That upper bound assumes successful fault-onset localization, which remains open.
+2. **Simulation and scale.** The main study trains four-qubit VQCs, with a separate eight-qubit check on six tasks. A single ansatz family and readout are tested. The hardware-calibrated regime models median errors from one IBM Torino snapshot. Physical QPU validation and time-resolved or correlated noise remain outside the study.
+3. **Fault coverage.** Emulated barren plateaus and device noise target quantum mechanisms. The remaining injections affect classical optimization or numerical state. Each episode injects one fault at a regime-specific onset. Compound and gradual faults are untested.
+4. **Outcome and tuning.** Recovery requires a finite final state and a three-step mean test accuracy no more than five percentage points below the fault-free reference. Small test sets make accuracy coarse. Absolute rates vary across the tested tolerances and probation windows. The detector thresholds and reward weights were set before the campaign.
 
 ---
 
@@ -574,6 +568,41 @@ The framework is configured for continuous cloud deployment across two synchroni
 
 ---
 
+## How to reproduce each table and figure
+
+Run from the repository root with the Python requirements installed. Use the released trajectories in `research/data/raw/` to replay results without training. The code and data release includes the evidence and analysis. The IEEE manuscript and its layout scripts are maintained in the local manuscript workspace.
+
+```powershell
+# Tables I–III (repair inventory, injected fault definitions, and task composition).
+py -m research.export_dataset
+# Tables IV–VI and Figures 4–9 (replay, diagnosis and eight-qubit results).
+foreach ($regime in 'latent4','hw_torino','q8','ideal') {
+  $env:REGIME = $regime
+  py -m research.analysis
+  py -m research.figures
+}
+Remove-Item Env:REGIME
+py -m research.diagnosis_windows
+py -m research.tuned_expert
+# Table VII and the paired four- and eight-qubit subset in Table VI.
+py -m research.sensitivity
+# Figure 10.
+py -m research.gradient_variance
+py -m research.report
+# Supplementary tables S1 and S2.
+py -m research.recovery_supplement
+```
+
+Table I follows the repair inventory in `backend/repair_library.py` and `research/replay.py`. Table II follows the injected conditions in `backend/qml_model.py` and `research/episodes.py`. Table III uses the exported datasheet and the fault-free dataset summaries under A_landscape._healthy_reference_by_dataset in research/results/summary.json. The supplement generator writes `recovery_by_task.csv` (S1) and `recovery_excluding_near_chance.csv` (S2) under `research/results/`.
+
+In the manuscript workspace, run `py paper/make_figures.py` for the publication assets for Figures 1–10, `py -m research.recovery_supplement --markdown paper/SUPPLEMENTARY_TABLES.md` to regenerate the supplement from its CSVs, and `py paper/verify_revision.py` to check Table VII and the device-level noise check. Figures 11–12 are screenshots from a local demonstrator run. Start the backend with `py -m uvicorn backend.api:app --host 127.0.0.1 --port 8019` and the frontend on port 3000 with `NEXT_PUBLIC_API_URL=http://127.0.0.1:8019` and `NEXT_PUBLIC_WS_URL=ws://127.0.0.1:8019/ws/telemetry`. From the root, run `py paper/capture_revision.py` with Python Playwright and Microsoft Edge available.
+
+## Public paper and archive links
+
+Set `NEXT_PUBLIC_PAPER_URL` in the frontend build environment to the public paper or preprint URL. A `https://doi.org/` URL also enables the DOI link near the BibTeX. Keep it empty while the paper link is pending. Set `NEXT_PUBLIC_DATASET_ARCHIVE_URL` to the Zenodo version DOI URL after archiving to update the Resources dataset card. `NEXT_PUBLIC_PORTFOLIO_URL` is optional and also takes effect at build time.
+
+**TODO (author)** Add the Zenodo release DOI here after archiving. See the [release checklist](RELEASE_CHECKLIST.md).
+
 ## License
 
-Released under the [MIT License](LICENSE).
+The source code and the generated QFaultBench-VQC dataset are released under the [MIT License](LICENSE). See the [datasheet](research/dataset/qfaultbench_v1/DATASHEET.md) and [external-input provenance](research/external/README.md) for the dataset scope.

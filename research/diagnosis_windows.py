@@ -36,7 +36,10 @@ def compare(regime):
             model.fit(x[train], y[train])
             if test.any():
                 predicted[test] = model.predict(x[test])
-        print(regime, label, f1_score(y, predicted, average="macro"), flush=True)
+        nominal = y == "nominal"
+        false_alarms = np.count_nonzero(nominal & (predicted != "nominal"))
+        print(regime, label, f1_score(y, predicted, average="macro"),
+              "nominal_false_alarms", false_alarms, "/", np.count_nonzero(nominal), flush=True)
 
 
 if __name__ == "__main__":
