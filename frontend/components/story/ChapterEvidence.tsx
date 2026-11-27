@@ -172,7 +172,7 @@ export const ChapterEvidence: React.FC<{ tone?: Tone; compact?: boolean }> = ({ 
           {/* Insights */}
           <div className="grid md:grid-cols-3 gap-4">
             {[
-              { k: `${data.diagnosis.learned_macro_f1.toFixed(2)}`, t: "Learned diagnosis", d: `Benchmark-aligned seven-class macro-F1 with a known healthy baseline. Ideal nominal false alarms: ${pct(data.diagnosis.rule_false_gate_rate * 100)} with the fixed gate, ${pct(data.diagnosis.learned_false_alarm_rate * 100)} with benchmark-aligned boosting, and 4.5% with alarm-aligned boosting.` },
+              { k: `${data.diagnosis.learned_macro_f1.toFixed(2)}`, t: "Learned diagnosis", d: `Benchmark-aligned seven-class macro-F1 with a known healthy baseline. Ideal nominal false alarms in short post-checkpoint windows: ${pct(data.diagnosis.rule_false_gate_rate * 100)} with the fixed gate, ${pct(data.diagnosis.learned_false_alarm_rate * 100)} with benchmark-aligned boosting, and 4.5% with alarm-aligned boosting.` },
               { k: `ρ ${data.twin.spearman_test_acc.toFixed(2)}`, t: "Digital twin", d: `Its 3-step rehearsal ranks repairs in line with real outcomes. When it vetoes a repair it is right ${pct(data.twin.gate_precision * 100)} of the time.` },
               { k: `ρ ${data.reward_alignment.toFixed(2)}`, t: "Reward signal", d: "The short-window reward only partly predicts the final outcome, which is an open problem for any learner that relies on it." },
             ].map((c, i) => (
@@ -236,6 +236,9 @@ export const ChapterEvidence: React.FC<{ tone?: Tone; compact?: boolean }> = ({ 
           <p className={`text-xs ${s.faint}`}>
             Simulation (PennyLane statevector, 4 qubits). Barren plateaus are emulated; device noise uses public IBM calibration data.
             Generated {data.generated} from {data.n_base_runs} training runs.
+          </p>
+          <p className={`text-xs ${s.faint}`}>
+            In an exploratory no-injection simulator pilot, 19 of 46 runs meeting no failure criterion had a confirmed alarm (41.3%). Two related failures leave recovery benefit during ordinary training unresolved.
           </p>
         </div>
       )}
