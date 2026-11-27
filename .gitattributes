@@ -2,3 +2,8 @@
 research/dataset/qfaultbench_v1/*.csv text eol=lf
 research/dataset/qfaultbench_v1/DATASHEET.md text eol=lf
 research/dataset/qfaultbench_v1/SHA256SUMS text eol=lf
+
+# Local manuscripts and review reports
+"/An Adaptive Self.docx" export-ignore
+"/VIT_Review1_Report_22MID0324.pdf" export-ignore
+"/review_1.pdf" export-ignore

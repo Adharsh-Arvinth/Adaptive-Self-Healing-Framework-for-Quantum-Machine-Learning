@@ -23,3 +23,8 @@ artifacts/
 research/external/pennylane/
 research/external/openml/_cache/
 research/__pycache__/
+
+# Local manuscripts and review reports
+/An Adaptive Self.docx
+/VIT_Review1_Report_22MID0324.pdf
+/review_1.pdf
